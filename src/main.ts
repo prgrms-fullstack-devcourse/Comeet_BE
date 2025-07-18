@@ -1,8 +1,31 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { initializeTransactionalContext } from "typeorm-transactional";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { HttpStatus, ValidationPipe } from "@nestjs/common";
+import { LoggingInterceptor } from "./common";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import passport from "passport";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  initializeTransactionalContext();
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.set("trust_proxy", true);
+
+  app.useGlobalPipes(new ValidationPipe({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }));
+  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.use(passport.initialize());
+
+  SwaggerModule.setup(
+      "api-docs", app,
+      SwaggerModule.createDocument(
+          app,
+          new DocumentBuilder()
+              .setTitle('Comeet API Docs')
+              .setVersion('1.0.0')
+              .build()
+      )
+  );
 }
 bootstrap();
