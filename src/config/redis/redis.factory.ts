@@ -1,5 +1,5 @@
 import { ConfigService } from "@nestjs/config";
-import Redis from "ioredis";
+import Redis from "iovalkey";
 
 export async function redisFactory(config: ConfigService): Promise<Redis> {
     return new Redis({

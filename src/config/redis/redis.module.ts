@@ -1,5 +1,5 @@
 import { Global, Module } from "@nestjs/common";
-import Redis from "ioredis";
+import Redis from "iovalkey";
 import { redisFactory } from "./redis.factory";
 import { ConfigService } from "@nestjs/config";
 
