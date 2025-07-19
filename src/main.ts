@@ -10,7 +10,9 @@ import passport from "passport";
 async function bootstrap() {
   initializeTransactionalContext();
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app
+      = await NestFactory.create<NestExpressApplication>(AppModule);
+
   app.set("trust_proxy", true);
 
   app.useGlobalPipes(new ValidationPipe({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }));
