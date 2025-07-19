@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { typeormDataSourceFactory, typeormOptionsFactory } from "./config/typeorm";
 import { RedisModule } from "./config/redis";
 import { HttpModule } from "@nestjs/axios";
+import { TagsModule } from './tags';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { HttpModule } from "@nestjs/axios";
     }),
     HttpModule.register({ global: true }),
     RedisModule,
+    TagsModule,
   ],
 })
 export class AppModule {}
