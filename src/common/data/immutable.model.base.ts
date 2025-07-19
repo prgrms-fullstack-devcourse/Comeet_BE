@@ -1,6 +1,8 @@
 import { CreateDateColumn } from "typeorm";
-import { omit } from "../../utils/object";
 
+/**
+ * Base model class for table which does not allow modifying, so doesn't have a updated_at column
+ */
 export abstract class ImmutableModelBase {
     @CreateDateColumn({ name: "created_at", type: "timestamp" })
     createdAt: Date;
@@ -10,12 +12,5 @@ export abstract class ImmutableModelBase {
     >(model: M): Omit<M, "createdAt"> {
         const { createdAt, ...rest } = model;
         return rest;
-    }
-
-    static excludeWithTimestamp<
-        M extends ImmutableModelBase,
-        K extends keyof M,
-    >(model: M, keys: K[]): Omit<M, "createdAt" | K> {
-        return omit(model, ["createdAt",  ...keys]);
     }
 }
