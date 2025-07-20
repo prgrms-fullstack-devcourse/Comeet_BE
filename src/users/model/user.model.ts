@@ -1,12 +1,21 @@
-import { Column, Entity, Point, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ModelBase } from "../../common";
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    ValueTransformer
+} from "typeorm";
+import { GeoBase } from "../../common";
 import { GithubAccount } from "../../github/model";
 import { Social } from "./social.model";
 import { Position } from "../../tags/model";
 import { UserInterest, UserTech } from "./tag";
 
 @Entity("users")
-export class User extends ModelBase {
+export class User extends GeoBase {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -19,6 +28,22 @@ export class User extends ModelBase {
     @Column({ name: "position_id", type: "integer" })
     positionId: number;
 
+    @Column({
+        name: "tech_ids",
+        type: "integer",
+        array: true,
+        default: () => "'{}'"
+    })
+    techIds: number[];
+
+    @Column({
+        name: "interest_ids",
+        type: "integer",
+        array: true,
+        default: () => "'{}'"
+    })
+    interestIds: number[];
+
     @Column({ type: "varchar" })
     nickname: string;
 
@@ -30,13 +55,6 @@ export class User extends ModelBase {
 
     @Column({ type: "varchar" })
     bio: string;
-
-    @Column({
-        type: "geometry",
-        spatialFeatureType: "Point",
-        srid: 4326
-    })
-    location: Point;
 
     @OneToOne(() => GithubAccount, { onDelete: "CASCADE" })
     @JoinColumn({ name: "github_id" })
@@ -53,14 +71,14 @@ export class User extends ModelBase {
     @OneToMany(
         () => UserTech,
         ut => ut.user,
-        { onDelete: "CASCADE", cascade: true },
+        { cascade: true },
     )
     userTechs: UserTech[];
 
     @OneToMany(
         () => UserInterest,
         ui => ui.user,
-        { onDelete: "CASCADE", cascade: ["insert"] },
+        { cascade: true },
     )
     userInterests: UserInterest[];
 }
