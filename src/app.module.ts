@@ -7,6 +7,7 @@ import { RedisModule } from "./config/redis";
 import { HttpModule } from "@nestjs/axios";
 import { TagsModule } from './tags';
 import { GithubModule } from './github';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { GithubModule } from './github';
     RedisModule,
     TagsModule,
     GithubModule,
+    UsersModule,
   ],
 })
 export class AppModule {}

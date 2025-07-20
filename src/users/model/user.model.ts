@@ -42,7 +42,7 @@ export class User extends ModelBase {
     @JoinColumn({ name: "github_id" })
     github: GithubAccount;
 
-    @OneToOne(() => Social, { onDelete: "CASCADE", cascade: ["insert"] })
+    @OneToOne(() => Social, { cascade: true })
     @JoinColumn({ name: "social_id" })
     social: Social;
 
@@ -53,7 +53,7 @@ export class User extends ModelBase {
     @OneToMany(
         () => UserTech,
         ut => ut.user,
-        { onDelete: "CASCADE", cascade: ["insert"] },
+        { onDelete: "CASCADE", cascade: true },
     )
     userTechs: UserTech[];
 

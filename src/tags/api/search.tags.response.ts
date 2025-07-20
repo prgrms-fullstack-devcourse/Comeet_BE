@@ -1,8 +1,8 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { TypeSchema } from "../../common";
+import { TypeDTO } from "../../common";
 
-@ApiExtraModels(TypeSchema)
+@ApiExtraModels(TypeDTO)
 export class SearchTagsResponse {
-    @ApiProperty({ type: [TypeSchema] })
-    results: TypeSchema[];
+    @ApiProperty({ type: [TypeDTO] })
+    results: TypeDTO[];
 }
