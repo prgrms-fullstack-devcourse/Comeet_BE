@@ -5,7 +5,8 @@ import {
     ManyToOne,
     OneToMany,
     OneToOne,
-    PrimaryGeneratedColumn
+    PrimaryGeneratedColumn,
+    ValueTransformer
 } from "typeorm";
 import { GeoBase } from "../../common";
 import { GithubAccount } from "../../github/model";
