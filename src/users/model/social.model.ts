@@ -7,14 +7,14 @@ export class Social extends ModelBase {
     id: number;
 
     @Column({ type: "varchar", nullable: true })
-    email: string;
+    email: string | null;
 
     @Column({ type: "varchar", nullable: true })
-    instagram: string;
+    instagram: string | null;
 
     @Column({ name: "linked_in", type: "varchar", nullable: true })
-    linkedin: string;
+    linkedIn: string | null;
 
     @Column({ type: "varchar", nullable: true })
-    blog: string;
+    blog: string | null;
 }
