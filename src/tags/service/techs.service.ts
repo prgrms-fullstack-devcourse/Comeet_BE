@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { SearchTagsServiceBase } from "./search.tags.service.base";
+import { TagsServiceBase } from "./tags.service.base";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Tech } from "../model";
 import { Repository } from "typeorm";
 
 @Injectable()
-export class TechsService extends SearchTagsServiceBase {
+export class TechsService extends TagsServiceBase {
     constructor(
         @InjectRepository(Tech)
         repo: Repository<Tech>
