@@ -3,10 +3,10 @@ import { Observable, tap } from "rxjs";
 import { Response } from "express";
 
 @Injectable()
-export class SignOutInterceptor implements NestInterceptor {
+export class SignOutInterceptor implements NestInterceptor<void, void> {
     private readonly _logger: Logger = new Logger(SignOutInterceptor.name);
 
-    intercept(ctx: ExecutionContext, next: CallHandler): Observable<any> {
+    intercept(ctx: ExecutionContext, next: CallHandler<void>): Observable<void> {
         const res = ctx.switchToHttp().getResponse<Response>();
 
         return next.handle().pipe(

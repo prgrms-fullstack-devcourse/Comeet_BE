@@ -26,14 +26,13 @@ export class UsersService {
 
     @Transactional()
     async createUser(dto: CreateUserDTO): Promise<UserIdentification> {
-        const { social, techIds, interestIds, ...rest } = dto;
+        const { techIds, interestIds, ...rest } = dto;
 
         if (await this._usersRepo.existsBy({ githubId: dto.githubId }))
             throw new ConflictException();
 
         const { id, githubId } = await this._usersRepo.save({
            ...rest,
-           social: social || {},
            userTechs: techIds.map(techId => ({ techId })),
            userInterests: interestIds.map(interestId => ({ interestId })),
         });

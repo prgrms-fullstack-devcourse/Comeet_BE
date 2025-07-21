@@ -10,5 +10,5 @@ export interface CreateUserDTO {
     positionId: number;
     techIds: number[];
     interestIds: number[];
-    social?: Partial<SocialDTO>;
+    social: Partial<SocialDTO>;
 }
