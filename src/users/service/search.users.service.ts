@@ -70,7 +70,7 @@ function __makeArrayCondition(
     target: string,
     array: number[]
 ): [string, ObjectLiteral] {
-    return [`${target} IN (...:array)`, { array }];
+    return [`${target} IN (:...array)`, { array }];
 }
 
 function __toSearchUserResult(
