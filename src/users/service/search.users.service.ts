@@ -20,6 +20,7 @@ export class SearchUsersService {
         filters: Omit<SearchUsersDTO, "id">
     ): Promise<SearchUserResult[]> {
         const { radius, age, experience, positionIds, techIds, interestIds } = filters;
+
         const birthYear = age && age.map(ageToBirthYear)
             .reverse() as [number, number];
 
