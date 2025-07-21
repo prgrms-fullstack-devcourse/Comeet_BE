@@ -24,14 +24,15 @@ export class UsersService {
 
     @Transactional()
     async createUser(dto: CreateUserDTO): Promise<UserIdentification> {
+        const { techIds, interestIds, ...rest } = dto;
 
         if (await this._usersRepo.existsBy({ githubId: dto.githubId }))
             throw new ConflictException();
 
         const { id, githubId } = await this._usersRepo.save({
-           ...dto,
-           userTechs: dto.techIds.map(techId => ({ techId })),
-           userInterests: dto.interestIds.map(interestId => ({ interestId })),
+           ...rest,
+           userTechs: techIds.map(techId => ({ techId })),
+           userInterests: interestIds.map(interestId => ({ interestId })),
         });
 
        return { id, githubId };
@@ -78,7 +79,7 @@ function __toDTO(user: User): UserDTO {
 
     const {
         github, social, userTechs, userInterests, ...rest
-    } = ModelBase.excludeWithTimestamp(user, ["githubId", "positionId", "techIds", "interestIds"]);
+    } = ModelBase.excludeWithTimestamp(user, ["githubId", "positionId"]);
 
     return {
         ...rest,

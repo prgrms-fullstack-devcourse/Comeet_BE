@@ -28,22 +28,6 @@ export class User extends GeoBase {
     @Column({ name: "position_id", type: "integer" })
     positionId: number;
 
-    @Column({
-        name: "tech_ids",
-        type: "integer",
-        array: true,
-        default: () => "'{}'"
-    })
-    techIds: number[];
-
-    @Column({
-        name: "interest_ids",
-        type: "integer",
-        array: true,
-        default: () => "'{}'"
-    })
-    interestIds: number[];
-
     @Column({ type: "varchar" })
     nickname: string;
 
