@@ -1,10 +1,10 @@
 import { applyDecorators } from "@nestjs/common";
-import { IsArray, Max, Min, ValidationOptions } from "class-validator";
+import { ArrayMaxSize, ArrayMinSize, IsArray, ValidationOptions } from "class-validator";
 
 export function IsPair(options?: ValidationOptions) {
     return applyDecorators(
         IsArray(options),
-        Min(2),
-        Max(2)
+        ArrayMinSize(2),
+        ArrayMaxSize(2)
     );
 }
