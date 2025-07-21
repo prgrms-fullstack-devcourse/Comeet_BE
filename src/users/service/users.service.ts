@@ -4,11 +4,20 @@ import { User } from "../model";
 import { FindOneOptions, Repository } from "typeorm";
 import { UserTechsService } from "./user.techs.service";
 import { UserInterestsService } from "./user.interests.service";
-import { CreateUserDTO, GetUserDTO, UpdateUserDTO, UserDTO, UserIdentification } from "../dto";
+import {
+    CreateUserDTO,
+    GetUserDTO,
+    SearchUserResult,
+    SearchUsersDTO,
+    UpdateUserDTO,
+    UserDTO,
+    UserIdentification
+} from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { ModelBase, TypeDTO } from "../../common";
 import { GitHubAccountsService } from "../../github/service";
 import { pick } from "../../utils/object";
+import { SearchUsersService } from "./search.users.service";
 
 @Injectable()
 export class UsersService {
@@ -20,6 +29,8 @@ export class UsersService {
        private readonly _userTechsService: UserTechsService,
        @Inject(UserInterestsService)
        private readonly _userInterestsService: UserInterestsService,
+       @Inject(SearchUsersService)
+       private readonly _searchUsersService: SearchUsersService,
     ) {}
 
     @Transactional()
@@ -40,13 +51,13 @@ export class UsersService {
     }
 
     async getUserIdentification(dto: GetUserDTO): Promise<UserIdentification> {
-        const { id, githubId } = await this.findUserBy({where: dto});
+        const { id, githubId } = await this.findUser({where: dto});
         return { id, githubId };
     }
 
     async getUser(dto: GetUserDTO): Promise<UserDTO> {
 
-        const user = await this.findUserBy({
+        const user = await this.findUser({
             relations: {
                 position: true, github: true, social: true,
                 userTechs: { tech: true }, userInterests: { interest: true }
@@ -69,7 +80,18 @@ export class UsersService {
             .updateUserInterests(id, values.interestIds);
     }
 
-    private async findUserBy(options: FindOneOptions<User>): Promise<User> {
+    async searchUsers(dto: SearchUsersDTO): Promise<SearchUserResult[]> {
+        const { id, ...filters } = dto;
+
+        const { location: origin } = await this.findUser({
+            where: { id },
+            select: ["location"]
+        });
+
+        return await this._searchUsersService.searchUsers(origin, filters);
+    }
+
+    private async findUser(options: FindOneOptions<User>): Promise<User> {
         const user = await this._usersRepo.findOne(options);
         if (!user) throw new ForbiddenException();
         return user;

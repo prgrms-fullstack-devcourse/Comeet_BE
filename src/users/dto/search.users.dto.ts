@@ -6,5 +6,5 @@ export interface SearchUsersDTO {
     experience?: [number, number];
     positionIds?: number[];
     techIds?: number[];
-    institutionIds?: number[];
+    interestIds?: number[];
 }
