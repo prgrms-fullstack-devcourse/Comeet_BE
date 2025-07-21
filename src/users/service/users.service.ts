@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Inject, Injectable } from "@nestjs/common";
+import { ConflictException, ForbiddenException, Inject, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { FindOneOptions, Repository } from "typeorm";
@@ -9,9 +9,11 @@ import { Transactional } from "typeorm-transactional";
 import { ModelBase, TypeBase } from "../../common";
 import { GitHubAccountsService } from "../../github/service";
 import { SearchUsersService } from "./search.users.service";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class UsersService {
+    private readonly _logger: Logger = new Logger(UsersService.name);
 
     constructor(
        @InjectRepository(User)
@@ -79,6 +81,22 @@ export class UsersService {
         });
 
         return await this._searchUsersService.searchUsers(origin, filters);
+    }
+
+    @Cron(CronExpression.EVERY_YEAR)
+    async updateAge() {
+
+        try {
+            const users = await this._usersRepo.find();
+
+            await this._usersRepo.update(
+                users.map(u => u.id),
+                { age: () => "age + 1" }
+            );
+        }
+        catch (err) {
+            this._logger.error(err); // Strategy for failure should added
+        }
     }
 
     private async findUser(options: FindOneOptions<User>): Promise<User> {
