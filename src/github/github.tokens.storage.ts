@@ -1,9 +1,9 @@
 import { ForbiddenException, Inject, Injectable } from "@nestjs/common";
 import Redis from "iovalkey";
-import { TokenPair } from "../../utils";
+import { plainToInstanceOrReject, TokenPair } from "../utils";
 
 @Injectable()
-export class GithubTokensService {
+export class GithubTokensStorage {
 
     constructor(
        @Inject(Redis)
@@ -19,10 +19,6 @@ export class GithubTokensService {
 
     async getTokenPair(githubId: string): Promise<TokenPair> {
         const pair = await this._redis.hgetall(githubId);
-
-        if (!Object.keys(pair).length)
-            throw new ForbiddenException();
-
-       return pair as unknown as TokenPair;
+        return await plainToInstanceOrReject(TokenPair, pair);
     }
 }

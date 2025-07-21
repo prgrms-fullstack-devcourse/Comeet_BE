@@ -5,19 +5,19 @@ import { GenerateTokenDTO, GithubAccountDTO } from "../dto";
 import { firstValueFrom } from "rxjs";
 import { TokenPair } from "../../utils";
 import { GithubClientService } from "./github.client.service";
-import { GithubTokensService } from "./github.tokens.service";
+import { GithubTokensStorage } from "../github.tokens.storage";
 import { GitHubAccountsService } from "./github.accounts.service";
 
 @Injectable()
 export class GithubAuthService {
 
     constructor(
+        @Inject(GithubTokensStorage)
+        private readonly _tokensStorage: GithubTokensStorage,
         @Inject(GenerateTokenService)
         private readonly _generateTokenService: GenerateTokenService,
         @Inject(GithubClientService)
         private readonly _githubClientService: GithubClientService,
-        @Inject(GithubTokensService)
-        private readonly _githubTokensService: GithubTokensService,
         @Inject(GitHubAccountsService)
         private readonly _githubAccountsService: GitHubAccountsService,
         @Inject(GithubOptions)
@@ -33,7 +33,7 @@ export class GithubAuthService {
             cls: GithubAccountDTO
         });
 
-        await this._githubTokensService.saveTokenPair(account.id, tokens);
+        await this._tokensStorage.saveTokenPair(account.id, tokens);
         await this._githubAccountsService.saveGithubAccount(account);
 
         return account.id;

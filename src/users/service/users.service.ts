@@ -4,19 +4,10 @@ import { User } from "../model";
 import { FindOneOptions, Repository } from "typeorm";
 import { UserTechsService } from "./user.techs.service";
 import { UserInterestsService } from "./user.interests.service";
-import {
-    CreateUserDTO,
-    GetUserDTO,
-    SearchUserResult,
-    SearchUsersDTO,
-    UpdateUserDTO,
-    UserDTO,
-    UserIdentification
-} from "../dto";
+import { CreateUserDTO, GetUserDTO, SearchUserResult, SearchUsersDTO, UpdateUserDTO, UserDTO, UserIdentification } from "../dto";
 import { Transactional } from "typeorm-transactional";
-import { ModelBase, TypeDTO } from "../../common";
+import { ModelBase, TypeBase } from "../../common";
 import { GitHubAccountsService } from "../../github/service";
-import { pick } from "../../utils/object";
 import { SearchUsersService } from "./search.users.service";
 
 @Injectable()
@@ -108,11 +99,7 @@ function __toDTO(user: User): UserDTO {
         ...rest,
         github: GitHubAccountsService.toGithubAccountDTO(github),
         social: ModelBase.excludeWithTimestamp(social, ["id"]),
-        techStack: userTechs.map(({ tech }): TypeDTO =>
-            pick(tech, ["id", "value"])
-        ),
-        interests: userInterests.map(({ interest }): TypeDTO =>
-            pick(interest, ["id", "value"])
-        )
+        techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),
+        interests: userInterests.map(ui => TypeBase.toTypeDTO(ui.interest))
     }
 }
