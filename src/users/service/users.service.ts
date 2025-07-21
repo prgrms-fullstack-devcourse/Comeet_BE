@@ -9,7 +9,7 @@ import { Transactional } from "typeorm-transactional";
 import { ModelBase, TypeBase } from "../../common";
 import { GitHubAccountsService } from "../../github/service";
 import { SearchUsersService } from "./search.users.service";
-import { Cron, CronExpression } from "@nestjs/schedule";
+import { ageToBirthYear, birthYearToAge } from "./service.internal";
 
 @Injectable()
 export class UsersService {
@@ -28,13 +28,14 @@ export class UsersService {
 
     @Transactional()
     async createUser(dto: CreateUserDTO): Promise<UserIdentification> {
-        const { techIds, interestIds, ...rest } = dto;
+        const { age, techIds, interestIds, ...rest } = dto;
 
         if (await this._usersRepo.existsBy({ githubId: dto.githubId }))
             throw new ConflictException();
 
         const { id, githubId } = await this._usersRepo.save({
            ...rest,
+           birthYear: ageToBirthYear(age),
            userTechs: techIds.map(techId => ({ techId })),
            userInterests: interestIds.map(interestId => ({ interestId })),
         });
@@ -83,22 +84,6 @@ export class UsersService {
         return await this._searchUsersService.searchUsers(origin, filters);
     }
 
-    @Cron(CronExpression.EVERY_YEAR)
-    async updateAge() {
-
-        try {
-            const users = await this._usersRepo.find();
-
-            await this._usersRepo.update(
-                users.map(u => u.id),
-                { age: () => "age + 1" }
-            );
-        }
-        catch (err) {
-            this._logger.error(err); // Strategy for failure should added
-        }
-    }
-
     private async findUser(options: FindOneOptions<User>): Promise<User> {
         const user = await this._usersRepo.findOne(options);
         if (!user) throw new ForbiddenException();
@@ -109,11 +94,12 @@ export class UsersService {
 function __toDTO(user: User): UserDTO {
 
     const {
-        github, social, userTechs, userInterests, ...rest
+        birthYear, github, social, userTechs, userInterests, ...rest
     } = ModelBase.excludeWithTimestamp(user, ["githubId", "positionId"]);
 
     return {
         ...rest,
+        age: birthYearToAge(birthYear),
         github: GitHubAccountsService.toGithubAccountDTO(github),
         social: ModelBase.excludeWithTimestamp(social, ["id"]),
         techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),
