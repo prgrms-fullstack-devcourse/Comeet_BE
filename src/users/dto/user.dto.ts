@@ -13,21 +13,21 @@ export class UserDTO {
     id: number;
 
     @IsString()
-    @ApiProperty({ type: "string" })
+    @ApiProperty({ type: "string", required: true })
     nickname: string;
 
     @IsNumber()
     @Min(0)
-    @ApiProperty({ type: "integer" })
+    @ApiProperty({ type: "integer", required: true })
     age: number;
 
     @IsNumber()
     @Min(0)
-    @ApiProperty({ type: "integer", description: "경력" })
+    @ApiProperty({ type: "integer", required:true, description: "경력" })
     experience: number;
 
     @IsString()
-    @ApiProperty({ type: "string", description: "자기소개" })
+    @ApiProperty({ type: "string", required: true, description: "자기소개" })
     bio: string;
 
     @IsPair()
@@ -37,11 +37,12 @@ export class UserDTO {
         items: { type: "integer" },
         minLength: 2,
         maxLength: 2,
+        required: true,
         description: "위치 (경도, 위도) 순"
     })
     location: [number, number];
 
-    @ApiProperty({ type: SocialDTO })
+    @ApiProperty({ type: SocialDTO, required: false })
     social: SocialDTO;
 
     @ApiProperty({ type: GithubAccountDTO })

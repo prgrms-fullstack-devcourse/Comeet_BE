@@ -5,6 +5,7 @@ export interface CreateUserDTO {
     nickname: string;
     age: number;
     experience: number;
+    bio: string;
     location: [number, number];
     positionId: number;
     techIds: number[];

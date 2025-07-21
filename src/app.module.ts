@@ -7,7 +7,8 @@ import { RedisModule } from "./config/redis";
 import { HttpModule } from "@nestjs/axios";
 import { TagsModule } from './tags';
 import { GithubModule } from './github';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './users';
+import { AuthModule } from './auth';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module';
     TagsModule,
     GithubModule,
     UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
