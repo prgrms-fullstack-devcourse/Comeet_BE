@@ -1,5 +1,7 @@
 import { ModelBase } from "./model.base";
 import { Column, PrimaryGeneratedColumn } from "typeorm";
+import { TypeDTO } from "./type.dto";
+import { pick } from "../../utils/object";
 
 /**
  * Base model for table having four columns: id, value + timestamp columns,
@@ -12,4 +14,8 @@ export abstract class TypeBase extends ModelBase {
 
     @Column({ type: "varchar", unique: true })
     value: string;
+
+    static toTypeDTO(type: TypeBase): TypeDTO {
+        return pick(type, ["id", "value"]);
+    }
 }
