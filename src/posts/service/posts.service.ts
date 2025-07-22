@@ -77,9 +77,15 @@ function __makeWhereOptions(dto: SearchPostsDTO): FindOptionsWhere<Post> {
     const where: FindOptionsWhere<Post> = rest;
 
     ids?.length && (where.id = In(ids));
-    keyword && (where.title = where.content = Like(`%${keyword}%`));
-    createdAt && (where.createdAt = Between(...createdAt));
 
+    keyword && Object.assign(where, {
+        $or: [
+            { title: Like(`%${keyword}%`) },
+            { content: Like(`%${keyword}%`) }
+        ]
+    });
+
+    createdAt && (where.createdAt = Between(...createdAt));
     return where;
 }
 
