@@ -4,7 +4,7 @@ import { Post } from "../model";
 import { Between, FindOptionsWhere, In, Like, Repository } from "typeorm";
 import { PostLikesService } from "./post.likes.service";
 import { CommentsService } from "./comments.service";
-import { CreatePostDTO, PostDTO, SearchPostsDTO, UpdatePostDTO } from "../dto";
+import { CreatePostDTO, PostDTO, SearchPostResult, SearchPostsDTO, UpdatePostDTO } from "../dto";
 import { pick } from "../../utils/object";
 import { Transactional } from "typeorm-transactional";
 
@@ -37,6 +37,20 @@ export class PostsService {
         return this.toPostDTO(post, userId);
     }
 
+    async searchPosts(dto: SearchPostsDTO): Promise<SearchPostResult[]> {
+
+        const posts = await this._postsRepo.find({
+            relations: { category: true },
+            where: __makeWhereOptions(dto)
+        });
+
+        return Promise.all(
+            posts.map(post =>
+                this.toSearchPostResult(post)
+            )
+        );
+    }
+
     async updatePost(dto: UpdatePostDTO): Promise<void> {
         const { id, userId, ...values } = dto;
 
@@ -52,6 +66,18 @@ export class PostsService {
             await this._likesService.onPostDeleted(id);
             await this._commentsService.onPostDeleted(id);
         }
+    }
+
+    private async toSearchPostResult(post: Post): Promise<SearchPostResult> {
+        const category = post.category.value;
+        const author = post.user?.nickname ?? "알수없음";
+        const nLikes = await this._likesService.countPostLikes(post.id);
+        const nComments = await this._commentsService.countPostComments(post.id);
+
+        return {
+            ...pick(post, ["id", "title", "createdAt"]),
+            category, author, nLikes, nComments
+        };
     }
 
     private async toPostDTO(post: Post, userId: number): Promise<PostDTO> {
