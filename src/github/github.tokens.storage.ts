@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import Redis from "iovalkey";
 import { plainToInstanceOrReject, TokenPair } from "../utils";
 

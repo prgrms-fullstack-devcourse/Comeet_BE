@@ -1,24 +1,52 @@
-import { SocialDTO, UserDTO } from "../../users/dto";
-import { ApiProperty, PartialType, PickType } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 import {
     ArrayMinSize,
     IsArray,
+    IsEmail,
     IsNotEmpty,
     IsNumber,
     IsNumberString,
     IsOptional,
-    ValidateNested
+    IsString, IsUrl,
+    Min
 } from "class-validator";
-import { Type } from "class-transformer";
+import { IsPair } from "../../utils";
 
-export class SignUpBody extends PickType(
-    UserDTO,
-    ["nickname", "age", "experience", "bio", "location"]
-) {
+export class SignUpBody {
     @IsNumberString()
     @IsNotEmpty()
     @ApiProperty({ type: "string", required: true })
     githubId: string;
+
+    @IsString()
+    @ApiProperty({ type: "string", required: true })
+    nickname: string;
+
+    @IsNumber()
+    @Min(0)
+    @ApiProperty({ type: "integer", required: true })
+    age: number;
+
+    @IsNumber()
+    @Min(0)
+    @ApiProperty({ type: "integer", required:true, description: "경력" })
+    experience: number;
+
+    @IsString()
+    @ApiProperty({ type: "string", required: true, description: "자기소개" })
+    bio: string;
+
+    @IsPair()
+    @IsNumber({}, { each: true })
+    @ApiProperty({
+        type: "array",
+        items: { type: "integer" },
+        minLength: 2,
+        maxLength: 2,
+        required: true,
+        description: "위치 (경도, 위도) 순"
+    })
+    location: [number, number];
 
     @IsNumber()
     @ApiProperty({ type: "integer", required: true })
@@ -46,9 +74,23 @@ export class SignUpBody extends PickType(
     })
     interestIds: number[];
 
-    @Type(() => PartialType(SocialDTO))
-    @ValidateNested()
+    @IsEmail()
     @IsOptional()
-    @ApiProperty({ type: PartialType(SocialDTO), required: false })
-    social?: Partial<SocialDTO>
+    @ApiProperty({ type: "string", required: false })
+    email?: string
+
+    @IsUrl()
+    @IsOptional()
+    @ApiProperty({ type: "string", required: false })
+    instagram?: string;
+
+    @IsUrl()
+    @IsOptional()
+    @ApiProperty({ type: "string", required: false })
+    linkedIn?: string;
+
+    @IsUrl()
+    @IsOptional()
+    @ApiProperty({ type: "string", required: false })
+    blog?: string;
 }

@@ -5,10 +5,12 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { typeormDataSourceFactory, typeormOptionsFactory } from "./config/typeorm";
 import { RedisModule } from "./config/redis";
 import { HttpModule } from "@nestjs/axios";
+import { ScheduleModule } from "@nestjs/schedule";
 import { TagsModule } from './tags';
 import { GithubModule } from './github';
 import { UsersModule } from './users';
 import { AuthModule } from './auth';
+import { PostsModule } from './posts';
 
 @Module({
   imports: [
@@ -22,11 +24,13 @@ import { AuthModule } from './auth';
       inject: [ConfigService]
     }),
     HttpModule.register({ global: true }),
+    ScheduleModule.forRoot(),
     RedisModule,
     TagsModule,
     GithubModule,
     UsersModule,
     AuthModule,
+    PostsModule,
   ],
 })
 export class AppModule {}

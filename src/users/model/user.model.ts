@@ -30,8 +30,8 @@ export class User extends GeoBase {
     @Column({ type: "varchar" })
     nickname: string;
 
-    @Column({ type: "integer" })
-    age: number;
+    @Column({ name: "birth_year", type: "integer" })
+    birthYear: number;
 
     @Column({ type: "integer" })
     experience: number;

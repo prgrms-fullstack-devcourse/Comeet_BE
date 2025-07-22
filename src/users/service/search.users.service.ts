@@ -5,6 +5,7 @@ import { ObjectLiteral, Repository } from "typeorm";
 import { SearchUserResult, SearchUsersDTO } from "../dto";
 import { pick } from "../../utils/object";
 import { TypeBase } from "../../common";
+import { ageToBirthYear, birthYearToAge } from "./service.internal";
 
 @Injectable()
 export class SearchUsersService {
@@ -19,6 +20,9 @@ export class SearchUsersService {
         filters: Omit<SearchUsersDTO, "id">
     ): Promise<SearchUserResult[]> {
         const { radius, age, experience, positionIds, techIds, interestIds } = filters;
+
+        const birthYear = age && age.map(ageToBirthYear)
+            .reverse() as [number, number];
 
         const qb = this._usersRepo
             .createQueryBuilder("user")
@@ -35,7 +39,7 @@ export class SearchUsersService {
             .leftJoinAndSelect("userInterests.interest", "interest")
             .where("distance <= :radius", { radius })
 
-        age && qb.andWhere(...__makeRangeCondition("user.age", age));
+        birthYear && qb.andWhere(...__makeRangeCondition("user.birthYear", birthYear));
         experience && qb.andWhere(...__makeRangeCondition("user.experience", experience));
         positionIds?.length && qb.andWhere(...__makeArrayCondition("position.id", positionIds));
         techIds?.length && qb.andWhere(...__makeArrayCondition("userTechs.techId", techIds));
@@ -76,10 +80,11 @@ function __makeArrayCondition(
 function __toSearchUserResult(
     data: User & { distance: number },
 ): SearchUserResult {
-    const { position, userTechs, userInterests } = data;
+    const { birthYear, position, userTechs, userInterests } = data;
 
     return {
-        ...pick(data, ["id", "nickname", "age", "experience", "location", "distance"]),
+        ...pick(data, ["id", "nickname", "experience", "location", "distance"]),
+        age: birthYearToAge(birthYear),
         position: TypeBase.toTypeDTO(position),
         techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),
         interests: userInterests.map(ui => TypeBase.toTypeDTO(ui.interest))

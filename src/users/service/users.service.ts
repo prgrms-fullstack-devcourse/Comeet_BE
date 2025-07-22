@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Inject, Injectable } from "@nestjs/common";
+import { ConflictException, ForbiddenException, Inject, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { FindOneOptions, Repository } from "typeorm";
@@ -9,9 +9,11 @@ import { Transactional } from "typeorm-transactional";
 import { ModelBase, TypeBase } from "../../common";
 import { GitHubAccountsService } from "../../github/service";
 import { SearchUsersService } from "./search.users.service";
+import { ageToBirthYear, birthYearToAge } from "./service.internal";
 
 @Injectable()
 export class UsersService {
+    private readonly _logger: Logger = new Logger(UsersService.name);
 
     constructor(
        @InjectRepository(User)
@@ -26,13 +28,14 @@ export class UsersService {
 
     @Transactional()
     async createUser(dto: CreateUserDTO): Promise<UserIdentification> {
-        const { techIds, interestIds, ...rest } = dto;
+        const { age, techIds, interestIds, ...rest } = dto;
 
         if (await this._usersRepo.existsBy({ githubId: dto.githubId }))
             throw new ConflictException();
 
         const { id, githubId } = await this._usersRepo.save({
            ...rest,
+           birthYear: ageToBirthYear(age),
            userTechs: techIds.map(techId => ({ techId })),
            userInterests: interestIds.map(interestId => ({ interestId })),
         });
@@ -91,11 +94,12 @@ export class UsersService {
 function __toDTO(user: User): UserDTO {
 
     const {
-        github, social, userTechs, userInterests, ...rest
+        birthYear, github, social, userTechs, userInterests, ...rest
     } = ModelBase.excludeWithTimestamp(user, ["githubId", "positionId"]);
 
     return {
         ...rest,
+        age: birthYearToAge(birthYear),
         github: GitHubAccountsService.toGithubAccountDTO(github),
         social: ModelBase.excludeWithTimestamp(social, ["id"]),
         techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),
