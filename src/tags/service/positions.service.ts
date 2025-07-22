@@ -4,7 +4,7 @@ import { Position } from "../model";
 import { Repository } from "typeorm";
 import Redis from "iovalkey";
 import { pick } from "../../utils/object";
-import { TypeDTO } from "../../common";
+import { TypeBase, TypeDTO } from "../../common";
 
 const __REDIS_KEY = "positions";
 
@@ -28,7 +28,7 @@ export class PositionsService implements OnModuleInit, OnModuleDestroy {
         await this._redis.rpush(
             __REDIS_KEY,
             ...positons.map(p =>
-                JSON.stringify(pick(p, ["id", "value"]))
+                JSON.stringify(TypeBase.toTypeDTO(p))
             )
         );
     }

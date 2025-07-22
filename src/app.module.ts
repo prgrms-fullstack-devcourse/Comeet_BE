@@ -6,6 +6,9 @@ import { typeormDataSourceFactory, typeormOptionsFactory } from "./config/typeor
 import { RedisModule } from "./config/redis";
 import { HttpModule } from "@nestjs/axios";
 import { TagsModule } from './tags';
+import { GithubModule } from './github';
+import { UsersModule } from './users';
+import { AuthModule } from './auth';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { TagsModule } from './tags';
     HttpModule.register({ global: true }),
     RedisModule,
     TagsModule,
+    GithubModule,
+    UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
