@@ -1,0 +1,85 @@
+import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Post } from "../model";
+import { Between, FindOptionsWhere, In, Like, Repository } from "typeorm";
+import { PostLikesService } from "./post.likes.service";
+import { CommentsService } from "./comments.service";
+import { CreatePostDTO, PostDTO, SearchPostsDTO, UpdatePostDTO } from "../dto";
+import { pick } from "../../utils/object";
+import { Transactional } from "typeorm-transactional";
+
+@Injectable()
+export class PostsService {
+    private readonly _logger: Logger = new Logger(PostsService.name);
+
+    constructor(
+       @InjectRepository(Post)
+       private readonly _postsRepo: Repository<Post>,
+       @Inject(PostLikesService)
+       private readonly _likesService: PostLikesService,
+       @Inject(CommentsService)
+       private readonly _commentsService: CommentsService,
+    ) {}
+
+    async createPost(dto: CreatePostDTO): Promise<void> {
+        const post = await this._postsRepo.save(dto);
+        this._logger.log(JSON.stringify(post));
+    }
+
+    async getPost(id: number, userId: number): Promise<PostDTO> {
+
+        const post = await this._postsRepo.findOne({
+            relations: { category: true, user: true, comments: true },
+            where: { id }
+        });
+
+        if (!post) throw new NotFoundException();
+        return this.toPostDTO(post, userId);
+    }
+
+    async updatePost(dto: UpdatePostDTO): Promise<void> {
+        const { id, userId, ...values } = dto;
+
+        if (Object.keys(values).length)
+            await this._postsRepo.update({ id, userId }, values);
+    }
+
+    @Transactional()
+    async deletePost(id: number, userId: number): Promise<void> {
+        const { affected } = await this._postsRepo.delete({ id, userId });
+
+        if (affected) {
+            await this._likesService.onPostDeleted(id);
+            await this._commentsService.onPostDeleted(id);
+        }
+    }
+
+    private async toPostDTO(post: Post, userId: number): Promise<PostDTO> {
+        const category = post.category.value;
+        const author = post.user?.nickname ?? "알수없음";
+        const editable = post.userId === userId;
+        const nLikes = await this._likesService.countPostLikes(post.id);
+        const likeIt = await this._likesService.likeThisPost(post.id, userId);
+
+        const comments = post.comments.map(
+            comment => CommentsService.toCommentDTO(comment, userId)
+        );
+
+        return {
+            ...pick(post, ["id", "title", "content", "createdAt"]),
+            category, author, editable, nLikes, likeIt, comments
+        };
+    }
+}
+
+function __makeWhereOptions(dto: SearchPostsDTO): FindOptionsWhere<Post> {
+    const { ids, keyword, createdAt, ...rest } = dto;
+    const where: FindOptionsWhere<Post> = rest;
+
+    ids?.length && (where.id = In(ids));
+    keyword && (where.title = where.content = Like(`%${keyword}%`));
+    createdAt && (where.createdAt = Between(...createdAt));
+
+    return where;
+}
+

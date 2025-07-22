@@ -1,15 +1,24 @@
-import { Injectable } from "@nestjs/common";
-import { SearchTagsServiceBase } from "./search.tags.service.base";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Interest } from "../model/interest.model";
 import { Repository } from "typeorm";
+import { TagsServiceBase } from "./tags.service.base";
+import { TypeDTO } from "../../common";
+import Redis from "iovalkey";
 
 @Injectable()
-export class InterestsService extends SearchTagsServiceBase {
+export class InterestsService extends TagsServiceBase {
+
     constructor(
         @InjectRepository(Interest)
         repo: Repository<Interest>,
+        @Inject(Redis)
+        redis: Redis,
     ) {
-        super(repo);
+        super(repo, redis, "interests");
+    }
+
+    getAllInterests(): Promise<TypeDTO[]> {
+        return this.getAllTags();
     }
 }
