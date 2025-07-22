@@ -61,7 +61,7 @@ export class CommentsService {
         return this._redis.hget(__REDIS_KEY, field)
             .then(Number).catch(err => {  throw err; });
     }
-
+    
     async onPostDeleted(postId: number): Promise<void> {
         await this._redis.hdel(__REDIS_KEY, __makeField(postId));
     }
