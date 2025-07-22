@@ -11,8 +11,8 @@ export class Comment extends ModelBase {
     @Column({ name: "post_id", type: "integer" })
     postId: number;
 
-    @Column({ name: "user_id", type: "integer" })
-    userId: number;
+    @Column({ name: "user_id", type: "integer", nullable: true })
+    userId: number | null;
 
     @Column({ type: "text" })
     content: string;
@@ -21,7 +21,7 @@ export class Comment extends ModelBase {
     @JoinColumn({ name: "post_id" })
     post: Post;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { onDelete: "SET NULL" })
     @JoinColumn({ name: "user_id" })
-    user: User;
+    user: User | null;
 }
