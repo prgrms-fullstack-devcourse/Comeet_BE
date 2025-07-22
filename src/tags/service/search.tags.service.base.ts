@@ -14,6 +14,6 @@ export class SearchTagsServiceBase {
             value: Like(`%${keyword}%`)
         });
 
-        return tags.map(tag => pick(tag, ["id", "value"]));
+        return tags.map(TypeBase.toTypeDTO);
     }
 }
