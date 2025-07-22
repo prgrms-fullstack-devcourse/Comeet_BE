@@ -6,6 +6,7 @@ import { SearchUserResult, SearchUsersDTO } from "../dto";
 import { pick } from "../../utils/object";
 import { TypeBase } from "../../common";
 import { ageToBirthYear, birthYearToAge } from "./service.internal";
+import { PositionsService } from "../../tags/service";
 
 @Injectable()
 export class SearchUsersService {
@@ -85,7 +86,7 @@ function __toSearchUserResult(
     return {
         ...pick(data, ["id", "nickname", "experience", "location", "distance"]),
         age: birthYearToAge(birthYear),
-        position: TypeBase.toTypeDTO(position),
+        position: PositionsService.toPositionDTO(position),
         techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),
         interests: userInterests.map(ui => TypeBase.toTypeDTO(ui.interest))
     };
