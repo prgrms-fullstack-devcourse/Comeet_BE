@@ -12,8 +12,8 @@ export class Post extends ModelBase {
     @Column({ name: "category_id", type: "integer" })
     categoryId: number;
 
-    @Column({ name: "user_id", type: "integer" })
-    userId: number;
+    @Column({ name: "user_id", type: "integer", nullable: true })
+    userId: number | null;
 
     @Column({ type: "varchar" })
     title: string;
@@ -25,9 +25,9 @@ export class Post extends ModelBase {
     @JoinColumn({ name: "category_id" })
     category: PostCategory;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { onDelete: "SET NULL" })
     @JoinColumn({ name: "user_id" })
-    user: User;
+    user: User | null;
 
     @OneToMany(
         () => Comment,

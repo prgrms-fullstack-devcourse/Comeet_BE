@@ -6,8 +6,8 @@ import Redis from "iovalkey";
 import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
-export class PostLikeService implements OnModuleInit, OnModuleDestroy {
-    private readonly _logger: Logger = new Logger(PostLikeService.name);
+export class PostLikesService implements OnModuleInit, OnModuleDestroy {
+    private readonly _logger: Logger = new Logger(PostLikesService.name);
 
     constructor(
         @InjectRepository(PostLike)
@@ -38,12 +38,7 @@ export class PostLikeService implements OnModuleInit, OnModuleDestroy {
 
             const ids = (await Promise.all(
                 likes.map(async ({ id, postId, userId }) => {
-
-                    const deleteIt = !await this._redis.sismember(
-                        __makeKey(postId),
-                        userId
-                    );
-
+                    const deleteIt = !await this.likeThisPost(postId, userId);
                     return { id, deleteIt };
                 })
             )).filter(({ deleteIt }) => deleteIt)
@@ -56,8 +51,22 @@ export class PostLikeService implements OnModuleInit, OnModuleDestroy {
         }
     }
 
-    countPostLikes(postId: number): Promise<number> {
-        return this._redis.scard(__makeKey(postId));
+    async countPostLikes(postId: number): Promise<number> {
+        const key = __makeKey(postId);
+
+        if (!await this._redis.exists(key))
+            return 0;
+
+        return this._redis.scard(key);
+    }
+
+    async likeThisPost(postId: number, userId: number): Promise<boolean> {
+        const key = __makeKey(postId);
+
+        if (!await this._redis.exists(key))
+            return false;
+
+        return !!await this._redis.sismember(key, userId);
     }
 
     async updatePostLikes(postId: number, userId: number): Promise<number> {

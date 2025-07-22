@@ -5,7 +5,7 @@ export interface PostDTO {
     category: string;
     author: string;
     title: string;
-    content: string;
+    content: string | Buffer;
     createdAt: Date;
     editable: boolean;
     nLikes: number;
