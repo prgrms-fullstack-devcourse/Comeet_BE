@@ -5,7 +5,7 @@ export function typeormOptionsFactory(config: ConfigService): TypeOrmModuleOptio
     return {
         type: config.get<any>("DB_TYPE"),
         host: config.get<string>("DB_HOST")!,
-        port: config.get<number>("DB_PORT") || 3306,
+        port: config.get<number>("DB_PORT")!,
         username: config.get<string>("DB_USERNAME")!,
         password: config.get<string>("DB_PASSWORD")!,
         database: config.get<string>("DB_DATABASE")!,

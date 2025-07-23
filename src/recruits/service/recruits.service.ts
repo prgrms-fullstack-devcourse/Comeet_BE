@@ -4,11 +4,11 @@ import { Recruit } from "../model";
 import { Repository } from "typeorm";
 import { ApplicantsService } from "./applicants.service";
 import { LikesService } from "../../likes";
-import { CreateRecruitDTO, RecruitDTO, SearchRecruitsDTO, UpdateRecruitDTO } from "../dto";
+import { CreateRecruitDTO, RecruitDTO, SearchRecruitResult, SearchRecruitsDTO, UpdateRecruitDTO } from "../dto";
 import { pick } from "../../utils/object";
-import { makeLike } from "./service.internal";
+import { makeLike, makeTarget } from "./service.internal";
 import { SearchRecruitsService } from "./search.recruits.service";
-import { ApplicantDTO } from "../dto/applicant.dto";
+import { ApplicantDTO } from "../dto";
 
 @Injectable()
 export class RecruitsService {
@@ -50,12 +50,22 @@ export class RecruitsService {
         await this._recruitsRepo.delete({ id, userId });
     }
 
-    searchRecruits(dto: SearchRecruitsDTO): Promise<SearchRecruitsDTO[]> {
-        return this._searchRecruitsService.searchRecruit(dto);
+   async searchRecruits(dto: SearchRecruitsDTO): Promise<SearchRecruitResult[]> {
+        const results = await this._searchRecruitsService.searchRecruit(dto);
+        return Promise.all(results.map(r => this.toSearchRecruitResult(r)));
     }
 
-    async applyOrQuitRecruit(recruitId: number, userId: number): Promise<void> {
-        await this._applicantsService.applyOrQuit(recruitId, userId);
+    async searchAppliedRecruits(userId: number): Promise<SearchRecruitResult[]> {
+        const results = await this._applicantsService.getAppliedRecruits(userId);
+        return Promise.all(results.map(r => this.toSearchRecruitResult(r)));
+    }
+
+    updateRecruitLike(id: number, userId: number): Promise<number> {
+        return this._likesService.updateLike(makeLike(id, userId));
+    }
+
+    async applyOrQuitRecruit(id: number, userId: number): Promise<void> {
+        await this._applicantsService.applyOrQuit(id, userId);
     }
 
     async getApplicants(id: number, userId: number): Promise<ApplicantDTO[]> {
@@ -72,6 +82,17 @@ export class RecruitsService {
         return recruit.applicants.map(({ user }) =>
             pick(user, ["id", "nickname"])
         );
+    }
+
+    private async toSearchRecruitResult(recruit: Recruit): Promise<SearchRecruitResult> {
+        const category = recruit.category.value;
+        const author = recruit.user.nickname;
+        const nLikes = await this._likesService.countLikes(makeTarget(recruit.id));
+
+        return {
+            ...pick(recruit, ["id", "title", "location", "createdAt"]),
+            category, author, nLikes
+        };
     }
 
     private async toRecruitDTO(recruit: Recruit, userId: number): Promise<RecruitDTO> {

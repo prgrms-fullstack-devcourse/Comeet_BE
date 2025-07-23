@@ -1,11 +1,7 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Recruit } from "../model";
 import { Repository } from "typeorm";
-import { SearchRecruitResult, SearchRecruitsDTO } from "../dto";
-import { Inject } from "@nestjs/common";
-import { LikesService } from "../../likes";
-import { makeTarget } from "./service.internal";
-import { pick } from "../../utils/object";
+import { SearchRecruitsDTO } from "../dto";
 
 const __RADIUS = 5;
 
@@ -14,11 +10,9 @@ export class SearchRecruitsService {
     constructor(
         @InjectRepository(Recruit)
         private readonly _recruitsRepo: Repository<Recruit>,
-        @Inject(LikesService)
-        private readonly _likesService: LikesService,
     ) {}
 
-    async searchRecruit(dto: SearchRecruitsDTO): Promise<SearchRecruitResult[]> {
+    async searchRecruit(dto: SearchRecruitsDTO): Promise<Recruit[]> {
         const { categoryId, userId, keyword, location  } = dto;
 
         const qb = this._recruitsRepo
@@ -40,23 +34,8 @@ export class SearchRecruitsService {
             { lng: location[0], lat: location[1], radius: __RADIUS },
         );
 
-        const recruits = await qb.getMany();
-
-        return Promise.all(
-            recruits.map(async recruit =>
-                this.toSearchRecruitResult(recruit)
-            )
-        );
+        return await qb.getMany();
     }
 
-    private async toSearchRecruitResult(recruit: Recruit): Promise<SearchRecruitResult> {
-        const category = recruit.category.value;
-        const author = recruit.user.nickname;
-        const nLikes = await this._likesService.countLikes(makeTarget(recruit.id));
 
-        return {
-            ...pick(recruit, ["id", "title", "location", "createdAt"]),
-            category, author, nLikes
-        };
-    }
 }

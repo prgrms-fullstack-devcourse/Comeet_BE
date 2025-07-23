@@ -1,7 +1,9 @@
 import { DataSource, DataSourceOptions } from "typeorm";
-import { addTransactionalDataSource } from "typeorm-transactional";
+import { addTransactionalDataSource, getDataSourceByName } from "typeorm-transactional";
 
 export async function typeormDataSourceFactory(options?: DataSourceOptions): Promise<DataSource> {
     if (!options) throw new Error("Invalid options provided");
-    return addTransactionalDataSource(new DataSource(options));
+
+    return getDataSourceByName("default")
+        ?? addTransactionalDataSource(new DataSource(options));
 }
