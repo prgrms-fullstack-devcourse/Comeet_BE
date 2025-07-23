@@ -10,8 +10,7 @@ import { TagsModule } from './tags';
 import { GithubModule } from './github';
 import { UsersModule } from './users';
 import { AuthModule } from './auth';
-import { PostsModule } from "./boards/posts";
-import { RecruitsModule } from './recruits/recruits.module';
+import { PostsModule } from "./posts";
 
 @Module({
   imports: [
@@ -32,7 +31,6 @@ import { RecruitsModule } from './recruits/recruits.module';
     UsersModule,
     AuthModule,
     PostsModule,
-    RecruitsModule,
   ],
 })
 export class AppModule {}
