@@ -7,14 +7,14 @@ import {
     Inject,
     Param,
     Patch,
-    Post,
+    Post, Put,
     Query,
     UseGuards
 } from "@nestjs/common";
-import { PostsService } from "../service/posts.service";
+import { PostsService } from "../service";
 import { AuthGuard } from "@nestjs/passport";
-import { User } from "../../utils";
-import { CreatePostBody, GetPostsQuery, GetPostsResponse, UpdatePostBody } from "../api";
+import { User } from "../../../utils";
+import { CreatePostBody, GetPostsQuery, GetPostsResponse, UpdatePostBody, UpdatePostLikeResponse } from "../api";
 import {
     ApiBearerAuth,
     ApiBody,
@@ -98,6 +98,20 @@ export class PostsController {
             id, userId, ...body
         });
    }
+
+    @Put("/:id/likes")
+    @ApiOperation({ summary: "게시물 좋아요/좋아요 해제" })
+    @ApiBearerAuth()
+    @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 id" })
+    @ApiOkResponse({ type: UpdatePostLikeResponse })
+    @ApiForbiddenResponse()
+    async updatePostLike(
+        @Param("id") id: number,
+        @User("id") userId: number,
+    ) {
+      const nLikes = await this._postsService.updatePostLike(id, userId);
+      return { nLikes };
+    }
 
    @Delete("/:id")
    @ApiOperation({ summary: "게시물 삭제" })

@@ -5,7 +5,7 @@ import { Inject } from "@nestjs/common";
 import Redis from "iovalkey";
 import { CommentDTO, CreateCommentDTO, GetCommentsDTO, UpdateCommentDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
-import { pick } from "../../utils/object";
+import { pick } from "../../../utils/object";
 
 const __REDIS_KEY = "comments_count";
 

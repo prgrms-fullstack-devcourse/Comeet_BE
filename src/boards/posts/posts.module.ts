@@ -1,16 +1,21 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Comment, Post, PostLike } from "./model";
-import { PostsService } from "./service/posts.service";
-import { PostLikesService } from "./service/post.likes.service";
-import { CommentsService } from "./service/comments.service";
+import { Comment, Post } from "./model";
+import { CommentsService, PostsService } from "./service";
 import { CommentsController, PostsController, UserCommentsController, UserPostsController } from "./controller";
+import { LikesModule, LikesService } from "../../likes";
+import { LikeMark } from "../../likes/model";
+
+const __EXTERNAL_PROVIDERS = [LikesService];
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Post, PostLike, Comment])],
+    imports: [
+        TypeOrmModule.forFeature([Post, Comment, LikeMark]),
+        LikesModule
+    ],
     providers: [
+        ...__EXTERNAL_PROVIDERS,
         PostsService,
-        PostLikesService,
         CommentsService,
     ],
     controllers: [

@@ -1,8 +1,8 @@
 import { Controller, Get, Inject, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import { CommentsService } from "../service/comments.service";
+import { CommentsService } from "../service";
 import { GetCommentsResponse } from "../api";
-import { User } from "../../utils";
+import { User } from "../../../utils";
 import { ApiBearerAuth, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 @ApiTags("Users", "Comments")

@@ -3,3 +3,4 @@ export * from "./immutable.model.base";
 export * from "./type.base";
 export * from "./type.dto";
 export * from "./geo.base";
+export * from "./mark.base";

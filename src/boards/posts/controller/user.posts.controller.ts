@@ -1,8 +1,8 @@
 import { ApiBearerAuth, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Controller, Get, Inject, UseGuards } from "@nestjs/common";
-import { PostsService } from "../service/posts.service";
+import { PostsService } from "../service";
 import { GetPostsResponse } from "../api";
-import { User } from "../../utils";
+import { User } from "../../../utils";
 import { AuthGuard } from "@nestjs/passport";
 
 @ApiTags("Users", "Posts")

@@ -2,11 +2,12 @@ import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Post } from "../model";
 import { Between, FindOptionsWhere, In, Like, Repository } from "typeorm";
-import { PostLikesService } from "./post.likes.service";
 import { CommentsService } from "./comments.service";
 import { CreatePostDTO, PostDTO, SearchPostResult, SearchPostsDTO, UpdatePostDTO } from "../dto";
-import { pick } from "../../utils/object";
+import { pick } from "../../../utils/object";
 import { Transactional } from "typeorm-transactional";
+import { LikesService } from "../../../likes";
+import { LikeDTO, TargetDTO } from "../../../likes/dto";
 
 @Injectable()
 export class PostsService {
@@ -15,8 +16,8 @@ export class PostsService {
     constructor(
        @InjectRepository(Post)
        private readonly _postsRepo: Repository<Post>,
-       @Inject(PostLikesService)
-       private readonly _likesService: PostLikesService,
+       @Inject(LikesService)
+       private readonly _likesService: LikesService,
        @Inject(CommentsService)
        private readonly _commentsService: CommentsService,
     ) {}
@@ -58,12 +59,16 @@ export class PostsService {
             await this._postsRepo.update({ id, userId }, values);
     }
 
+    updatePostLike(id: number, userId: number): Promise<number> {
+        return this._likesService.updateLike(__makeLike(id, userId));
+    }
+
     @Transactional()
     async deletePost(id: number, userId: number): Promise<void> {
         const { affected } = await this._postsRepo.delete({ id, userId });
 
         if (affected) {
-            await this._likesService.onPostDeleted(id);
+            await this._likesService.onTargetDeleted(__makeTarget(id));
             await this._commentsService.onPostDeleted(id);
         }
     }
@@ -71,7 +76,7 @@ export class PostsService {
     private async toSearchPostResult(post: Post): Promise<SearchPostResult> {
         const category = post.category.value;
         const author = post.user?.nickname ?? "알수없음";
-        const nLikes = await this._likesService.countPostLikes(post.id);
+        const nLikes = await this._likesService.countLikes(__makeTarget(post.id));
         const nComments = await this._commentsService.countPostComments(post.id);
 
         return {
@@ -84,11 +89,13 @@ export class PostsService {
         const category = post.category.value;
         const author = post.user?.nickname ?? "알수없음";
         const editable = post.userId === userId;
-        const nLikes = await this._likesService.countPostLikes(post.id);
-        const likeIt = await this._likesService.likeThisPost(post.id, userId);
 
-        const comments = post.comments.map(
-            comment => CommentsService.toCommentDTO(comment, userId)
+        const [nLikes, likeIt] = await this.countAndCheckLike(
+            __makeLike(post.id, userId)
+        );
+
+        const comments = post.comments.map(comment =>
+            CommentsService.toCommentDTO(comment, userId)
         );
 
         return {
@@ -96,6 +103,23 @@ export class PostsService {
             category, author, editable, nLikes, likeIt, comments
         };
     }
+
+    private async countAndCheckLike(like: LikeDTO): Promise<[number, boolean]> {
+        const nLikes = await this._likesService.countLikes(like);
+        const likeIt = await this._likesService.didLikeIt(like);
+        return [nLikes, likeIt];
+    }
+}
+
+function __makeLike(id: number, userId: number): LikeDTO {
+    return {
+        ...__makeTarget(id),
+        userId
+    };
+}
+
+function __makeTarget(id: number): TargetDTO {
+    return { targetType: "post", targetId: id };
 }
 
 function __makeWhereOptions(dto: SearchPostsDTO): FindOptionsWhere<Post> {

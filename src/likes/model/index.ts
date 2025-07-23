@@ -1,0 +1,1 @@
+export * from "./like.mark.model";

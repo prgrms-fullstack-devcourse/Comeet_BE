@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDate, IsNumber, IsOptional, IsString } from "class-validator";
-import { IsRange } from "../../utils";
+import { IsRange } from "../../../utils";
 
 export class GetPostsQuery {
     @IsNumber()

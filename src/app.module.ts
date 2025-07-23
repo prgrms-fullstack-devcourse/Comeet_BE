@@ -10,7 +10,7 @@ import { TagsModule } from './tags';
 import { GithubModule } from './github';
 import { UsersModule } from './users';
 import { AuthModule } from './auth';
-import { PostsModule } from './posts';
+import { BoardsModule } from './boards';
 
 @Module({
   imports: [
@@ -30,7 +30,7 @@ import { PostsModule } from './posts';
     GithubModule,
     UsersModule,
     AuthModule,
-    PostsModule,
+    BoardsModule,
   ],
 })
 export class AppModule {}
