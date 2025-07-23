@@ -4,7 +4,7 @@ import { User } from "../model";
 import { ObjectLiteral, Repository } from "typeorm";
 import { SearchUserResult, SearchUsersDTO } from "../dto";
 import { pick } from "../../utils/object";
-import { TypeBase } from "../../common";
+import { TypeBase } from "../../common/data";
 import { ageToBirthYear, birthYearToAge } from "./service.internal";
 import { PositionsService } from "../../tags/service";
 

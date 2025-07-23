@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { GithubAccount } from "../model";
 import { Repository } from "typeorm";
 import { GithubAccountDTO } from "../dto";
-import { ModelBase } from "../../common";
+import { ModelBase } from "../../common/data";
 
 @Injectable()
 export class GitHubAccountsService {

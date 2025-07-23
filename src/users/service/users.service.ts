@@ -6,7 +6,7 @@ import { UserTechsService } from "./user.techs.service";
 import { UserInterestsService } from "./user.interests.service";
 import { CreateUserDTO, GetUserDTO, SearchUserResult, SearchUsersDTO, UpdateUserDTO, UserDTO, UserIdentification } from "../dto";
 import { Transactional } from "typeorm-transactional";
-import { ModelBase, TypeBase } from "../../common";
+import { ModelBase, TypeBase } from "../../common/data";
 import { GitHubAccountsService } from "../../github/service";
 import { SearchUsersService } from "./search.users.service";
 import { ageToBirthYear, birthYearToAge } from "./service.internal";

@@ -1,4 +1,4 @@
-import { ImmutableModelBase } from "../index";
+import { ImmutableModelBase } from "./immutable.model.base";
 import { Column, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../../users/model";
 

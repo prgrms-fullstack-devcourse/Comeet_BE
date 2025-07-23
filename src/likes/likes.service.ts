@@ -78,6 +78,12 @@ export class LikesService implements OnModuleInit, OnModuleDestroy {
         return this._redis.scard(key);
     }
 
+    async countAndCheckLike(like: LikeDTO): Promise<[number, boolean]> {
+        const nLikes = await this.countLikes(like);
+        const likeIt = await this.didLikeIt(like);
+        return [nLikes, likeIt];
+    }
+
     async onTargetDeleted(tg: TargetDTO): Promise<void> {
         await this._redis.del(this.makeKey(tg));
     }
