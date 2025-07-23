@@ -18,8 +18,8 @@ export class SearchRecruitsService {
         const qb = this._recruitsRepo
             .createQueryBuilder("recruit")
             .select("recruit.*")
-            .leftJoinAndSelect("recruits.category", "category")
-            .leftJoinAndSelect("recruits.user", "user");
+            .leftJoinAndSelect("recruit.category", "category")
+            .leftJoinAndSelect("recruit.user", "user");
 
         categoryId && qb.andWhere("recruit.categoryId = :categoryId", { categoryId });
         userId && qb.andWhere("recruit.userId = :userId", { userId });
