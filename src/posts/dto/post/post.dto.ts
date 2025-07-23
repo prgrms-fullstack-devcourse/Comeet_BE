@@ -30,8 +30,6 @@ export class PostDTO {
     @ApiProperty({ type: "boolean", description: "좋아요 눌렀는지 여부" })
     likeIt: boolean;
 
-
-
     @ApiProperty({ type: [CommentDTO] })
     comments: CommentDTO[];
 }

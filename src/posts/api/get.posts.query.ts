@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsDate, IsNumber, IsOptional, IsString } from "class-validator";
 import { IsRange } from "../../utils";
 
-export class SearchPostsQuery {
+export class GetPostsQuery {
     @IsNumber()
     @ApiProperty({ type: "integer", required: true })
     categoryId: number;

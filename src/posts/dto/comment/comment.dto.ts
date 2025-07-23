@@ -4,6 +4,9 @@ export class CommentDTO {
     @ApiProperty({ type: "integer" })
     id: number;
 
+    @ApiProperty({ type: "integer" })
+    postId: number;
+
     @ApiProperty({ type: "string" })
     author: string;
 

@@ -3,8 +3,9 @@ import { Comment } from "../model";
 import { Repository } from "typeorm";
 import { Inject } from "@nestjs/common";
 import Redis from "iovalkey";
-import { CommentDTO, CreateCommentDTO, DeleteCommentDTO, GetCommentsDTO, UpdateCommentDTO } from "../dto";
+import { CommentDTO, CreateCommentDTO, GetCommentsDTO, UpdateCommentDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
+import { pick } from "../../utils/object";
 
 const __REDIS_KEY = "comments_count";
 
@@ -18,10 +19,14 @@ export class CommentsService {
     ) {}
 
     static toCommentDTO(comment: Comment, userId?: number): CommentDTO {
-        const { id, content, createdAt, user } = comment;
+        const { user } = comment;
         const author = user?.nickname ?? "알수없음";
         const editable = !!user && user.id === userId;
-        return { id, author, content, createdAt, editable };
+
+        return {
+            ...pick(comment, ["id", "postId", "content", "createdAt"]),
+            author, editable
+        };
     }
 
     @Transactional()
@@ -31,10 +36,13 @@ export class CommentsService {
     }
 
     async getComments(dto: GetCommentsDTO): Promise<CommentDTO[]> {
-        const comments = await this._commentsRepo.find({ relations: { user: true } });
+        const { requestBy, ...where } = dto;
+
+        const comments = await this._commentsRepo
+            .find({ relations: { user: true }, where });
 
         return comments.map(comment =>
-            CommentsService.toCommentDTO(comment, dto.userId)
+            CommentsService.toCommentDTO(comment, requestBy)
         );
     }
 
@@ -44,9 +52,17 @@ export class CommentsService {
     }
 
     @Transactional()
-    async deleteComment(dto: DeleteCommentDTO): Promise<void> {
-        const { affected } = await this._commentsRepo.delete(dto);
-        affected && await this.updateCount(dto.postId, -affected);
+    async deleteComment(id: number, userId: number): Promise<void> {
+
+        const comment = await this._commentsRepo.findOne({
+            where: { id, userId },
+            select: ["postId"]
+        });
+
+        if (comment) {
+            await this._commentsRepo.delete(id);
+            await this.updateCount(comment.postId, -1);
+        }
     }
 
     async countPostComments(postId: number): Promise<number> {
