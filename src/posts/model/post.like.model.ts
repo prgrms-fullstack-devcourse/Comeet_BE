@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ImmutableModelBase } from "../../common";
+import { ImmutableModelBase } from "../../common/data";
 import { Post } from "./post.model";
 import { User } from "../../users/model";
 

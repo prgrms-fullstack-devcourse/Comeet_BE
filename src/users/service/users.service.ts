@@ -10,6 +10,7 @@ import { ModelBase, TypeBase } from "../../common";
 import { GitHubAccountsService } from "../../github/service";
 import { SearchUsersService } from "./search.users.service";
 import { ageToBirthYear, birthYearToAge } from "./service.internal";
+import { PositionsService } from "../../tags/service";
 
 @Injectable()
 export class UsersService {
@@ -94,7 +95,7 @@ export class UsersService {
 function __toDTO(user: User): UserDTO {
 
     const {
-        birthYear, github, social, userTechs, userInterests, ...rest
+        birthYear, github, social, position, userTechs, userInterests, ...rest
     } = ModelBase.excludeWithTimestamp(user, ["githubId", "positionId"]);
 
     return {
@@ -102,6 +103,7 @@ function __toDTO(user: User): UserDTO {
         age: birthYearToAge(birthYear),
         github: GitHubAccountsService.toGithubAccountDTO(github),
         social: ModelBase.excludeWithTimestamp(social, ["id"]),
+        position: PositionsService.toPositionDTO(position),
         techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),
         interests: userInterests.map(ui => TypeBase.toTypeDTO(ui.interest))
     }

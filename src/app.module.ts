@@ -10,7 +10,7 @@ import { TagsModule } from './tags';
 import { GithubModule } from './github';
 import { UsersModule } from './users';
 import { AuthModule } from './auth';
-import { PostsModule } from './posts';
+import { PostsModule } from "./posts";
 
 @Module({
   imports: [

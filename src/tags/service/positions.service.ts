@@ -1,47 +1,31 @@
-import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Position } from "../model";
 import { Repository } from "typeorm";
 import Redis from "iovalkey";
-import { pick } from "../../utils/object";
-import { TypeBase, TypeDTO } from "../../common";
-
-const __REDIS_KEY = "positions";
+import { TagsServiceBase } from "./tags.service.base";
+import { PositionDTO } from "../dto";
+import { TypeDTO } from "../../common";
 
 @Injectable()
-export class PositionsService implements OnModuleInit, OnModuleDestroy {
+export class PositionsService extends TagsServiceBase {
 
     constructor(
        @InjectRepository(Position)
-       private readonly _positionsRepo: Repository<Position>,
+       repo: Repository<Position>,
        @Inject(Redis)
-       private readonly _redis: Redis
-    ) {}
-
-    /**
-     * Since positions table is not modified by user input,
-     * Caching data to redis during service run for performance
-     */
-    async onModuleInit(): Promise<void> {
-        const positons = await this._positionsRepo.find();
-
-        await this._redis.rpush(
-            __REDIS_KEY,
-            ...positons.map(p =>
-                JSON.stringify(TypeBase.toTypeDTO(p))
-            )
-        );
+       redis: Redis
+    ) {
+        super(repo, redis, "positions");
     }
 
-    /**
-     * Clear cache on service closed
-     */
-    async onModuleDestroy(): Promise<void> {
-        await this._redis.del(__REDIS_KEY);
+    async getAllPositions(): Promise<PositionDTO[]> {
+        const tags = await this.getAllTags();
+        return tags.map(PositionsService.toPositionDTO);
     }
 
-    async getAllPositions(): Promise<TypeDTO[]> {
-        const raws = await this._redis.lrange(__REDIS_KEY,0, -1);
-        return raws.map(raw => JSON.parse(raw));
+    static toPositionDTO(type: TypeDTO): PositionDTO {
+        const [field, value] = type.value.split(":");
+        return { id: type.id, field, value };
     }
 }

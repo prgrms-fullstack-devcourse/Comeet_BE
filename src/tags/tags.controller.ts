@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Query } from '@nestjs/common';
 import { InterestsService, PositionsService, TechsService } from "./service";
 import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnprocessableEntityResponse } from "@nestjs/swagger";
-import { SearchTagsQuery, SearchTagsResponse } from "./api";
+import { GetStaticsResponse, SearchTechsQuery, SearchTechsResponse } from "./api";
 
 @Controller('/api/tags')
 @ApiTags("Tags")
@@ -16,37 +16,25 @@ export class TagsController {
        private readonly _interestsService: InterestsService,
     ) {}
 
-    @Get("/positions")
-    @ApiOperation({ summary: "Get all positions" })
-    @ApiOkResponse({ type: SearchTagsResponse })
-    async getPositions(): Promise<SearchTagsResponse> {
-        const results = await this._positionsService.getAllPositions();
-        return { results };
+    @Get("/statics")
+    @ApiOperation({ summary: "Get all positions and interests" })
+    @ApiOkResponse({ type: GetStaticsResponse })
+    async getStatics(): Promise<GetStaticsResponse> {
+       const positions = await this._positionsService.getAllPositions();
+       const interests = await this._interestsService.getAllInterests();
+       return { positions, interests };
     }
 
     @Get("/tech-stack")
     @ApiOperation({ summary: "Get tech stack containing given keyword" })
-    @ApiQuery({ type: SearchTagsQuery, required: true })
-    @ApiOkResponse({ type: SearchTagsResponse })
+    @ApiQuery({ type: SearchTechsQuery, required: true })
+    @ApiOkResponse({ type: SearchTechsResponse })
     @ApiUnprocessableEntityResponse({ description: "Invalid query parameters" })
     async getTechs(
         @Query()
-        { keyword }: SearchTagsQuery
-    ): Promise<SearchTagsResponse> {
+        { keyword }: SearchTechsQuery
+    ): Promise<SearchTechsResponse> {
         const results = await this._techsService.search(keyword);
-        return { results };
-    }
-
-    @Get("/interests")
-    @ApiOperation({ summary: "Get interests containing given keyword" })
-    @ApiQuery({ type: SearchTagsQuery, required: true })
-    @ApiOkResponse({ type: SearchTagsResponse })
-    @ApiUnprocessableEntityResponse({ description: "Invalid query parameters" })
-    async getInterests(
-        @Query()
-        { keyword }: SearchTagsQuery
-    ): Promise<SearchTagsResponse> {
-        const results = await this._interestsService.search(keyword);
         return { results };
     }
 }

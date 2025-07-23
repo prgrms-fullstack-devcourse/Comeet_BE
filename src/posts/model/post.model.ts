@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { ModelBase } from "../../common";
+import { ModelBase } from "../../common/data";
 import { PostCategory } from "./post.category.model";
 import { User } from "../../users/model";
 import { Comment } from "./comment.model";
