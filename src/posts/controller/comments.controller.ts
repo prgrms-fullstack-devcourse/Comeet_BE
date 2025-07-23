@@ -21,7 +21,7 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { CommentsService } from "../service";
-import { User } from "../../../utils";
+import { User } from "../../utils";
 import { CreateCommentBody, GetCommentsQuery, GetCommentsResponse, UpdateCommentBody } from "../api";
 
 @ApiTags("Comments")

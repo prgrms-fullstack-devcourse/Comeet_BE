@@ -4,10 +4,10 @@ import { Post } from "../model";
 import { Between, FindOptionsWhere, In, Like, Repository } from "typeorm";
 import { CommentsService } from "./comments.service";
 import { CreatePostDTO, PostDTO, SearchPostResult, SearchPostsDTO, UpdatePostDTO } from "../dto";
-import { pick } from "../../../utils/object";
+import { pick } from "../../utils/object";
 import { Transactional } from "typeorm-transactional";
-import { LikesService } from "../../../likes";
-import { LikeDTO, TargetDTO } from "../../../likes/dto";
+import { LikesService } from "../../likes";
+import { LikeDTO, TargetDTO } from "../../likes/dto";
 
 @Injectable()
 export class PostsService {

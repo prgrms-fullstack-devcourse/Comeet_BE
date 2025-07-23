@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { ModelBase } from "../../common";
+import { ModelBase } from "../../common/data";
 
 @Entity("github_accounts")
 export class GithubAccount extends ModelBase {

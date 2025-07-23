@@ -1,4 +1,4 @@
-import { TypeBase } from "../../../common";
+import { TypeBase } from "../../common/data";
 import { Entity } from "typeorm";
 
 @Entity("post_categories")

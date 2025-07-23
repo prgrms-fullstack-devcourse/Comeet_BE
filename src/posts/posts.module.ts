@@ -3,8 +3,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Comment, Post } from "./model";
 import { CommentsService, PostsService } from "./service";
 import { CommentsController, PostsController, UserCommentsController, UserPostsController } from "./controller";
-import { LikesModule, LikesService } from "../../likes";
-import { LikeMark } from "../../likes/model";
+import { LikesModule, LikesService } from "../likes";
+import { LikeMark } from "../likes/model";
 
 const __EXTERNAL_PROVIDERS = [LikesService];
 

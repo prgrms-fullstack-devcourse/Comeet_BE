@@ -7,7 +7,7 @@ import {
     OneToOne,
     PrimaryGeneratedColumn
 } from "typeorm";
-import { GeoBase } from "../../common";
+import { GeoBase } from "../../common/data";
 import { GithubAccount } from "../../github/model";
 import { Social } from "./social.model";
 import { Position } from "../../tags/model";

@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { PostsService } from "../service";
 import { AuthGuard } from "@nestjs/passport";
-import { User } from "../../../utils";
+import { User } from "../../utils";
 import { CreatePostBody, GetPostsQuery, GetPostsResponse, UpdatePostBody, UpdatePostLikeResponse } from "../api";
 import {
     ApiBearerAuth,

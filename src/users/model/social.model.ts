@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { ModelBase } from "../../common";
+import { ModelBase } from "../../common/data";
 
 @Entity("socials")
 export class Social extends ModelBase {
