@@ -7,13 +7,14 @@ import {
     OneToOne,
     PrimaryGeneratedColumn
 } from "typeorm";
-import { GeoBase } from "../../common/data";
+import { ModelBase } from "../../common/data";
 import { Social } from "./social.model";
 import { Position } from "../../tags/model";
 import { UserInterest, UserTech } from "./tag";
+import { GeometricColumn } from "../../utils";
 
 @Entity("users")
-export class User extends GeoBase {
+export class User extends ModelBase {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -39,7 +40,10 @@ export class User extends GeoBase {
     bio: string;
 
     @Column({ type: "varchar" })
-    githubLink: string;
+    github: string;
+
+    @GeometricColumn()
+    location: [number, number];
 
     @OneToOne(() => Social, { cascade: true })
     @JoinColumn({ name: "social_id" })

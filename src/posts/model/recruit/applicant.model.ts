@@ -1,6 +1,6 @@
-import { ImmutableModelBase } from "../../common/data";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../../users/model";
+import { ImmutableModelBase } from "../../../common/data";
+import { User } from "../../../users/model";
 import { Recruit } from "./recruit.model";
 
 @Entity("applicants")

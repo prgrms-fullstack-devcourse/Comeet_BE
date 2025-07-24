@@ -3,8 +3,8 @@ import { ModelBase } from "../../common/data";
 
 @Entity("socials")
 export class Social extends ModelBase {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryGeneratedColumn({ name: "user_id" })
+    userId: number;
 
     @Column({ type: "varchar", nullable: true })
     email: string | null;
