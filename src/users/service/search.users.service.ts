@@ -84,7 +84,7 @@ function __toSearchUserResult(
     const { birthYear, position, userTechs, userInterests } = data;
 
     return {
-        ...pick(data, ["id", "nickname", "experience", "location", "distance"]),
+        ...pick(data, ["id", "nickname", "experience", "location", "githubLink", "distance"]),
         age: birthYearToAge(birthYear),
         position: PositionsService.toPositionDTO(position),
         techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),

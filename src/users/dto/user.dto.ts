@@ -1,6 +1,5 @@
 import { SocialDTO } from "./social.dto";
-import { TypeDTO } from "../../common";
-import { GithubAccountDTO } from "../../github/dto";
+import { TypeDTO } from "../../common/data";
 import { PositionDTO } from "../../tags/dto";
 
 export interface UserDTO {
@@ -10,8 +9,8 @@ export interface UserDTO {
     experience: number;
     bio: string;
     location: [number, number];
+    githubLink: string;
     social: SocialDTO;
-    github: GithubAccountDTO;
     position: PositionDTO;
     techStack: TypeDTO[];
     interests: TypeDTO[];

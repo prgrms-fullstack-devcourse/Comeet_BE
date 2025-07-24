@@ -7,10 +7,10 @@ import { UserInterestsService } from "./user.interests.service";
 import { CreateUserDTO, GetUserDTO, SearchUserResult, SearchUsersDTO, UpdateUserDTO, UserDTO, UserIdentification } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { ModelBase, TypeBase } from "../../common/data";
-import { GitHubAccountsService } from "../../github/service";
 import { SearchUsersService } from "./search.users.service";
 import { ageToBirthYear, birthYearToAge } from "./service.internal";
 import { PositionsService } from "../../tags/service";
+import { pick } from "../../utils/object";
 
 @Injectable()
 export class UsersService {
@@ -29,10 +29,8 @@ export class UsersService {
 
     @Transactional()
     async createUser(dto: CreateUserDTO): Promise<UserIdentification> {
+        await this.checkConflict(dto);
         const { age, techIds, interestIds, ...rest } = dto;
-
-        if (await this._usersRepo.existsBy({ githubId: dto.githubId }))
-            throw new ConflictException();
 
         const { id, githubId } = await this._usersRepo.save({
            ...rest,
@@ -53,7 +51,7 @@ export class UsersService {
 
         const user = await this.findUser({
             relations: {
-                position: true, github: true, social: true,
+                position: true, social: true,
                 userTechs: { tech: true }, userInterests: { interest: true }
             },
             where: dto
@@ -85,6 +83,13 @@ export class UsersService {
         return await this._searchUsersService.searchUsers(origin, filters);
     }
 
+    private async checkConflict(dto: CreateUserDTO): Promise<void> {
+        const { githubId } = dto;
+
+        if (await this._usersRepo.existsBy({ githubId }))
+            throw new ConflictException();
+    }
+
     private async findUser(options: FindOneOptions<User>): Promise<User> {
         const user = await this._usersRepo.findOne(options);
         if (!user) throw new ForbiddenException();
@@ -93,15 +98,11 @@ export class UsersService {
 }
 
 function __toDTO(user: User): UserDTO {
-
-    const {
-        birthYear, github, social, position, userTechs, userInterests, ...rest
-    } = ModelBase.excludeWithTimestamp(user, ["githubId", "positionId"]);
+    const { birthYear, social, position, userTechs, userInterests } = user;
 
     return {
-        ...rest,
+        ...pick(user, ["id", "nickname", "experience", "location", "githubLink", "bio"]),
         age: birthYearToAge(birthYear),
-        github: GitHubAccountsService.toGithubAccountDTO(github),
         social: ModelBase.excludeWithTimestamp(social, ["id"]),
         position: PositionsService.toPositionDTO(position),
         techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),

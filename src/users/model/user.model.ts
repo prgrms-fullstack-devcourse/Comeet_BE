@@ -8,7 +8,6 @@ import {
     PrimaryGeneratedColumn
 } from "typeorm";
 import { GeoBase } from "../../common/data";
-import { GithubAccount } from "../../github/model";
 import { Social } from "./social.model";
 import { Position } from "../../tags/model";
 import { UserInterest, UserTech } from "./tag";
@@ -39,9 +38,8 @@ export class User extends GeoBase {
     @Column({ type: "varchar" })
     bio: string;
 
-    @OneToOne(() => GithubAccount, { onDelete: "CASCADE" })
-    @JoinColumn({ name: "github_id" })
-    github: GithubAccount;
+    @Column({ type: "varchar" })
+    githubLink: string;
 
     @OneToOne(() => Social, { cascade: true })
     @JoinColumn({ name: "social_id" })

@@ -2,6 +2,7 @@ import { SocialDTO } from "./social.dto";
 
 export interface CreateUserDTO {
     githubId: string;
+    githubLink: string;
     nickname: string;
     age: number;
     experience: number;

@@ -16,15 +16,17 @@ import {
     ApiConflictResponse,
     ApiCreatedResponse,
     ApiForbiddenResponse, ApiOkResponse,
-    ApiOperation, ApiResponse,
-    ApiTags, ApiUnprocessableEntityResponse
+    ApiOperation, ApiQuery, ApiResponse,
+    ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
 import { AuthService } from "./service";
-import { SignInFailResponse, SignInResponse, SignUpBody } from "./api";
+import { SignInFailResponse, SignInResponse, SignUpBody, SignUpQuery } from "./api";
 import { Cookies, TokenPair, User } from "../utils";
 import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { Response } from "express";
-import { GithubOAuth2Guard } from "../github/github.oauth2.guard";
+import { AuthGuard } from "@nestjs/passport";
+import { GithubUserDTO } from "../github/dto";
+import { SignUpGuard } from "./sign.up.guard";
 
 @ApiTags("Auth")
 @Controller("/api/auth")
@@ -37,20 +39,28 @@ export class AuthController {
 
     @Post("/sign-up")
     @ApiOperation({ summary: "회원가입" })
+    @ApiQuery({ type: SignUpQuery, required: true })
     @ApiBody({ type: SignUpBody, required: true })
     @ApiCreatedResponse({ type: SignInResponse })
-    @ApiForbiddenResponse({ description: "등록되지 않은 깃허브 아이디" })
+    @ApiUnauthorizedResponse({ description: "세션 아이디 쿼리에 첨부하지 않음" })
     @ApiConflictResponse({ description: "해당 깃허브 계정으로 가입한 유저 존재" })
     @ApiUnprocessableEntityResponse({ description: "유효하지 않은 request body" })
+    @ApiResponse({ status: 440, description: "회원가입 세션 만료됨" })
     @UseInterceptors(SignInInterceptor)
+    @UseGuards(SignUpGuard)
     async signUp(
-        @Body() body: SignUpBody
+        @User() user: GithubUserDTO,
+        @Body() body: SignUpBody,
     ): Promise<TokenPair> {
-        const { email, instagram, linkedIn, blog, ...rest } = body;
 
-        return await this._authService.signUp(Object.assign(
-            rest, { social: { email, instagram, linkedIn, blog } }
-        ));
+        const { email, instagram, linkedIn, blog, ...rest }
+            = Object.assign(body, user);
+
+        const social = { email, instagram, linkedIn, blog };
+
+        return await this._authService.signUp(
+            Object.assign(rest, { social })
+        );
     }
 
     @Get("/sign-in")
@@ -59,19 +69,19 @@ export class AuthController {
     @ApiResponse({ status: 210, type: SignInFailResponse })
     @ApiForbiddenResponse({ description: "github 인증 실패" })
     @UseInterceptors(SignInInterceptor)
-    @UseGuards(GithubOAuth2Guard)
+    @UseGuards(AuthGuard("github"))
     async signIn(
-        @User("githubId")
-        githubId: string,
+        @User()
+        { githubId, githubLink }: GithubUserDTO,
         @Res({ passthrough: true })
         res: Response,
-    ): Promise<TokenPair | SignInFailResponse> {
+    ): Promise<TokenPair | GithubUserDTO> {
         return await this._authService.signIn(githubId)
             .catch(err => {
 
                 if (err instanceof ForbiddenException) {
                     res.status(210)
-                    return { githubId };
+                    return { githubId, githubLink };
                 }
 
                 throw err;
