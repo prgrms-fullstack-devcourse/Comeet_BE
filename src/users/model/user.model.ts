@@ -39,7 +39,7 @@ export class User extends GeoBase {
     bio: string;
 
     @Column({ type: "varchar" })
-    githubLink: string;
+    github: string;
 
     @OneToOne(() => Social, { cascade: true })
     @JoinColumn({ name: "social_id" })

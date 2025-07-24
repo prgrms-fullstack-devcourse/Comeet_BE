@@ -1,8 +1,9 @@
 import { ImmutableModelBase } from "../../common/data";
-import { Column, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../../users/model";
 import { Recruit } from "./recruit.model";
 
+@Entity("applicants")
 export class Applicant extends ImmutableModelBase {
     @PrimaryGeneratedColumn()
     id: number;

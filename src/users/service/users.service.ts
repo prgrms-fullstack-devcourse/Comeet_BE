@@ -98,12 +98,12 @@ export class UsersService {
 }
 
 function __toDTO(user: User): UserDTO {
-    const { birthYear, social, position, userTechs, userInterests } = user;
+    const { social, birthYear, position, userTechs, userInterests } = user;
 
     return {
-        ...pick(user, ["id", "nickname", "experience", "location", "githubLink", "bio"]),
+        ...pick(user, ["id", "nickname", "experience", "location", "bio", "github"]),
+        ...pick(social, ["email", "instagram", "linkedIn", "blog"]),
         age: birthYearToAge(birthYear),
-        social: ModelBase.excludeWithTimestamp(social, ["id"]),
         position: PositionsService.toPositionDTO(position),
         techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),
         interests: userInterests.map(ui => TypeBase.toTypeDTO(ui.interest))

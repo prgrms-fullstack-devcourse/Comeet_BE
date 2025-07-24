@@ -49,18 +49,13 @@ export class AuthController {
     @UseInterceptors(SignInInterceptor)
     @UseGuards(SignUpGuard)
     async signUp(
-        @User() user: GithubUserDTO,
+        @User() { githubId, githubLink }: GithubUserDTO,
         @Body() body: SignUpBody,
     ): Promise<TokenPair> {
-
-        const { email, instagram, linkedIn, blog, ...rest }
-            = Object.assign(body, user);
-
-        const social = { email, instagram, linkedIn, blog };
-
-        return await this._authService.signUp(
-            Object.assign(rest, { social })
-        );
+        return await this._authService.signUp({
+            ...body, githubId,
+            github: githubLink,
+        });
     }
 
     @Get("/sign-in")
@@ -72,16 +67,16 @@ export class AuthController {
     @UseGuards(AuthGuard("github"))
     async signIn(
         @User()
-        { githubId, githubLink }: GithubUserDTO,
+        user: GithubUserDTO,
         @Res({ passthrough: true })
         res: Response,
     ): Promise<TokenPair | GithubUserDTO> {
-        return await this._authService.signIn(githubId)
+        return await this._authService.signIn(user.githubId)
             .catch(err => {
 
                 if (err instanceof ForbiddenException) {
                     res.status(210)
-                    return { githubId, githubLink };
+                    return user;
                 }
 
                 throw err;

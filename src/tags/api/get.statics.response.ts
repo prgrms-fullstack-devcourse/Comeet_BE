@@ -1,6 +1,6 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
 import { PositionDTO } from "../dto";
-import { TypeDTO } from "../../common";
+import { TypeDTO } from "../../common/data";
 
 @ApiExtraModels(PositionDTO, TypeDTO)
 export class GetStaticsResponse {

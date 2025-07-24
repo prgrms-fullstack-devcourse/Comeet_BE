@@ -1,5 +1,13 @@
 import { UserDTO } from "./user.dto";
+import { ApiExtraModels, ApiProperty, PickType } from "@nestjs/swagger";
+import { PositionDTO } from "../../tags/dto";
+import { TypeDTO } from "../../common/data";
 
-export type SearchUserResult
-    = { distance: number; }
-    & Pick<UserDTO, "id" | "nickname" | "age" | "experience" | "location" | "githubLink" | "position" | "techStack" | "interests">
+@ApiExtraModels(PositionDTO, TypeDTO)
+export class SearchUserResult extends PickType(
+    UserDTO,
+    ["id", "nickname", "age", "experience", "position", "techStack", "interests", "github"]
+) {
+    @ApiProperty({ type: "number" })
+    distance: number;
+}
