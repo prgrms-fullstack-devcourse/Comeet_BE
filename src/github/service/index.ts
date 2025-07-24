@@ -1,4 +1,3 @@
-export * from "./github.accounts.service";
-export * from "./github.auth.service";
-export * from "./github.client.service";
+export * from "./github.oauth2.service";
 export * from "./generate.token.service";
+export * from "./get.user.service";

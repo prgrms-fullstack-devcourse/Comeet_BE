@@ -4,7 +4,7 @@ import { User } from "../model";
 import { ObjectLiteral, Repository } from "typeorm";
 import { SearchUserResult, SearchUsersDTO } from "../dto";
 import { pick } from "../../utils/object";
-import { TypeBase } from "../../common";
+import { TypeBase } from "../../common/data";
 import { ageToBirthYear, birthYearToAge } from "./service.internal";
 import { PositionsService } from "../../tags/service";
 
@@ -84,7 +84,7 @@ function __toSearchUserResult(
     const { birthYear, position, userTechs, userInterests } = data;
 
     return {
-        ...pick(data, ["id", "nickname", "experience", "location", "distance"]),
+        ...pick(data, ["id", "nickname", "experience", "location", "githubLink", "distance"]),
         age: birthYearToAge(birthYear),
         position: PositionsService.toPositionDTO(position),
         techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),

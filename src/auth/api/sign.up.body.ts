@@ -1,33 +1,19 @@
 import { ApiProperty } from "@nestjs/swagger";
-import {
-    ArrayMinSize,
-    IsArray,
-    IsEmail,
-    IsNotEmpty,
-    IsNumber,
-    IsNumberString,
-    IsOptional,
-    IsString, IsUrl,
-    Min
-} from "class-validator";
+import { ArrayMinSize, IsArray, IsEmail, IsInt, IsNumber, IsOptional, IsString, IsUrl, Min } from "class-validator";
 import { IsPair } from "../../utils";
 
 export class SignUpBody {
-    @IsNumberString()
-    @IsNotEmpty()
-    @ApiProperty({ type: "string", required: true })
-    githubId: string;
 
     @IsString()
     @ApiProperty({ type: "string", required: true })
     nickname: string;
 
-    @IsNumber()
+    @IsInt()
     @Min(0)
     @ApiProperty({ type: "integer", required: true })
     age: number;
 
-    @IsNumber()
+    @IsInt()
     @Min(0)
     @ApiProperty({ type: "integer", required:true, description: "경력" })
     experience: number;
@@ -48,12 +34,12 @@ export class SignUpBody {
     })
     location: [number, number];
 
-    @IsNumber()
+    @IsInt()
     @ApiProperty({ type: "integer", required: true })
     positionId: number;
 
     @ArrayMinSize(1)
-    @IsNumber({}, { each: true })
+    @IsInt({ each: true })
     @IsArray()
     @ApiProperty({
         type: "integer",
@@ -64,7 +50,7 @@ export class SignUpBody {
     techIds: number[];
 
     @ArrayMinSize(1)
-    @IsNumber({}, { each: true })
+    @IsInt({ each: true })
     @IsArray()
     @ApiProperty({
         type: "integer",

@@ -90,9 +90,8 @@ export class PostsService {
         const author = post.user?.nickname ?? "알수없음";
         const editable = post.userId === userId;
 
-        const [nLikes, likeIt] = await this.countAndCheckLike(
-            __makeLike(post.id, userId)
-        );
+        const [nLikes, likeIt] = await this._likesService
+            .countAndCheckLike(__makeLike(post.id, userId));
 
         const comments = post.comments.map(comment =>
             CommentsService.toCommentDTO(comment, userId)
@@ -104,11 +103,6 @@ export class PostsService {
         };
     }
 
-    private async countAndCheckLike(like: LikeDTO): Promise<[number, boolean]> {
-        const nLikes = await this._likesService.countLikes(like);
-        const likeIt = await this._likesService.didLikeIt(like);
-        return [nLikes, likeIt];
-    }
 }
 
 function __makeLike(id: number, userId: number): LikeDTO {

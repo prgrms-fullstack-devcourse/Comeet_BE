@@ -1,4 +1,4 @@
-import { TypeDTO } from "../../common";
+import { TypeDTO } from "../../common/data";
 import { ApiProperty, ApiSchema } from "@nestjs/swagger";
 
 @ApiSchema()
