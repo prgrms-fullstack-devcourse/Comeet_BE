@@ -1,2 +1,2 @@
-export * from "./posts.service";
-export * from "./comments.service";
+export * from "./post";
+export * from "./recruit";

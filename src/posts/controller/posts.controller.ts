@@ -14,7 +14,7 @@ import {
 import { PostsService } from "../service";
 import { AuthGuard } from "@nestjs/passport";
 import { User } from "../../utils";
-import { CreatePostBody, GetPostsQuery, GetPostsResponse, UpdatePostBody, UpdatePostLikeResponse } from "../api";
+import { CreatePostBody, GetPostsQuery, GetPostsResponse, UpdatePostBody } from "../api/post";
 import {
     ApiBearerAuth,
     ApiBody,
@@ -24,6 +24,7 @@ import {
     ApiTags, ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
 import { PostDTO } from "../dto";
+import { UpdateLikeResponse } from "../../likes/api";
 
 @ApiTags("Posts")
 @Controller("/api/posts")
@@ -103,7 +104,7 @@ export class PostsController {
     @ApiOperation({ summary: "게시물 좋아요/좋아요 해제" })
     @ApiBearerAuth()
     @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 id" })
-    @ApiOkResponse({ type: UpdatePostLikeResponse })
+    @ApiOkResponse({ type: UpdateLikeResponse })
     @ApiForbiddenResponse()
     async updatePostLike(
         @Param("id") id: number,

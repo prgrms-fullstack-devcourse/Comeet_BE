@@ -12,7 +12,7 @@ export class Recruit extends PostBase {
     @GeometricColumn()
     location: [number, number];
 
-    @ManyToOne(() => User, { onDelete: "CASCADE" })
+    @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
     @JoinColumn({ name: "user_id" })
     user: User;
 
