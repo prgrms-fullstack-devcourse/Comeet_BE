@@ -1,27 +1,27 @@
 import { Repository } from "typeorm";
-import { Post } from "../model/post.model";
-import { PostDTO, SearchPostResult } from "../dto";
+import { PostBase } from "../model/post.base";
+import { PostBaseDTO, SearchPostBaseResult } from "../dto";
 import { LikesService } from "../../likes";
 import { LikeDTO, TargetDTO } from "../../likes/dto";
 import { pick } from "../../utils/object";
 import { Transactional } from "typeorm-transactional";
 
 export abstract class PostsServiceBase<
-    P extends PostDTO,
-    K extends PostDTO.MutableKeys<P>
+    P extends PostBaseDTO,
+    K extends PostBaseDTO.MutableKeys<P>
 > {
-    protected abstract readonly _repo: Repository<Post>;
+    protected abstract readonly _repo: Repository<PostBase>;
     protected abstract readonly _likesService: LikesService;
     protected abstract readonly _postType: string;
 
-    abstract getPost(id: number, userId: number): Promise<PostDTO>;
+    abstract getPost(id: number, userId: number): Promise<PostBaseDTO>;
 
     abstract searchPosts(
-        dto: PostDTO.SearchDTO
-    ): Promise<SearchPostResult[]>;
+        dto: PostBaseDTO.SearchDTO
+    ): Promise<SearchPostBaseResult[]>;
 
     async createPost(
-        dto: PostDTO.CreateDTO<P, K>
+        dto: PostBaseDTO.CreateDTO<P, K>
     ): Promise<void> {
         const { title, content, ...rest } = dto;
 
@@ -32,7 +32,7 @@ export abstract class PostsServiceBase<
     }
 
     async updatePost(
-        dto: PostDTO.UpdateDTO<P, K>
+        dto: PostBaseDTO.UpdateDTO<P, K>
     ): Promise<void> {
         const { id, userId, title, content, ...rest } = dto;
         const values = { ...rest, common: { title, content } };
@@ -55,8 +55,8 @@ export abstract class PostsServiceBase<
         return !!affected;
     }
 
-    protected async toDTO(post: Post, userId: number): Promise<PostDTO> {
-        const category = post.board.value;
+    protected async toDTO(post: PostBase, userId: number): Promise<PostBaseDTO> {
+        const category = post.category.value;
         const author = post.user?.nickname ?? "알수없음";
         const editable = post.userId === userId;
 
@@ -66,14 +66,14 @@ export abstract class PostsServiceBase<
         return {
             ...pick(post, ["id", "createdAt"]),
             ...pick(post.common, ["title", "content"]),
-            board: category, author, editable, nLikes, likeIt
+            category, author, editable, nLikes, likeIt
         };
     }
 
-    protected async toSearchResult(post: Post): Promise<SearchPostResult> {
+    protected async toSearchResult(post: PostBase): Promise<SearchPostBaseResult> {
         return {
             ...pick(post, ["id", "createdAt"]),
-            category: post.board.value,
+            category: post.category.value,
             author: post.user?.nickname ?? "알수없음",
             title: post.common.title,
             nLikes: await this._likesService.countLikes(this.makeTarget(post.id))

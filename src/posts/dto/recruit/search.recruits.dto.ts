@@ -1,4 +1,4 @@
-import { PostDTO } from "../post.dto";
+import { PostBaseDTO } from "../post.base.dto";
 
 export type SearchRecruitsDTO
-    = PostDTO.SearchDTO & { location?: [number, number]; };
+    = PostBaseDTO.SearchDTO & { location?: [number, number]; };

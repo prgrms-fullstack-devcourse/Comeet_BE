@@ -9,24 +9,23 @@ export class SearchRecruitsService {
 
     constructor(
         @InjectRepository(Recruit)
-        private readonly _repo: Repository<Recruit>,
+        private readonly _recruitsRepo: Repository<Recruit>,
     ) {}
 
-    searchRecruits(dto: SearchRecruitsDTO): Promise<Recruit[]> {
+    async searchRecruit(dto: SearchRecruitsDTO): Promise<Recruit[]> {
         const { categoryId, userId, keyword, location  } = dto;
 
-        const qb = this._repo
+        const qb = this._recruitsRepo
             .createQueryBuilder("recruit")
             .select("recruit.*")
-            .innerJoinAndSelect("recruit.category", "category")
-            .innerJoinAndSelect("recruit.user", "user")
-            .innerJoinAndSelect("recruit.common", "common");
+            .leftJoinAndSelect("recruit.category", "category")
+            .leftJoinAndSelect("recruit.user", "user");
 
-        categoryId && qb.andWhere("recruit.id = :categoryId", { categoryId });
-        userId && qb.andWhere("user.id = :userId", { userId });
+        categoryId && qb.andWhere("recruit.categoryId = :categoryId", { categoryId });
+        userId && qb.andWhere("recruit.userId = :userId", { userId });
 
         keyword && qb.andWhere(
-            "common.title LIKE :keyword OR common.content LIKE :keyword",
+            "recruit.title LIKE :keyword OR recruit.detail LIKE :keyword",
             { keyword: `%${keyword}%` },
         );
 
@@ -35,7 +34,7 @@ export class SearchRecruitsService {
             { lng: location[0], lat: location[1], radius: __RADIUS },
         );
 
-        return qb.getMany();
+        return await qb.getMany();
     }
 
 
