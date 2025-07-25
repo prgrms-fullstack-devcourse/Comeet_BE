@@ -8,7 +8,7 @@ export class Post extends PostBase {
     @Column({ name: "user_id", type: "integer", nullable: true })
     userId: number | null;
 
-    @ManyToOne(() => User, { onDelete: "SET NULL" })
+    @ManyToOne(() => User, { onDelete: "SET NULL", eager: true })
     @JoinColumn({ name: "user_id" })
     user: User | null;
 
