@@ -18,14 +18,15 @@ export class SearchRecruitsService {
         const qb = this._recruitsRepo
             .createQueryBuilder("recruit")
             .select("recruit.*")
-            .leftJoinAndSelect("recruit.category", "category")
-            .leftJoinAndSelect("recruit.user", "user");
+            .innerJoinAndSelect("recruit.category", "category")
+            .innerJoinAndSelect("recruit.user", "user")
+            .innerJoinAndSelect("recruit.common", "common")
 
-        categoryId && qb.andWhere("recruit.categoryId = :categoryId", { categoryId });
-        userId && qb.andWhere("recruit.userId = :userId", { userId });
+        categoryId && qb.andWhere("category.id = :categoryId", { categoryId });
+        userId && qb.andWhere("user.id = :userId", { userId });
 
         keyword && qb.andWhere(
-            "recruit.title LIKE :keyword OR recruit.detail LIKE :keyword",
+            "common.title LIKE :keyword OR common.detail LIKE :keyword",
             { keyword: `%${keyword}%` },
         );
 
