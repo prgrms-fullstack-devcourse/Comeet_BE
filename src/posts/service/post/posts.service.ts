@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Post } from "../../model";
 import { Between, FindOptionsWhere, Like, Repository } from "typeorm";
 import { CommentsService } from "./comments.service";
-import { PostBaseDTO, PostDTO, SearchPostResult } from "../../dto";
+import { PostDTO, PostDTO, SearchPostResult } from "../../dto";
 import { LikesService } from "../../../likes";
 import { PostsServiceBase } from "../posts.service.base";
 
@@ -34,7 +34,7 @@ export class PostsService extends PostsServiceBase<
         return this.toDTO(post, userId);
     }
     async searchPosts(
-        dto: PostBaseDTO.SearchDTO
+        dto: PostDTO.SearchDTO
     ): Promise<SearchPostResult[]> {
 
         const posts = await this._repo.findBy(
@@ -75,7 +75,7 @@ export class PostsService extends PostsServiceBase<
 
 
 function __makeWhereOptions(
-    dto: PostBaseDTO.SearchDTO
+    dto: PostDTO.SearchDTO
 ): FindOptionsWhere<Post> {
     const { keyword, createdAt, ...rest } = dto;
     const where: FindOptionsWhere<Post> = rest;

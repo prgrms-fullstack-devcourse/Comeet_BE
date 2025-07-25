@@ -1,15 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { PostBaseDTO } from "../post.base.dto";
+import { PostDTO } from "../post.dto";
 
-export class RecruitDTO extends PostBaseDTO{
+export class RecruitDTO extends PostDTO{
 
-    @ApiProperty({
-        type: "number",
-        isArray: true,
-        minLength: 2,
-        maxLength: 2
-    })
-    location: [number, number];
+
 
 
     @ApiProperty({ type: "boolean" })

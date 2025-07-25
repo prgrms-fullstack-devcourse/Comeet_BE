@@ -1,13 +1,13 @@
 import { PostsServiceBase } from "../posts.service.base";
-import { PostBaseDTO, RecruitDTO, SearchRecruitResult, SearchRecruitsDTO } from "../../dto";
-import { ForbiddenException, Inject, Logger, NotFoundException } from "@nestjs/common";
+import { PostDTO, RecruitDTO, SearchRecruitResult, SearchRecruitsDTO } from "../../dto";
+import {  Inject, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Recruit } from "../../model";
 import { Repository } from "typeorm";
 import { LikesService } from "../../../likes";
 import { ApplicantsService } from "./applicants.service";
 import { SearchRecruitsService } from "./search.recruits.service";
-import { ApplicantDTO } from "../../../recruits/dto";
+import { ApplicantDTO } from "../../dto";
 import { pick } from "../../../utils/object";
 
 export class RecruitsService
@@ -41,7 +41,7 @@ export class RecruitsService
     async searchPosts(dto: SearchRecruitsDTO): Promise<SearchRecruitResult[]> {
 
         const posts = await this._searchRecruitsService
-            .searchRecruit(dto);
+            .searchRecruits(dto);
 
         return Promise.all(
             posts.map(post =>
@@ -51,13 +51,13 @@ export class RecruitsService
     }
 
     async createPost(
-        dto: PostBaseDTO.CreateDTO<RecruitDTO, "location">
+        dto: PostDTO.CreateDTO<RecruitDTO, "location">
     ): Promise<void> {
         await super.createPost(dto);
     }
 
     async updatePost(
-        dto: PostBaseDTO.UpdateDTO<RecruitDTO, "location">
+        dto: PostDTO.UpdateDTO<RecruitDTO, "location">
     ): Promise<void> {
         await super.updatePost(dto);
     }

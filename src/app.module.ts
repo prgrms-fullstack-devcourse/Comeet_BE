@@ -30,7 +30,7 @@ import { PostsModule } from "./posts";
     GithubModule,
     UsersModule,
     AuthModule,
-    PostsModule
+    PostsModule,
   ],
 })
 export class AppModule {}

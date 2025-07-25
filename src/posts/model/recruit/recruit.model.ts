@@ -1,11 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { User } from "../../../users/model";
 import { Applicant } from "./applicant.model";
-import { PostBase } from "../post.base";
+import { Post } from "../post.model";
 import { GeometricColumn } from "../../../utils";
 
 @Entity("recruits")
-export class Recruit extends PostBase {
+export class Recruit extends Post {
     @Column({ name: "user_id", type: "integer" })
     userId: number;
 

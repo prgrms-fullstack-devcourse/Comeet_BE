@@ -1,4 +1,3 @@
-export * from "./post.common.model";
-export * from "./post.category.model";
-export * from "./post";
+export * from "./board.model";
+export * from "./post.model";
 export * from "./recruit";
