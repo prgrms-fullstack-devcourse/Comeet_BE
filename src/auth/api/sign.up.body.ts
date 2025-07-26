@@ -1,7 +1,19 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { ArrayMinSize, IsArray, IsEmail, IsInt, IsNumber, IsOptional, IsString, IsUrl, Min } from "class-validator";
-import { IsPair } from "../../utils";
+import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
+import {
+    ArrayMinSize,
+    IsArray,
+    IsEmail,
+    IsInt,
+    IsOptional,
+    IsString,
+    IsUrl,
+    Min,
+    ValidateNested
+} from "class-validator";
+import { Coordinates } from "../../utils";
+import { Type } from "class-transformer";
 
+@ApiExtraModels(Coordinates)
 export class SignUpBody {
 
     @IsString()
@@ -22,17 +34,10 @@ export class SignUpBody {
     @ApiProperty({ type: "string", required: true, description: "자기소개" })
     bio: string;
 
-    @IsPair()
-    @IsNumber({}, { each: true })
-    @ApiProperty({
-        type: "array",
-        items: { type: "integer" },
-        minLength: 2,
-        maxLength: 2,
-        required: true,
-        description: "위치 (경도, 위도) 순"
-    })
-    location: [number, number];
+    @Type(() => Coordinates)
+    @ValidateNested()
+    @ApiProperty({ type: Coordinates, required: true })
+    location: Coordinates;
 
     @IsInt()
     @ApiProperty({ type: "integer", required: true })

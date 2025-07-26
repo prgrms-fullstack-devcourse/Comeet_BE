@@ -11,7 +11,7 @@ import { ModelBase } from "../../common/data";
 import { Social } from "./social.model";
 import { Position } from "../../tags/model";
 import { UserInterest, UserTech } from "./tag";
-import { GeometricColumn } from "../../utils";
+import { Coordinates, GeometricColumn } from "../../utils";
 
 @Entity("users")
 export class User extends ModelBase {
@@ -43,7 +43,7 @@ export class User extends ModelBase {
     github: string;
 
     @GeometricColumn()
-    location: [number, number];
+    location: Coordinates;
 
     @OneToOne(() => Social, { cascade: true })
     @JoinColumn({ name: "social_id" })

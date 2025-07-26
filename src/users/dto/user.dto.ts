@@ -1,8 +1,9 @@
 import { TypeDTO } from "../../common/data";
 import { PositionDTO } from "../../tags/dto";
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
+import { Coordinates } from "../../utils";
 
-@ApiExtraModels(PositionDTO, TypeDTO)
+@ApiExtraModels(PositionDTO, TypeDTO, Coordinates)
 export class UserDTO {
     @ApiProperty({ type: "integer" })
     id: number;
@@ -19,8 +20,8 @@ export class UserDTO {
     @ApiProperty({ type: "string" })
     bio: string;
 
-    @ApiProperty({ type: "number", isArray: true, minLength: 2, maxLength: 2 })
-    location: [number, number];
+    @ApiProperty({ type: Coordinates })
+    location: Coordinates;
 
     @ApiProperty({ type: PositionDTO })
     position: PositionDTO;

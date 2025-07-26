@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Interest } from "../model/interest.model";
 import { Repository } from "typeorm";
 import { TagsServiceBase } from "./tags.service.base";
-import { TypeDTO } from "../../common";
+import { TypeDTO } from "../../common/data";
 import Redis from "iovalkey";
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { TypeBase, TypeDTO } from "../../common";
+import { TypeBase, TypeDTO } from "../../common/data";
 import { OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import Redis from "iovalkey";
 

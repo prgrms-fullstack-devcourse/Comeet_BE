@@ -7,6 +7,7 @@ import { pick } from "../../utils/object";
 import { TypeBase } from "../../common/data";
 import { ageToBirthYear, birthYearToAge } from "./service.internal";
 import { PositionsService } from "../../tags/service";
+import { Coordinates } from "../../utils";
 
 @Injectable()
 export class SearchUsersService {
@@ -17,7 +18,7 @@ export class SearchUsersService {
     ) {}
 
     async searchUsers(
-        origin: [number, number],
+        origin: Coordinates,
         filters: Omit<SearchUsersDTO, "id">
     ): Promise<SearchUserResult[]> {
         const { radius, age, experience, positionIds, techIds, interestIds } = filters;
@@ -32,7 +33,7 @@ export class SearchUsersService {
                 "ST_Distance_Sphere(location, ST_Point(:lng, :lat))",
                 "distance"
             )
-            .setParameters({ lng: origin[0], lat: origin[1] })
+            .setParameters(origin)
             .innerJoinAndSelect("user.position", "position")
             .innerJoinAndSelect("user.userTechs", "userTechs")
             .leftJoinAndSelect("userTechs.tech", "tech")

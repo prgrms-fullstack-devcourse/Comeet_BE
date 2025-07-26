@@ -1,4 +1,4 @@
-import { TypeBase, TypeDTO } from "../../common";
+import { TypeBase, TypeDTO } from "../../common/data";
 import { Like, Repository } from "typeorm";
 import { pick } from "../../utils/object";
 

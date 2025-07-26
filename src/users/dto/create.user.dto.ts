@@ -1,3 +1,4 @@
+import { Coordinates } from "../../utils";
 
 
 export interface CreateUserDTO {
@@ -5,7 +6,7 @@ export interface CreateUserDTO {
     age: number;
     experience: number;
     bio: string;
-    location: [number, number];
+    location: Coordinates;
     techIds: number[];
     interestIds: number[];
     positionId: number;

@@ -1,5 +1,4 @@
 import { Module } from "@nestjs/common";
-import { GithubOAuth2Guard } from "./github.oauth2.guard";
 import { GenerateTokenService, GetUserService, GithubOAuth2Service } from "./service";
 import { GithubOptions } from "./github.options";
 import { PassportModule } from "@nestjs/passport";

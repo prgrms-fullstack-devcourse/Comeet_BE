@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import Redis from "iovalkey";
 import { TagsServiceBase } from "./tags.service.base";
 import { PositionDTO } from "../dto";
-import { TypeDTO } from "../../common";
+import { TypeDTO } from "../../common/data";
 
 @Injectable()
 export class PositionsService extends TagsServiceBase {

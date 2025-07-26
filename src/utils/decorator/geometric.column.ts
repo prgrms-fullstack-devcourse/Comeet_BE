@@ -1,11 +1,15 @@
-import { Column, ColumnOptions, Point } from "typeorm";
+import { Column, ColumnOptions, Point, ValueTransformer } from "typeorm";
+import { Coordinates } from "../coordinates";
 
-const __transformer = {
-    from: ({ coordinates }: Point): [number, number] =>
-        [coordinates[0], coordinates[1]],
-
-    to: (coordinates: [number, number]): Point =>
-        ({ type: "Point", coordinates })
+const __transformer: ValueTransformer = {
+    from(point: Point): Coordinates {
+        const [lng, lat] = point.coordinates;
+        return new Coordinates({ lng, lat });
+    },
+    to(coordinates: Coordinates): Point {
+        const { lng, lat } = coordinates;
+        return { type: "Point", coordinates: [lng, lat] };
+    }
 };
 
 export function GeometricColumn(options?: ColumnOptions): PropertyDecorator {
