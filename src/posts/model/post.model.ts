@@ -1,6 +1,6 @@
 import { ModelBase } from "../../common/data";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { PostCategory } from "./post.category.model";
+import { Board } from "./board.model";
 import { User } from "../../users/model";
 import { Comment } from "./comment.model";
 import { Applicant } from "./applicant.model";
@@ -10,8 +10,8 @@ export class Post extends ModelBase{
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ name: "category_id", type: "integer" })
-    categoryId: number;
+    @Column({ name: "board_id", type: "integer" })
+    boardId: number;
 
     @Column({ name: "user_id", type: "integer", nullable: true })
     userId: number | null;
@@ -25,9 +25,9 @@ export class Post extends ModelBase{
     @Column({ name: "is_recruit", type: "boolean", default: false })
     isRecruit: boolean;
 
-    @ManyToOne(() => PostCategory, { eager: true })
-    @JoinColumn({ name: "category_id" })
-    category: PostCategory;
+    @ManyToOne(() => Board, { eager: true })
+    @JoinColumn({ name: "board_id" })
+    board: Board;
 
     @ManyToOne(() => User, { onDelete: "SET NULL" })
     @JoinColumn({ name: "user_id" })

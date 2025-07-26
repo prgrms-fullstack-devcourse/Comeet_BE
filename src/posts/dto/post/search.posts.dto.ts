@@ -1,8 +1,8 @@
 import { Coordinates } from "../../../utils";
 
 export interface SearchPostsDTO {
-    categoryId?: number;
+    boardId?: number;
     userId?: number;
-    keyword?: number;
+    keyword?: string;
     location?: Coordinates;
 }

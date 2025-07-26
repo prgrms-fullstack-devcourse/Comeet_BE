@@ -11,6 +11,7 @@ import { GithubModule } from './github';
 import { UsersModule } from './users';
 import { AuthModule } from './auth';
 import { PostsModule } from './posts/posts.module';
+import { DevelopersModule } from './developers/developers.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PostsModule } from './posts/posts.module';
     UsersModule,
     AuthModule,
     PostsModule,
+    DevelopersModule,
   ],
 })
 export class AppModule {}

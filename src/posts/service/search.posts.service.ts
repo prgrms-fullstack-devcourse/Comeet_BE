@@ -5,6 +5,7 @@ import { Brackets, Repository, SelectQueryBuilder } from "typeorm";
 import { SearchPostResult, SearchPostsDTO } from "../dto";
 import { ModelDTOTransformerService } from "./model.dto.transformer.service";
 import { Coordinates } from "../../utils";
+import { PostBookmarksService } from "./post.bookmarks.service";
 
 const __RADIUS = 5;
 type __PostFilters = Omit<SearchPostsDTO, "location">;
@@ -19,6 +20,8 @@ export class SearchPostsService {
        private readonly _pointersRepo: Repository<GeoPostPointer>,
        @InjectRepository(Applicant)
        private readonly _applicantsRepo: Repository<Applicant>,
+       @Inject(PostBookmarksService)
+       private readonly _bookmarksService: PostBookmarksService,
        @Inject(ModelDTOTransformerService)
        private readonly _transformerService: ModelDTOTransformerService,
     ) {}
@@ -48,6 +51,16 @@ export class SearchPostsService {
 
         return Promise.all(
             applicants.map(({ post }) =>
+                this.toSearchPostResult(post)
+            )
+        );
+    }
+
+    async searchBookmarked(userId: number): Promise<SearchPostResult[]> {
+        const posts = await this._bookmarksService.getBookmarked(userId);
+
+        return Promise.all(
+            posts.map(post =>
                 this.toSearchPostResult(post)
             )
         );
@@ -99,12 +112,12 @@ function __setWhereClause<M extends object>(
     qb: SelectQueryBuilder<M>,
     filters: __PostFilters,
 ): void {
-    const { categoryId, userId, keyword } = filters;
+    const { boardId, userId, keyword } = filters;
 
-    qb.innerJoinAndSelect("post.category", "category")
+    qb.innerJoinAndSelect("post.board", "board")
         .innerJoinAndSelect("post.user", "user");
 
-    categoryId && qb.andWhere("category.id = :categoryId", { categoryId });
+    boardId && qb.andWhere("board.id = :boardId", { boardId });
     userId && qb.andWhere("user.id = :userId", { userId });
 
     if (keyword) {

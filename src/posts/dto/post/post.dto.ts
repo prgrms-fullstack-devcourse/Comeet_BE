@@ -7,7 +7,7 @@ export class PostDTO {
     id: number;
 
     @ApiProperty({ type: "string" })
-    category: string;
+    board: string;
 
     @ApiProperty({ type: "string" })
     author: string;

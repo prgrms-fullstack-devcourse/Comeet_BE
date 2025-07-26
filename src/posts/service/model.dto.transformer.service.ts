@@ -48,7 +48,7 @@ export class ModelDTOTransformerService {
         post: Post,
         loc?: Coordinates
     ): Promise<SearchPostResult> {
-        const category = post.category.value;
+        const board = post.board.value;
         const author = post.user?.nickname ?? "알수없음";
 
         const nLikes = await this._likesService.countLikes({
@@ -67,7 +67,7 @@ export class ModelDTOTransformerService {
 
         return {
             ...pick(post, ["id", "title", "createdAt"]),
-            location, category, author, nLikes, nComments
+            location, board, author, nLikes, nComments
         };
     }
 

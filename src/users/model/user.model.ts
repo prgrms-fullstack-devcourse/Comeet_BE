@@ -21,6 +21,9 @@ export class User extends ModelBase {
     @Column({ name: "github_id", type: "varchar", unique: true })
     githubId: string;
 
+    @Column({ name: "developer_id", type: "integer", unique: true  })
+    developerId: number;
+
     @Column({ name: "social_id", type: "integer", unique: true })
     socialId: number;
 

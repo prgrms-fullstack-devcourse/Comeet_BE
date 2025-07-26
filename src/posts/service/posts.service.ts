@@ -6,6 +6,7 @@ import { LikesService } from "../../likes";
 import { CreatePostDTO, PostDTO, UpdatePostDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { ModelDTOTransformerService } from "./model.dto.transformer.service";
+import { PostBookmarksService } from "./post.bookmarks.service";
 
 @Injectable()
 export class PostsService {
@@ -17,6 +18,8 @@ export class PostsService {
        private readonly _pointersRepo: Repository<GeoPostPointer>,
        @Inject(LikesService)
        private readonly _likesService: LikesService,
+       @Inject(PostBookmarksService)
+       private readonly _bookmarksService: PostBookmarksService,
        @Inject(ModelDTOTransformerService)
        private readonly _transformerService: ModelDTOTransformerService,
     ) {}
@@ -26,7 +29,7 @@ export class PostsService {
         const { location, ...values } = dto;
         const post = await this.insertAndSelect(values);
 
-        if (post.category.isRecruit) {
+        if (post.board.isRecruit) {
             await this._pointersRepo.insert({
                 postId: post.id,
                 location: location ?? post.user!.location
@@ -34,14 +37,14 @@ export class PostsService {
         }
 
         await this._postsRepo.update(post.id, {
-            isRecruit: post.category.isRecruit
+            isRecruit: post.board.isRecruit
         });
     }
 
     async getPost(id: number, userId: number): Promise<PostDTO> {
 
         const post = await this._postsRepo.findOne({
-            relations: { category: true, user: true },
+            relations: { board: true, user: true },
             where: { id }
         });
 
@@ -70,6 +73,10 @@ export class PostsService {
         });
     }
 
+    async updateBookmark(id: number, userId: number): Promise<void> {
+        await this._bookmarksService.updateBookmark(id, userId);
+    }
+
     @Transactional()
     async deletePost(id: number, userId: number): Promise<void> {
         const { affected } = await this._postsRepo.delete({ id, userId });
@@ -90,7 +97,7 @@ export class PostsService {
             .catch(err => { throw  err; });
 
         return this._postsRepo.findOneOrFail({
-            relations: { category: true, user: true },
+            relations: { board: true, user: true },
             where: { id }
         });
     }

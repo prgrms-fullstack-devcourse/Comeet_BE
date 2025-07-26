@@ -1,7 +1,7 @@
 import { Coordinates } from "../../../utils";
 
 export interface CreatePostDTO {
-    categoryId: number;
+    boardId: number;
     userId: number;
     title: string;
     content: string;
