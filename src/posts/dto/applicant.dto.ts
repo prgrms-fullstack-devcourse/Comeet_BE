@@ -1,5 +1,6 @@
+import { PickType } from "@nestjs/swagger";
+import { UserDTO } from "../../users/dto";
 
-export interface ApplicantDTO {
-    id: number;
-    nickname: string;
-}
+export class ApplicantDTO extends PickType(
+    UserDTO, ["id", "nickname"]
+) {}

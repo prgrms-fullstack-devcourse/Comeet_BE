@@ -24,8 +24,10 @@ export class ApplicantsService {
             await this._applicantsRepo.delete(applicant.id);
         }
         else {
-            if (await this._postsRepo.existsBy({ id: postId, isRecruit: true }))
-                await this._applicantsRepo.insert({ postId, userId });
+            const exists = await this._postsRepo
+                .existsBy({ id: postId, isRecruit: true });
+
+            exists && await this._applicantsRepo.insert({ postId, userId });
         }
     }
 

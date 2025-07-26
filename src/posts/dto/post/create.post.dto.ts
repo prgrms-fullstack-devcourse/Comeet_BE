@@ -5,6 +5,5 @@ export interface CreatePostDTO {
     userId: number;
     title: string;
     content: string;
-    isRecruit?: boolean;
     location?: Coordinates;
 }

@@ -24,8 +24,18 @@ export class PostsService {
     @Transactional()
     async createPost(dto: CreatePostDTO): Promise<void> {
         const { location, ...values } = dto;
-        const { id: postId } = await this._postsRepo.save(values);
-        location && await this._pointersRepo.save({ postId, location })
+        const post = await this.insertAndSelect(values);
+
+        if (post.category.isRecruit) {
+            await this._pointersRepo.insert({
+                postId: post.id,
+                location: location ?? post.user!.location
+            });
+        }
+
+        await this._postsRepo.update(post.id, {
+            isRecruit: post.category.isRecruit
+        });
     }
 
     async getPost(id: number, userId: number): Promise<PostDTO> {
@@ -67,6 +77,21 @@ export class PostsService {
         affected && await this._likesService.onTargetDeleted({
             targetType: "post",
             targetId: id,
+        });
+    }
+
+    @Transactional()
+    private async insertAndSelect(
+        values: Omit<CreatePostDTO, "location">
+    ): Promise<Post> {
+
+        const id: number = await this._postsRepo.insert(values)
+            .then(result => result.identifiers[0].id)
+            .catch(err => { throw  err; });
+
+        return this._postsRepo.findOneOrFail({
+            relations: { category: true, user: true },
+            where: { id }
         });
     }
 }
