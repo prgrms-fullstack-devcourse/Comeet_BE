@@ -4,7 +4,7 @@ import { Applicant, Post } from "../model";
 import { Repository } from "typeorm";
 import { Transactional } from "typeorm-transactional";
 import { ApplicantDTO } from "../dto";
-import { pick } from "../../utils/object";
+import { pick } from "../../utils";
 
 @Injectable()
 export class ApplicantsService {

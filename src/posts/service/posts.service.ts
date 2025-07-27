@@ -74,7 +74,7 @@ export class PostsService {
     }
 
     async updateBookmark(id: number, userId: number): Promise<void> {
-        await this._bookmarksService.updateBookmark(id, userId);
+        await this._bookmarksService.updateMark(id, userId);
     }
 
     @Transactional()

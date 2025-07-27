@@ -1,7 +1,7 @@
-import { UserDTO } from "../../users/dto";
+import { UserCert } from "../../users/dto";
 import { IsNumber, IsString } from "class-validator";
 
-export class TokenPayload extends UserDTO {
+export class TokenPayload extends UserCert {
     @IsString()
     salt: string;
 

@@ -24,6 +24,7 @@ export class PostsController {
         private readonly _searchPostsService: SearchPostsService,
     ) {}
 
+
     @Post("/:id/posts")
     @ApiBearerAuth()
     @ApiParam({ name: "id", type: "integer", required: true, description: "게시판 아이디" })

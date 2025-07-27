@@ -4,7 +4,7 @@ import { Comment, Post } from "../model";
 import { Repository } from "typeorm";
 import { CommentDTO, CreateCommentDTO, UpdateCommentDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
-import { pick } from "../../utils/object";
+import { pick } from "../../utils";
 import { CommentsCountService } from "./comments.count.service";
 
 @Injectable()

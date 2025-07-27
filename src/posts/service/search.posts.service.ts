@@ -15,7 +15,7 @@ export class SearchPostsService {
 
     constructor(
        @InjectRepository(Post)
-       private readonly _postsRepository: Repository<Post>,
+       private readonly _postsRepo: Repository<Post>,
        @InjectRepository(GeoPostPointer)
        private readonly _pointersRepo: Repository<GeoPostPointer>,
        @InjectRepository(Applicant)
@@ -56,19 +56,9 @@ export class SearchPostsService {
         );
     }
 
-    async searchBookmarked(userId: number): Promise<SearchPostResult[]> {
-        const posts = await this._bookmarksService.getBookmarked(userId);
-
-        return Promise.all(
-            posts.map(post =>
-                this.toSearchPostResult(post)
-            )
-        );
-    }
-
     private search(filters: __PostFilters): Promise<Post[]> {
 
-        const qb = this._postsRepository
+        const qb = this._postsRepo
             .createQueryBuilder("post")
             .select("post.*");
 

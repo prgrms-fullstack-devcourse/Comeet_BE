@@ -7,8 +7,7 @@ import { GeoPostPointer, Post } from "../model";
 import { Repository } from "typeorm";
 import { Coordinates } from "../../utils";
 import { PostDTO, SearchPostResult } from "../dto";
-import { pick } from "../../utils/object";
-import { CommentsCountService } from "./comments.count.service";
+import { pick } from "../../utils";
 
 @Injectable()
 export class ModelDTOTransformerService {

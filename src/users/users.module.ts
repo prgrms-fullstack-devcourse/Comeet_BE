@@ -5,6 +5,7 @@ import { UsersService } from "./service";
 import { Position, Tech } from "../tags/model";
 import { Interest } from "../tags/model/interest.model";
 import { InterestsService, PositionsService, TechsService } from "../tags";
+import { UsersController } from './users.controller';
 
 const __EXTERNAL_PROVIDERS = [
     PositionsService,
@@ -22,5 +23,6 @@ const __EXTERNAL_PROVIDERS = [
         ...__EXTERNAL_PROVIDERS,
         UsersService
     ],
+    controllers: [UsersController],
 })
 export class UsersModule {}

@@ -1,4 +1,4 @@
-import { ImmutableModelBase } from "./immutable.model.base";
+import { ImmutableModelBase} from "../data";
 import { Column, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../../users/model";
 
@@ -15,4 +15,6 @@ export abstract class MarkBase extends ImmutableModelBase {
     @ManyToOne(() => User, { onDelete: "SET NULL" })
     @JoinColumn({ name: "user_id" })
     user: User;
+
+
 }

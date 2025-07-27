@@ -1,5 +1,5 @@
-import { Column, Entity, Unique } from "typeorm";
-import { MarkBase } from "../../common/data";
+import { Column, Entity } from "typeorm";
+import { MarkBase } from "../../common/marks";
 
 @Entity("like_marks")
 export class LikeMark extends MarkBase {

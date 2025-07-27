@@ -1,7 +1,7 @@
 import { ForbiddenException, Inject, Injectable, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { JwtOptions } from "../jwt.options";
-import { UserDTO } from "../../users/dto";
+import { UserCert } from "../../users/dto";
 import * as crypto from "node:crypto";
 import { plainToInstanceOrReject } from "../../utils";
 import { TokenPayload } from "../dto";
@@ -17,15 +17,15 @@ export class JwtAuthService {
        private readonly _options: JwtOptions,
     ) {}
 
-    generateAccess(user: UserDTO): string {
+    generateAccess(user: UserCert): string {
         return this.generateToken(user, this._options.accessExp);
     }
 
-    generateRefresh(user: UserDTO): string {
+    generateRefresh(user: UserCert): string {
         return this.generateToken(user, this._options.refreshExp);
     }
 
-    async verifyToken(token: string): Promise<UserDTO> {
+    async verifyToken(token: string): Promise<UserCert> {
 
         const { id, githubId } = await this._jwtService.verifyAsync(
             token, { secret: this._options.secret }
@@ -40,7 +40,7 @@ export class JwtAuthService {
     }
 
     private generateToken(
-        user: UserDTO,
+        user: UserCert,
         exp: number
     ): string {
         return this._jwtService.sign(

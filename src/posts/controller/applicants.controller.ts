@@ -23,5 +23,6 @@ export class ApplicantsController {
         @Param("id") postId: number,
     ) {
         const results = await this._applicantsService.getApplicants(postId);
+        return { results };
     }
 }
