@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Query } from '@nestjs/common';
 import { InterestsService, PositionsService, TechsService } from "./service";
 import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags, ApiUnprocessableEntityResponse } from "@nestjs/swagger";
-import { GetStaticsResponse, SearchTechsQuery, SearchTechsResponse } from "./api";
+import { GetAllPositionsAndInterestsResponse, SearchTechsQuery, SearchTechsResponse } from "./api";
 
 @Controller('/api/tags')
 @ApiTags("Tags")
@@ -16,10 +16,10 @@ export class TagsController {
        private readonly _interestsService: InterestsService,
     ) {}
 
-    @Get("/statics")
+    @Get("/positions-interests")
     @ApiOperation({ summary: "Get all positions and interests" })
-    @ApiOkResponse({ type: GetStaticsResponse })
-    async getStatics(): Promise<GetStaticsResponse> {
+    @ApiOkResponse({ type: GetAllPositionsAndInterestsResponse })
+    async getPositionsAndInterests(): Promise<GetAllPositionsAndInterestsResponse> {
        const positions = await this._positionsService.getAllPositions();
        const interests = await this._interestsService.getAllInterests();
        return { positions, interests };
@@ -34,7 +34,7 @@ export class TagsController {
         @Query()
         { keyword }: SearchTechsQuery
     ): Promise<SearchTechsResponse> {
-        const results = await this._techsService.search(keyword);
+        const results = await this._techsService.searchTechs(keyword);
         return { results };
     }
 }

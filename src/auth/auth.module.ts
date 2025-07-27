@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User, UserInterest, UserTech } from "../users/model";
+import { User } from "../users/model";
 import { PassportModule } from "@nestjs/passport";
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { GithubModule } from "../github";
@@ -12,12 +12,14 @@ import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { UsersModule, UsersService } from "../users";
 import { SignUpGuard } from "./sign.up.guard";
 import { SignUpSession } from "./sign.up.session";
+import { Position, Tech } from "../tags/model";
+import { Interest } from "../tags/model/interest.model";
 
 const __EXTERNAL_PROVIDERS = [JwtService, UsersService];
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([User, UserTech, UserInterest,]),
+      TypeOrmModule.forFeature([User, Position, Tech, Interest,]),
       PassportModule.register({}),
       JwtModule.register({}),
       GithubModule,

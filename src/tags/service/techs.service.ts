@@ -1,13 +1,34 @@
 import { Injectable } from "@nestjs/common";
-import { SearchTagsServiceBase } from "./search.tags.service.base";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Tech } from "../model";
-import { Repository } from "typeorm";
+import { In, Like, Repository } from "typeorm";
+import { TypeBase, TypeDTO } from "../../common/data";
 
 @Injectable()
-export class TechsService extends SearchTagsServiceBase {
+export class TechsService {
+
     constructor(
         @InjectRepository(Tech)
-        repo: Repository<Tech>
-    ) { super(repo); }
+        private readonly _techsRepo: Repository<Tech>
+    ) {}
+
+    async searchTechs(keyword: string): Promise<TypeDTO[]> {
+
+        const techs = await this._techsRepo.find({
+            where: { value: Like(`%${keyword}%`) },
+            cache: true,
+        });
+
+        return techs.map(TypeBase.toTypeDTO);
+    }
+
+    async getTechs(ids: number[]): Promise<TypeDTO[]> {
+
+        const techs = await this._techsRepo.find({
+            where: { id: In(ids) },
+            cache: true,
+        });
+
+        return techs.map(TypeBase.toTypeDTO);
+    }
 }

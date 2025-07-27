@@ -1,14 +1,28 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { ModelBase } from "../../common/data";
+import { Column, Entity, PrimaryGeneratedColumn, ValueTransformer } from "typeorm";
+import { ModelBase, TypeDTO } from "../../common/data";
 import { Coordinates, GeometricColumn } from "../../utils";
+import { PositionDTO } from "../../tags/dto";
 
-@Entity()
+const __transformer: ValueTransformer = {
+    from(hstore: Record<string, string>): TypeDTO[] {
+        return Object.entries(hstore)
+            .map(([k, v]): TypeDTO =>
+                ({ id: Number(k), value: v })
+            );
+    },
+    to(tags: TypeDTO[]): Record<string, string> {
+        return Object.fromEntries(
+            tags.map(tag =>
+                [tag.id.toString(), tag.value]
+            )
+        );
+    }
+};
+
+@Entity("developers")
 export class Developer extends ModelBase {
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column({ name: "position_id", type: "integer" })
-    positionId: number;
+    @PrimaryGeneratedColumn({ name: "user_id", type: "integer" })
+    userId: number;
 
     @Column({ type: "varchar" })
     nickname: string;
@@ -18,6 +32,24 @@ export class Developer extends ModelBase {
 
     @Column({ type: "integer" })
     experience: number;
+
+    @Column({ type: "jsonb" })
+    position: PositionDTO;
+
+    @Column({
+        name: "tech_stack",
+        type: "hstore",
+        hstoreType: "object",
+        transformer: __transformer,
+    })
+    techStack: TypeDTO[];
+
+    @Column({
+        type: "hstore",
+        hstoreType: "object",
+        transformer: __transformer,
+    })
+    interests: TypeDTO[];
 
     @Column({ type: "varchar" })
     bio: string;

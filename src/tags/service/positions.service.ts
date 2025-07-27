@@ -1,31 +1,33 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Position } from "../model";
 import { Repository } from "typeorm";
-import Redis from "iovalkey";
-import { TagsServiceBase } from "./tags.service.base";
 import { PositionDTO } from "../dto";
-import { TypeDTO } from "../../common/data";
+import { ModelBase } from "../../common/data";
 
 @Injectable()
-export class PositionsService extends TagsServiceBase {
+export class PositionsService {
 
     constructor(
        @InjectRepository(Position)
-       repo: Repository<Position>,
-       @Inject(Redis)
-       redis: Redis
-    ) {
-        super(repo, redis, "positions");
-    }
+       private readonly _positionsRepo: Repository<Position>,
+    ) {}
 
     async getAllPositions(): Promise<PositionDTO[]> {
-        const tags = await this.getAllTags();
-        return tags.map(PositionsService.toPositionDTO);
+
+        const positions = await this._positionsRepo.find({
+            cache: true,
+        });
+
+        return positions.map(ModelBase.excludeTimestamp);
     }
 
-    static toPositionDTO(type: TypeDTO): PositionDTO {
-        const [field, value] = type.value.split(":");
-        return { id: type.id, field, value };
+    async getValue(id: number): Promise<PositionDTO> {
+        return this._positionsRepo.findOneOrFail({
+            where: { id },
+            cache: true,
+        }).then(ModelBase.excludeTimestamp)
+            .catch(err => { throw err; });
     }
 }
+

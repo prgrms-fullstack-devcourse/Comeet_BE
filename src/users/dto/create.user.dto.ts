@@ -1,9 +1,8 @@
 import { Coordinates } from "../../utils";
 
-
 export interface CreateUserDTO {
     nickname: string;
-    age: number;
+    birthYear: number;
     experience: number;
     bio: string;
     location: Coordinates;

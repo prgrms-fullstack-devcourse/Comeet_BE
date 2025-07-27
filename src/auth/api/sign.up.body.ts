@@ -12,6 +12,7 @@ import {
 } from "class-validator";
 import { Coordinates } from "../../utils";
 import { Type } from "class-transformer";
+import { IsBirthYear } from "../../utils/decorator/is-birth-year";
 
 @ApiExtraModels(Coordinates)
 export class SignUpBody {
@@ -20,10 +21,9 @@ export class SignUpBody {
     @ApiProperty({ type: "string", required: true })
     nickname: string;
 
-    @IsInt()
-    @Min(0)
-    @ApiProperty({ type: "integer", required: true })
-    age: number;
+    @IsBirthYear()
+    @ApiProperty({ name: "age", type: "integer", required: true })
+    birthYear: number;
 
     @IsInt()
     @Min(0)

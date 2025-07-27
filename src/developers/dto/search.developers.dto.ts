@@ -1,8 +1,6 @@
 
-export interface SearchUsersDTO {
-    id: number;
-    radius: number;
-    age?: [number, number];
+export interface SearchDevelopersDTO {
+    birthYear?: [number, number];
     experience?: [number, number];
     positionIds?: number[];
     techIds?: number[];

@@ -1,6 +1,6 @@
-import { UserIdentification } from "./user.identification";
+import { UserDTO } from "./user.dto";
 
 export type GetUserDTO
-    = Pick<UserIdentification, "id">
-    | Pick<UserIdentification, "githubId">
-    | UserIdentification;
+    = Pick<UserDTO, "id">
+    | Pick<UserDTO, "githubId">
+    | UserDTO;

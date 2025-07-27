@@ -3,7 +3,7 @@ import { PositionDTO } from "../dto";
 import { TypeDTO } from "../../common/data";
 
 @ApiExtraModels(PositionDTO, TypeDTO)
-export class GetStaticsResponse {
+export class GetAllPositionsAndInterestsResponse {
     @ApiProperty({ type: [PositionDTO] })
     positions: PositionDTO[];
 
