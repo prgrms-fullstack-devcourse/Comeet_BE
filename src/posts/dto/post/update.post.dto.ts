@@ -1,5 +1,10 @@
 import { CreatePostDTO } from "./create.post.dto";
+import { OmitType, PartialType } from "@nestjs/swagger";
 
-export type UpdatePostDTO
-    = { id: number; userId: number; }
-    & Partial<Omit<CreatePostDTO, "boardId" | "userId">>;
+export class UpdatePostDTO extends PartialType(
+    OmitType(CreatePostDTO, ["boardId", "userId"])
+)
+{
+    id: number;
+    userId: number;
+}

@@ -25,4 +25,15 @@ export class UserPostsController {
 
         return { results };
     }
+
+    @Get("/bookmark")
+    async getBookmarkPosts(
+        @User("id") userId: number,
+    ): Promise<GetPostsResponse> {
+
+        const results = await this._searchPostsService
+            .searchPosts({ userId });
+
+        return { results };
+    }
 }

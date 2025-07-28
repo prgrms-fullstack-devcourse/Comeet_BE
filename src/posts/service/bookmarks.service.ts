@@ -1,13 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { MarksServiceBase } from "../../common/marks";
-import { PostBookmark } from "../model";
+import { Bookmark } from "../model";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 @Injectable()
-export class PostBookmarksService extends MarksServiceBase {
+export class BookmarksService extends MarksServiceBase {
     constructor(
-        @InjectRepository(PostBookmark)
-        protected readonly _repo: Repository<PostBookmark>,
+        @InjectRepository(Bookmark)
+        protected readonly _repo: Repository<Bookmark>,
     ) { super(); }
 }

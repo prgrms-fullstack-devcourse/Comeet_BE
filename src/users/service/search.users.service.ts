@@ -56,7 +56,11 @@ export class SearchUsersService {
             .addSelect("user.position", "position")
             .addSelect("user.techStack", "techStack")
             .addSelect("user.interests", "interests")
-            .addSelect("user.nSubscribers", "nSubscribers");
+            .addSelect("user.nSubscribers", "nSubscribers")
+            .addSelect(
+                "jsonb_build_object('lat', ST_Y(user.location), 'lng', ST_X(user.location))",
+                "location"
+            )
 
     }
 }

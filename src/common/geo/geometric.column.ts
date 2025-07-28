@@ -1,5 +1,5 @@
 import { Column, ColumnOptions, Point, ValueTransformer } from "typeorm";
-import { Coordinates } from "../coordinates";
+import { Coordinates } from "./coordinates";
 
 const __transformer: ValueTransformer = {
     from(point: Point): Coordinates {
@@ -12,7 +12,10 @@ const __transformer: ValueTransformer = {
     }
 };
 
-export function GeometricColumn(options?: ColumnOptions): PropertyDecorator {
+export type GeometricColumnOptions
+    = Omit<ColumnOptions, "type" | "spatialFeatureType" | "srid" | "transformer">;
+
+export function GeometricColumn(options?: GeometricColumnOptions): PropertyDecorator {
 
     const opts: ColumnOptions = {
         type: "geometry",
@@ -22,6 +25,5 @@ export function GeometricColumn(options?: ColumnOptions): PropertyDecorator {
     };
 
     options && Object.assign(opts, options);
-
     return Column(opts);
 }

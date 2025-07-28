@@ -1,5 +1,5 @@
 import { Entity } from "typeorm";
 import { MarkBase } from "../../common/marks";
 
-@Entity("applicants")
-export class Applicant extends MarkBase {}
+@Entity("post_likes")
+export class PostLike extends MarkBase {}

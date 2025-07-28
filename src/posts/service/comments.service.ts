@@ -1,11 +1,10 @@
-import { ConflictException, Inject, Injectable } from "@nestjs/common";
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Comment, Post } from "../model";
-import { Repository } from "typeorm";
+import { Repository, SelectQueryBuilder } from "typeorm";
 import { CommentDTO, CreateCommentDTO, UpdateCommentDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
-import { pick } from "../../utils";
-import { CommentsCountService } from "./comments.count.service";
+import { PostCountsService } from "./post.counts.service";
 
 @Injectable()
 export class CommentsService {
@@ -15,35 +14,33 @@ export class CommentsService {
        private readonly _commentsRepo: Repository<Comment>,
        @InjectRepository(Post)
        private readonly _postsRepo: Repository<Post>,
-       @Inject(CommentsCountService)
-       private readonly _countService: CommentsCountService,
+       @Inject(PostCountsService)
+       private readonly _countService: PostCountsService,
     ) {}
 
     @Transactional()
     async createComment(dto: CreateCommentDTO): Promise<void> {
         await this.checkConflict(dto);
         await this._commentsRepo.insert(dto);
-        await this._countService.updateCount(dto.postId, 1);
+
+        await this._countService.updateCount({
+            postId: dto.postId,
+            nComments: 1
+        });
     }
 
    async getPostComments(postId: number, userId: number): Promise<CommentDTO[]> {
-
-        const comments = await this._commentsRepo.find({
-            relations: { user: true },
-            where: { postId }
-        });
-
-        return comments.map(comment => __toDTO(comment, userId));
+        return this.createSelectQueryBuilder()
+            .where("comment.postId = :postId")
+            .setParameters({ postId, userId })
+            .getRawMany<CommentDTO>();
    }
 
    async getUserComments(userId: number): Promise<CommentDTO[]> {
-
-       const comments = await this._commentsRepo.find({
-           relations: { user: true },
-           where: { userId }
-       });
-
-       return comments.map(comment => __toDTO(comment, userId));
+        return this.createSelectQueryBuilder()
+            .where("comment.userId = :userId")
+            .setParameters({ userId })
+            .getRawMany<CommentDTO>();
    }
 
     async updateComment(dto: UpdateCommentDTO): Promise<void> {
@@ -52,34 +49,46 @@ export class CommentsService {
     }
 
     @Transactional()
-    async deleteComment(id: number, userId: number): Promise<void> {
-       const comment = await this._commentsRepo.findOneBy({ id, userId });
+    async deleteComment(id: number, userId: number): Promise<number> {
 
-       if (comment) {
-           await this._commentsRepo.delete(id);
-           await this._countService.updateCount(id, -1);
-       }
-    }
+       const comment = await this._commentsRepo.findOne({
+           where: { id },
+           select: ["userId", "postId"]
+       });
 
-    countComments(postId: number): Promise<number> {
-        return this._countService.countComments(postId);
+       if (!comment) throw new NotFoundException();
+       if (comment.userId != userId) throw new ForbiddenException();
+
+       await this._commentsRepo.delete(id);
+
+       const { nComments } = await this._countService.updateCount({
+           postId: comment.postId,
+           nComments: -1
+       });
+
+       return nComments;
     }
 
     private async checkConflict(dto: CreateCommentDTO): Promise<void> {
+        const { postId } = dto;
 
-        const exists = await this._postsRepo.existsBy({
-            id: dto.postId,
-            isRecruit: false
+        const exists = await this._postsRepo.exists({
+                relations: { board: true },
+                where: { id: postId, board: { isRecruit: false } }
         });
 
         if (!exists) throw new ConflictException();
     }
-}
 
-function __toDTO(comment: Comment, userId: number): CommentDTO {
-    return {
-        ...pick(comment, ["id", "postId", "content", "createdAt"]),
-        author: comment.user?.nickname ?? "알수없음",
-        editable: comment.userId === userId
-    };
+    private createSelectQueryBuilder(): SelectQueryBuilder<Comment> {
+        return this._commentsRepo
+            .createQueryBuilder("comment")
+            .select("comment.id", "id")
+            .addSelect("comment.postId", "postId")
+            .addSelect("comment.content", "content")
+            .addSelect("comment.createdAt", "createdAt")
+            .addSelect("comment.userId = :userId", "editable")
+            .leftJoin("comment.user", "user")
+            .addSelect("user.nickname", "author");
+    }
 }

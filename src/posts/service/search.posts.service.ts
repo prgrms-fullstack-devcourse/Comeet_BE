@@ -1,14 +1,13 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Applicant, GeoPostPointer, Post } from "../model";
-import { Brackets, Repository, SelectQueryBuilder } from "typeorm";
+import { Applicant, Post, Bookmark } from "../model";
+import { Repository } from "typeorm";
 import { SearchPostResult, SearchPostsDTO } from "../dto";
-import { ModelDTOTransformerService } from "./model.dto.transformer.service";
-import { Coordinates } from "../../utils";
-import { PostBookmarksService } from "./post.bookmarks.service";
-
-const __RADIUS = 5;
-type __PostFilters = Omit<SearchPostsDTO, "location">;
+import { setSelectClause, setWhereClause } from "./service.internal";
+import { SearchAdjacentPostsDTO } from "../dto/post/search.adjacent.posts.dto";
+import { SearchAdjacentPostResult } from "../dto/post/search.adjacent.post.result";
+import { setGeometricQuery } from "../../common/geo";
+import { createSelectTargetsQueryBuilder } from "../../common/marks";
 
 @Injectable()
 export class SearchPostsService {
@@ -16,104 +15,69 @@ export class SearchPostsService {
     constructor(
        @InjectRepository(Post)
        private readonly _postsRepo: Repository<Post>,
-       @InjectRepository(GeoPostPointer)
-       private readonly _pointersRepo: Repository<GeoPostPointer>,
        @InjectRepository(Applicant)
        private readonly _applicantsRepo: Repository<Applicant>,
-       @Inject(PostBookmarksService)
-       private readonly _bookmarksService: PostBookmarksService,
-       @Inject(ModelDTOTransformerService)
-       private readonly _transformerService: ModelDTOTransformerService,
+       @InjectRepository(Bookmark)
+       private readonly _bookmarksRepo: Repository<Bookmark>,
     ) {}
 
-    async searchPosts(dto: SearchPostsDTO) {
-        const { location, ...filters } = dto;
+    async searchPosts(dto: SearchPostsDTO): Promise<SearchPostResult[]> {
+        const qb = this._postsRepo.createQueryBuilder("post");
 
-        const results: Array<Post | [Post, Coordinates]> = location
-            ? await this.searchWithPointer(location, filters)
-            : await this.search(filters);
+        setSelectClause(qb);
+        setWhereClause(qb, dto);
 
-        return Promise.all(
-            results.map(result =>
-                this.toSearchPostResult(result)
-            )
-        );
+        return qb.getRawMany<SearchPostResult>();
+    }
+
+    async searchAdjacentPosts(
+        dto: SearchAdjacentPostsDTO
+    ): Promise<SearchAdjacentPostResult[]> {
+        const { origin, radius, ...filters } = dto;
+
+        const qb = this._postsRepo
+            .createQueryBuilder("post")
+            .select(
+                "jsonb_build_object('lat', ST_Y(post.location), 'lng', ST_X(post.location))",
+                "location"
+            );
+
+        setSelectClause(qb);
+        setWhereClause(qb, filters);
+        setGeometricQuery(qb, "post.location", origin, radius);
+
+        return qb.getRawMany<SearchAdjacentPostResult>();
     }
 
     async searchPostsAppliedTo(userId: number): Promise<SearchPostResult[]> {
 
-        const applicants = await this._applicantsRepo
-            .createQueryBuilder("applicant")
-            .select("applicant.userId", "userId")
-            .leftJoinAndSelect("applicant.post", "post")
-            .where("userId = :userId", { userId })
-            .getMany();
-
-        return Promise.all(
-            applicants.map(({ post }) =>
-                this.toSearchPostResult(post)
-            )
+        const qb = createSelectTargetsQueryBuilder(
+            this._applicantsRepo,
+            "posts", "post",
+            userId
         );
+
+        setSelectClause(qb);
+        return qb.getRawMany<SearchPostResult>();
     }
 
-    private search(filters: __PostFilters): Promise<Post[]> {
+    async searchBookmarkPosts(userId: number): Promise<SearchPostResult[]> {
 
-        const qb = this._postsRepo
-            .createQueryBuilder("post")
-            .select("post.*");
+        const qb = createSelectTargetsQueryBuilder(
+            this._bookmarksRepo,
+            "posts", "post",
+            userId
+        );
 
-        __setWhereClause(qb, filters);
-
-        return qb.getMany();
+        setSelectClause(qb);
+        return qb.getRawMany<SearchPostResult>();
     }
 
-    private async searchWithPointer(
-        location: Coordinates,
-        filters: __PostFilters,
-    ): Promise<[Post, Coordinates][]> {
 
-        const qb = this._pointersRepo
-            .createQueryBuilder("pointer")
-            .select("pointer.*")
-            .where(
-                "ST_Distance_Sphere(pointer.location, ST_Point(:lng, :lat)) <= :radius",
-                { ...location, radius: __RADIUS }
-            )
-            .leftJoinAndSelect("point.post", "post");
-
-        __setWhereClause(qb, filters);
-
-        const pointers = await qb.getMany();
-        return pointers.map(ptr => [ptr.post, ptr.location]);
-    }
-
-    private toSearchPostResult(
-        data: Post | [Post, Coordinates]
-    ): Promise<SearchPostResult> {
-        return data instanceof Post
-            ? this._transformerService.toSearchPostResult(data)
-            : this._transformerService.toSearchPostResult(...data);
-    }
 
 
 }
 
-function __setWhereClause<M extends object>(
-    qb: SelectQueryBuilder<M>,
-    filters: __PostFilters,
-): void {
-    const { boardId, userId, keyword } = filters;
 
-    qb.innerJoinAndSelect("post.board", "board")
-        .innerJoinAndSelect("post.user", "user");
 
-    boardId && qb.andWhere("board.id = :boardId", { boardId });
-    userId && qb.andWhere("user.id = :userId", { userId });
 
-    if (keyword) {
-        qb.andWhere(new Brackets(qb =>
-            qb.where("post.title LIKE :keyword", { keyword: `%${keyword}%` })
-                .orWhere("post.content LIKE :keyword", { keyword: `%${keyword}%` })
-        ));
-    }
-}

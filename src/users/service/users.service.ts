@@ -13,7 +13,7 @@ import {
 } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { InterestsService, PositionsService, TechsService } from "../../tags";
-import { pick } from "../../utils";
+import { Coordinates, pick } from "../../utils";
 import { ModelBase } from "../../common/data";
 import { UpdateUserDTO } from "../dto/update.user.dto";
 import { SearchUsersService } from "./search.users.service";
@@ -63,10 +63,20 @@ export class UsersService {
         return pick(user, ["id", "githubId"]);
     }
 
-    async getUser(id: number): Promise<UserDTO> {
-        const user = await this._usersRepo.findOneBy({ id });
+    async getUser(dto: GetUserDTO): Promise<UserDTO> {
+        const user = await this._usersRepo.findOneBy(dto);
         if (!user) throw new NotFoundException();
         return ModelBase.excludeWithTimestamp(user, ["githubId"]);
+    }
+
+    async getUserLocation(dto: GetUserDTO): Promise<Coordinates> {
+
+        const { location } = await this.findUserOrReject({
+            select: { location: true },
+            where: dto
+        });
+
+        return location;
     }
 
     async searchAdjacentUsers(

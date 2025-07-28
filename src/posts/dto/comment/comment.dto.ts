@@ -7,8 +7,8 @@ export class CommentDTO {
     @ApiProperty({ type: "integer" })
     postId: number;
 
-    @ApiProperty({ type: "string" })
-    author: string;
+    @ApiProperty({ type: "string", nullable: true })
+    author: string | null;
 
     @ApiProperty({ type: "string" })
     content: string;

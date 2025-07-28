@@ -1,9 +1,9 @@
 import { ModelBase } from "../../common/data";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Board } from "./board.model";
 import { User } from "../../users/model";
-import { Comment } from "./comment.model";
-import { Applicant } from "./applicant.model";
+import { PostCount } from "./post.count.model";
+import { Coordinates, GeometricColumn } from "../../utils";
 
 @Entity("posts")
 export class Post extends ModelBase{
@@ -12,6 +12,9 @@ export class Post extends ModelBase{
 
     @Column({ name: "board_id", type: "integer" })
     boardId: number;
+
+    @Column({ name: "count_id", type: "integer" })
+    countId: number;
 
     @Column({ name: "user_id", type: "integer", nullable: true })
     userId: number | null;
@@ -22,21 +25,18 @@ export class Post extends ModelBase{
     @Column({ type: "text" })
     content: string;
 
-    @Column({ name: "is_recruit", type: "boolean", default: false })
-    isRecruit: boolean;
+    @GeometricColumn()
+    location: Coordinates;
 
     @ManyToOne(() => Board, { eager: true })
     @JoinColumn({ name: "board_id" })
     board: Board;
 
+    @OneToOne(() => PostCount, { cascade: true, onDelete: "CASCADE" })
+    @JoinColumn({ name: "count_id" })
+    count: PostCount;
+
     @ManyToOne(() => User, { onDelete: "SET NULL" })
     @JoinColumn({ name: "user_id" })
     user: User | null;
-
-    @OneToMany(() => Comment, c => c.post, { cascade: true })
-    comments: Comment[];
-
-    @OneToMany(() => Applicant, a => a.post, { cascade: true })
-    applicants: Applicant[];
-
 }

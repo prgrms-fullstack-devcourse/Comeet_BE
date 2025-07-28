@@ -5,21 +5,10 @@ import { Transactional } from "typeorm-transactional";
 export abstract class MarksServiceBase {
     protected abstract readonly _repo: Repository<MarkBase>;
 
-    async didMark(userId: number, targetId: number): Promise<boolean> {
-        return this._repo.existsBy({ userId, targetId });
-    }
-
-    /**
-     * Delete mark if exists or insert mark,
-     * and return amount of change in number of marks attached to target
-     * @param userId
-     * @param targetId
-     * @protected
-     */
     @Transactional()
     async updateMark(
-        userId: number,
-        targetId: number,
+       targetId: number,
+       userId: number
     ): Promise<1 | -1> {
         const bookmark = await this._repo.findOneBy({ targetId, userId });
 
@@ -33,6 +22,10 @@ export abstract class MarksServiceBase {
         }
     }
 
+    async didMark(targetId: number, userId: number): Promise<boolean> {
+        return this._repo.existsBy({ userId, targetId });
+    }
+
     async getTargetIds(userId: number): Promise<number[]> {
 
         const marks = await this._repo.find({
@@ -42,4 +35,12 @@ export abstract class MarksServiceBase {
 
         return marks.map(m  => m.targetId);
     }
+
+    @Transactional()
+    async onTargetDeleted(targetId: number): Promise<void> {
+        const marks = await this._repo.findBy({ targetId });
+        await this._repo.delete(marks.map(m => m.id));
+    }
+
+    
 }

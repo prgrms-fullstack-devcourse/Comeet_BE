@@ -15,6 +15,4 @@ export abstract class MarkBase extends ImmutableModelBase {
     @ManyToOne(() => User, { onDelete: "SET NULL" })
     @JoinColumn({ name: "user_id" })
     user: User;
-
-
 }
