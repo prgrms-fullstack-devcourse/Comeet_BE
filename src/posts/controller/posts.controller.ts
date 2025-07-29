@@ -1,131 +1,175 @@
 import {
     Body,
-    Controller, Delete,
+    Controller,
+    Delete,
     Get,
-    HttpCode,
-    HttpStatus,
     Inject,
     Param,
     Patch,
-    Post, Put,
+    Post,
     Query,
-    UseGuards
+    UseGuards,
+    UseInterceptors
 } from "@nestjs/common";
-import { PostsService } from "../service";
-import { AuthGuard } from "@nestjs/passport";
-import { User } from "../../utils";
-import { CreatePostBody, GetPostsQuery, GetPostsResponse, UpdatePostBody } from "../api/post";
+import { PostsService, SearchPostsService } from "../service";
 import {
     ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
-    ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse,
-    ApiOperation, ApiParam, ApiQuery, ApiResetContentResponse,
-    ApiTags, ApiUnprocessableEntityResponse
+    ApiForbiddenResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation,
+    ApiParam, ApiQuery, ApiResetContentResponse,
+    ApiTags,
+    ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
+import { Coordinates, User } from "../../utils";
 import { PostDTO } from "../dto";
+import { CreatePostBody, SearchPostsQuery, SearchPostsResponse, UpdatePostBody } from "../api/post";
 import { UpdateLikeResponse } from "../../likes/api";
+import { UserLocationInterceptor } from "../../users";
+import { SearchAdjacentPostsQuery } from "../api/post/search.adjacent.posts.query";
+import { SearchAdjacentPostsResponse } from "../api/post/search.adjacent.posts.response";
+import { AuthGuard } from "@nestjs/passport";
 
 @ApiTags("Posts")
 @Controller("/api/posts")
 @UseGuards(AuthGuard("jwt"))
 export class PostsController {
-
     constructor(
-       @Inject(PostsService)
-       private readonly _postsService: PostsService,
+        @Inject(PostsService)
+        private readonly _postsService: PostsService,
+        @Inject(SearchPostsService)
+        private readonly _searchPostsService: SearchPostsService,
+
     ) {}
 
-   @Post("/")
-   @ApiOperation({ summary: "게시물 생성" })
-   @ApiBearerAuth()
-   @ApiBody({ type: CreatePostBody, required: true })
-   @ApiCreatedResponse()
-   @ApiForbiddenResponse()
-   @ApiUnprocessableEntityResponse()
-   async createPost(
-       @User("id")
-       userId: number,
-       @Body()
-       body: CreatePostBody
-   ): Promise<void> {
-        await this._postsService.createPost({ userId, ...body });
-   }
+    @Post("/:boardId")
+    @ApiOperation({ summary: "게시물 생성" })
+    @ApiBearerAuth()
+    @ApiParam({ name: "boardId", type: "integer", required: true, description: "게시판 아이디" })
+    @ApiBody({ type: CreatePostBody, required: true })
+    @ApiCreatedResponse()
+    @ApiForbiddenResponse()
+    @ApiUnprocessableEntityResponse()
+    @UseInterceptors(UserLocationInterceptor)
+    async createPost(
+        @Param("boardId") boardId: number,
+        @User("id") userId: number,
+        @User("location") location: Coordinates,
+        @Body() body: CreatePostBody,
+    ): Promise<void> {
+        body.location || Object.assign(body, { location });
+        await this._postsService.createPost({ boardId, userId, ...body });
+    }
 
-   @Get("/")
-   @ApiOperation({ summary: "게시물 검색" })
-   @ApiBearerAuth()
-   @ApiQuery({ type: GetPostsQuery, required: true })
-   @ApiOkResponse({ type: GetPostsResponse })
-   @ApiForbiddenResponse()
-   @ApiUnprocessableEntityResponse()
-   async getPosts(
-       @Query()
-       query: GetPostsQuery,
-   ): Promise<GetPostsResponse> {
-        const results = await this._postsService.searchPosts(query);
+    @Get("/posts/details/:id")
+    @ApiOperation({ summary: "게시물 조회" })
+    @ApiBearerAuth()
+    @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 아이디" })
+    @ApiOkResponse({ type: SearchPostsResponse })
+    @ApiForbiddenResponse()
+    @ApiNotFoundResponse()
+    async getPost(
+        @Param("id") id: number,
+        @User("id") userId: number,
+    ): Promise<PostDTO> {
+        return this._postsService.getPost(id, userId);
+    }
+
+    @Get("/search")
+    @ApiOperation({ summary: "게시물 검색" })
+    @ApiBearerAuth()
+    @ApiQuery({ type: SearchPostsQuery, required: true })
+    @ApiOkResponse({ type: SearchPostsResponse })
+    @ApiForbiddenResponse()
+    async searchPosts(
+        @Query()
+        query: SearchPostsQuery,
+    ): Promise<SearchPostsResponse> {
+        const results = await this._searchPostsService.searchPosts(query);
         return { results };
-   }
+    }
 
-   @Get("/:id")
-   @ApiOperation({ summary: "게시물 조회" })
-   @ApiBearerAuth()
-   @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 id" })
-   @ApiOkResponse({ type: PostDTO })
-   @ApiForbiddenResponse()
-   @ApiNotFoundResponse()
-   async getPost(
-       @Param("id") id: number,
-       @User("id") userId: number
-   ): Promise<PostDTO> {
-        return await this._postsService.getPost(id, userId);
-   }
+    @Get("/search/adjacent")
+    @ApiOperation({ summary: "게시물 검색" })
+    @ApiBearerAuth()
+    @ApiQuery({ type: SearchAdjacentPostsQuery, required: true })
+    @ApiOkResponse({ type: SearchAdjacentPostsResponse })
+    @ApiForbiddenResponse()
+    @UseInterceptors(UserLocationInterceptor)
+    async searchAdjacentPosts(
+        @User("location") origin: Coordinates,
+        @Query() query: SearchAdjacentPostsQuery,
+    ): Promise<SearchAdjacentPostsResponse> {
 
-   @Patch("/:id")
-   @ApiOperation({ summary: "게시물 수정" })
-   @ApiBearerAuth()
-   @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 id" })
-   @ApiBody({ type: UpdatePostBody, required: true })
-   @ApiResetContentResponse()
-   @ApiForbiddenResponse()
-   @ApiUnprocessableEntityResponse()
-   @HttpCode(HttpStatus.RESET_CONTENT)
-   async updatePost(
-       @Param("id") id: number,
-       @User("id") userId: number,
-       @Body() body: UpdatePostBody
-   ): Promise<void> {
+        const results = await this._searchPostsService
+            .searchAdjacentPosts({ origin, ...query });
+
+        return { results };
+    }
+
+    @Get("/")
+    @ApiOperation({ summary: "내가 쓴 게시물 검색"})
+    @ApiBearerAuth()
+    @ApiOkResponse({ type: SearchPostsResponse })
+    @ApiForbiddenResponse()
+    async searchUserPosts(
+        @User("id") userId: number,
+    ): Promise<SearchPostsResponse> {
+        const results = await this._searchPostsService.searchPosts({ userId });
+        return { results };
+    }
+
+    @Get("/bookmarks")
+    @ApiOperation({ summary: "북마크한 게시물 검색"})
+    @ApiBearerAuth()
+    @ApiOkResponse({ type: SearchPostsResponse })
+    @ApiForbiddenResponse()
+    async searchBookmarkPosts(
+        @User("id") userId: number,
+    ): Promise<SearchPostsResponse> {
+        const results = await this._searchPostsService.searchBookmarkPosts(userId);
+        return { results };
+    }
+
+    @Get("/applies")
+    @ApiOperation({ summary: "지원한 모집글 검색"})
+    @ApiBearerAuth()
+    @ApiOkResponse({ type: SearchPostsResponse })
+    @ApiForbiddenResponse()
+    async searchAppliedTo(
+        @User("id") userId: number,
+    ): Promise<SearchPostsResponse> {
+        const results = await this._searchPostsService.searchPostsAppliedTo(userId);
+        return { results };
+    }
+
+    @Patch("/posts/:id")
+    @ApiBearerAuth()
+    @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 아이디" })
+    @ApiBody({ type: UpdatePostBody, required: true })
+    @ApiResetContentResponse()
+    @ApiForbiddenResponse()
+    @ApiUnprocessableEntityResponse()
+    async updatePost(
+        @Param("id") id: number,
+        @User("id") userId: number,
+        @Body() body: UpdatePostBody
+    ) {
         await this._postsService.updatePost({
             id, userId, ...body
         });
-   }
+    }
 
-    @Put("/:id/likes")
-    @ApiOperation({ summary: "게시물 좋아요/좋아요 해제" })
-    @ApiBearerAuth()
-    @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 id" })
+
+
+    @Delete("/posts/:id")
+    @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 아이디" })
     @ApiOkResponse({ type: UpdateLikeResponse })
     @ApiForbiddenResponse()
-    async updatePostLike(
+    async deletePost(
         @Param("id") id: number,
         @User("id") userId: number,
     ) {
-      const nLikes = await this._postsService.updatePostLike(id, userId);
-      return { nLikes };
+       await this._postsService.deletePost(id, userId);
     }
-
-   @Delete("/:id")
-   @ApiOperation({ summary: "게시물 삭제" })
-   @ApiBearerAuth()
-   @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 id" })
-   @ApiNoContentResponse()
-   @ApiForbiddenResponse()
-   @HttpCode(HttpStatus.NO_CONTENT)
-   async deletePost(
-       @Param("id") id: number,
-       @User("id") userId: number,
-   ): Promise<void> {
-        await this._postsService.deletePost(id, userId);
-   }
-
 }

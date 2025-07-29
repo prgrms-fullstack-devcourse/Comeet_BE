@@ -1,111 +1,105 @@
-import { ConflictException, ForbiddenException, Inject, Injectable, Logger } from "@nestjs/common";
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { FindOneOptions, Repository } from "typeorm";
-import { UserTechsService } from "./user.techs.service";
-import { UserInterestsService } from "./user.interests.service";
-import { CreateUserDTO, GetUserDTO, SearchUserResult, SearchUsersDTO, UpdateUserDTO, UserDTO, UserIdentification } from "../dto";
+import { CreateUserDTO, GetUserDTO, UserCert, UserDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
-import { ModelBase, TypeBase } from "../../common/data";
+import { InterestsService, PositionsService, TechsService } from "../../tags";
+import { Coordinates, pick } from "../../utils";
+import { ModelBase } from "../../common/data";
+import { UpdateUserDTO } from "../dto/update.user.dto";
 import { SearchUsersService } from "./search.users.service";
-import { ageToBirthYear, birthYearToAge } from "./service.internal";
-import { PositionsService } from "../../tags/service";
-import { pick } from "../../utils/object";
+import { UserSubscriptionsService } from "./user.subscriptions.service";
 
 @Injectable()
 export class UsersService {
-    private readonly _logger: Logger = new Logger(UsersService.name);
 
     constructor(
        @InjectRepository(User)
        private readonly _usersRepo: Repository<User>,
-       @Inject(UserTechsService)
-       private readonly _userTechsService: UserTechsService,
-       @Inject(UserInterestsService)
-       private readonly _userInterestsService: UserInterestsService,
+       @Inject(PositionsService)
+       private readonly _positionsService: PositionsService,
+       @Inject(TechsService)
+       private readonly _techsService: TechsService,
+       @Inject(InterestsService)
+       private readonly _interestsService: InterestsService,
        @Inject(SearchUsersService)
        private readonly _searchUsersService: SearchUsersService,
+       @Inject(UserSubscriptionsService)
+       private readonly _subsService: UserSubscriptionsService,
     ) {}
 
     @Transactional()
-    async createUser(dto: CreateUserDTO): Promise<UserIdentification> {
-        await this.checkConflict(dto);
-        const { age, techIds, interestIds, ...rest } = dto;
+    async createUser(dto: CreateUserDTO): Promise<UserCert> {
+        const { githubId, birthyear, ...rest } = dto;
 
-        const { id, githubId } = await this._usersRepo.save({
-           ...rest,
-           birthYear: ageToBirthYear(age),
-           userTechs: techIds.map(techId => ({ techId })),
-           userInterests: interestIds.map(interestId => ({ interestId })),
+        if (await this._usersRepo.existsBy({ githubId }))
+            throw new ConflictException();
+
+       const values = await this.makeValues(rest);
+
+        const { id } = await this._usersRepo.save({
+            githubId, ...values
         });
 
-       return { id, githubId };
-    }
-
-    async getUserIdentification(dto: GetUserDTO): Promise<UserIdentification> {
-        const { id, githubId } = await this.findUser({where: dto});
         return { id, githubId };
     }
 
-    async getUser(dto: GetUserDTO): Promise<UserDTO> {
+    async getUserCert(dto: GetUserDTO): Promise<UserCert> {
 
-        const user = await this.findUser({
-            relations: {
-                position: true, social: true,
-                userTechs: { tech: true }, userInterests: { interest: true }
-            },
+        const user = await this.findUserOrReject({
+            where: dto,
+            select: ["id", "githubId"]
+        });
+
+        return pick(user, ["id", "githubId"]);
+    }
+
+    async getUser(dto: GetUserDTO): Promise<UserDTO> {
+        const user = await this._usersRepo.findOneBy(dto);
+        if (!user) throw new NotFoundException();
+        return ModelBase.excludeWithTimestamp(user, ["githubId"]);
+    }
+
+    async getUserLocation(dto: GetUserDTO): Promise<Coordinates> {
+
+        const { location } = await this.findUserOrReject({
+            select: { location: true },
             where: dto
         });
 
-        return __toDTO(user);
+        return location;
     }
 
     @Transactional()
     async updateUser(dto: UpdateUserDTO): Promise<void> {
-        const { id, ...values } = dto;
+        const { id,  ...rest } = dto;
+        const values = await this.makeValues(rest);
         await this._usersRepo.update(id, values);
-
-        values.techIds?.length && await this._userTechsService
-            .updateUserTechs(id, values.techIds);
-
-        values.interestIds?.length && await this._userInterestsService
-            .updateUserInterests(id, values.interestIds);
     }
 
-    async searchUsers(dto: SearchUsersDTO): Promise<SearchUserResult[]> {
-        const { id, ...filters } = dto;
+    private async makeValues(
+        dto: Omit<UpdateUserDTO, "id">
+    ): Promise<Partial<User>> {
+        const { positionId, techIds, interestIds, ...rest } = dto;
+        const values: Partial<User> = rest;
 
-        const { location: origin } = await this.findUser({
-            where: { id },
-            select: ["location"]
-        });
+        if (positionId)
+            values.position = await this._positionsService.getValue(positionId);
 
-        return await this._searchUsersService.searchUsers(origin, filters);
+        if (techIds?.length)
+            values.techStack = await this._techsService.getTechs(techIds);
+
+        if (interestIds?.length)
+            values.interests = await this._interestsService.getValues(interestIds);
+
+        return values;
     }
 
-    private async checkConflict(dto: CreateUserDTO): Promise<void> {
-        const { githubId } = dto;
-
-        if (await this._usersRepo.existsBy({ githubId }))
-            throw new ConflictException();
-    }
-
-    private async findUser(options: FindOneOptions<User>): Promise<User> {
+    private async findUserOrReject(options: FindOneOptions<User>): Promise<User> {
         const user = await this._usersRepo.findOne(options);
         if (!user) throw new ForbiddenException();
         return user;
     }
 }
 
-function __toDTO(user: User): UserDTO {
-    const { social, birthYear, position, userTechs, userInterests } = user;
-
-    return {
-        ...pick(user, ["id", "nickname", "experience", "location", "bio", "github"]),
-        ...pick(social, ["email", "instagram", "linkedIn", "blog"]),
-        age: birthYearToAge(birthYear),
-        position: PositionsService.toPositionDTO(position),
-        techStack: userTechs.map(ut => TypeBase.toTypeDTO(ut.tech)),
-        interests: userInterests.map(ui => TypeBase.toTypeDTO(ui.interest))
-    }
-}

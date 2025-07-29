@@ -1,4 +1,4 @@
 export * from "./users.service";
-export * from "./user.techs.service";
-export * from "./user.interests.service";
+export * from "./user.subscriptions.service";
 export * from "./search.users.service";
+export * from "./get.user.location.service";

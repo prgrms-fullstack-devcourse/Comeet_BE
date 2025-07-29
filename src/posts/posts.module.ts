@@ -1,29 +1,53 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Comment, Post } from "./model";
-import { CommentsService, PostsService } from "./service";
-import { CommentsController, PostsController, UserCommentsController, UserPostsController } from "./controller";
-import { LikesModule, LikesService } from "../likes";
-import { LikeMark } from "../likes/model";
+import { Applicant, Board, Bookmark, Comment, Post, PostLike } from "./model";
+import { PostCount } from "./model/post.count.model";
+import { User } from "../users/model";
+import { UserLocationInterceptor, UsersModule } from "../users";
+import {
+    ApplicantsService,
+    BoardsService,
+    BookmarksService, CommentsService,
+    PostCountsService,
+    PostLikesService,
+    PostsService, SearchPostsService
+} from "./service";
+import {
+    AppliesController, BoardsController,
+    BookmarksController,
+    CommentsController,
+    PostLikesController,
+    PostsController
+} from "./controller";
 
-const __EXTERNAL_PROVIDERS = [LikesService];
+const __EXTERNAL_PROVIDERS = [UserLocationInterceptor]
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Post, Comment, LikeMark]),
-        LikesModule
+        TypeOrmModule.forFeature([
+            Board, Post, PostCount, PostLike,
+            Bookmark, Applicant, Comment, User
+        ]),
+        UsersModule,
     ],
     providers: [
         ...__EXTERNAL_PROVIDERS,
+        BoardsService,
         PostsService,
+        PostCountsService,
+        PostLikesService,
+        BookmarksService,
+        ApplicantsService,
         CommentsService,
+        SearchPostsService,
     ],
     controllers: [
+        BoardsController,
         PostsController,
-        CommentsController,
-        UserPostsController,
-        UserCommentsController,
+        PostLikesController,
+        BookmarksController,
+        AppliesController,
+        CommentsController
     ]
-
 })
 export class PostsModule {}

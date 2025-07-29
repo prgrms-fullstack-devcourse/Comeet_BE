@@ -7,15 +7,15 @@ export class CommentDTO {
     @ApiProperty({ type: "integer" })
     postId: number;
 
-    @ApiProperty({ type: "string" })
-    author: string;
+    @ApiProperty({ type: "string", nullable: true })
+    author: string | null;
 
     @ApiProperty({ type: "string" })
     content: string;
 
+    @ApiProperty({ type: "boolean" })
+    editable: boolean;
+
     @ApiProperty({ type: Date })
     createdAt: Date;
-
-    @ApiProperty({ type: "boolean", description: "좋아요 눌렀는지 여부" })
-    editable: boolean;
 }

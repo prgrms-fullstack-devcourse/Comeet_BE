@@ -1,8 +1,12 @@
-import { TypeDTO } from "../../common/data";
-import { ApiProperty, ApiSchema } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 
-@ApiSchema()
-export class PositionDTO extends TypeDTO {
+export class PositionDTO {
+    @ApiProperty({ type: "integer" })
+    id: number;
+
     @ApiProperty({ type: "string" })
     field: string;
+
+    @ApiProperty({ type: "string" })
+    role: string;
 }

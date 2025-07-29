@@ -12,6 +12,11 @@ import { InterestsService, PositionsService, TechsService } from "./service";
       TechsService,
       InterestsService
   ],
-  controllers: [TagsController]
+  controllers: [TagsController],
+  exports: [
+      PositionsService,
+      TechsService,
+      InterestsService
+  ]
 })
 export class TagsModule {}

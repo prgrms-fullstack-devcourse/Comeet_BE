@@ -5,7 +5,7 @@ import Redis from "iovalkey";
 import { JwtOptions } from "../jwt.options";
 import { SignUpDTO } from "../dto";
 import { TokenPair } from "../../utils";
-import { UserIdentification } from "../../users/dto";
+import { UserCert } from "../../users/dto";
 
 @Injectable()
 export class AuthService {
@@ -27,7 +27,7 @@ export class AuthService {
     }
 
     async signIn(githubId: string): Promise<TokenPair> {
-        const user = await this._usersService.getUserIdentification({ githubId });
+        const user = await this._usersService.getUserCert({ githubId });
         return this.generateTokenPair(user);
     }
 
@@ -45,7 +45,7 @@ export class AuthService {
         return this._jwtAuthService.generateAccess(user);
     }
 
-    private generateTokenPair(user: UserIdentification): TokenPair {
+    private generateTokenPair(user: UserCert): TokenPair {
         const accessToken = this._jwtAuthService.generateAccess(user);
         const refreshToken = this._jwtAuthService.generateRefresh(user);
         return { accessToken, refreshToken };

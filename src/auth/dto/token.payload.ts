@@ -1,14 +1,7 @@
-import { UserIdentification } from "../../users/dto";
-import { IsNotEmpty, IsNumber, IsNumberString, IsString } from "class-validator";
+import { UserCert } from "../../users/dto";
+import { IsNumber, IsString } from "class-validator";
 
-export class TokenPayload implements UserIdentification {
-    @IsNumber()
-    id: number;
-
-    @IsNumberString()
-    @IsNotEmpty()
-    githubId: string;
-
+export class TokenPayload extends UserCert {
     @IsString()
     salt: string;
 

@@ -1,21 +1,28 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User, UserInterest, UserTech } from "./model";
-import { SearchUsersService, UserInterestsService, UsersService, UserTechsService } from "./service";
+import { User } from "./model";
+import { UsersService } from "./service";
+import { Position, Tech } from "../tags/model";
+import { Interest } from "../tags/model/interest.model";
+import { InterestsService, PositionsService, TechsService } from "../tags";
+import { UsersController } from './users.controller';
+
+const __EXTERNAL_PROVIDERS = [
+    PositionsService,
+    TechsService,
+    InterestsService
+];
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User, UserTech, UserInterest])],
+    imports: [TypeOrmModule.forFeature([User, Position, Tech, Interest])],
     providers: [
+        ...__EXTERNAL_PROVIDERS,
         UsersService,
-        UserTechsService,
-        UserInterestsService,
-        SearchUsersService,
     ],
     exports: [
-        UsersService,
-        UserTechsService,
-        UserInterestsService,
-        SearchUsersService,
-    ]
+        ...__EXTERNAL_PROVIDERS,
+        UsersService
+    ],
+    controllers: [UsersController],
 })
 export class UsersModule {}

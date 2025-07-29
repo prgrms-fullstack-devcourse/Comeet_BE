@@ -1,17 +1,24 @@
-import {
-    Column,
-    Entity,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    OneToOne,
-    PrimaryGeneratedColumn
-} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ValueTransformer } from "typeorm";
 import { ModelBase } from "../../common/data";
-import { Social } from "./social.model";
-import { Position } from "../../tags/model";
-import { UserInterest, UserTech } from "./tag";
-import { GeometricColumn } from "../../utils";
+import { Coordinates, GeometricColumn } from "../../utils";
+import { PositionDTO } from "../../tags/dto";
+import { TypeDTO } from "../../common/type";
+
+const __transformer: ValueTransformer = {
+    from(hstore: Record<string, string>): TypeDTO[] {
+        return Object.entries(hstore)
+            .map(([k, v]): TypeDTO =>
+                ({ id: Number(k), value: v })
+            );
+    },
+    to(tags: TypeDTO[]): Record<string, string> {
+        return Object.fromEntries(
+            tags.map(tag =>
+                [tag.id.toString(), tag.value]
+            )
+        );
+    }
+};
 
 @Entity("users")
 export class User extends ModelBase {
@@ -21,17 +28,11 @@ export class User extends ModelBase {
     @Column({ name: "github_id", type: "varchar", unique: true })
     githubId: string;
 
-    @Column({ name: "social_id", type: "integer", unique: true })
-    socialId: number;
-
-    @Column({ name: "position_id", type: "integer" })
-    positionId: number;
-
     @Column({ type: "varchar" })
     nickname: string;
 
-    @Column({ name: "birth_year", type: "integer" })
-    birthYear: number;
+    @Column({ name: "birthyear", type: "integer" })
+    birthyear: number;
 
     @Column({ type: "integer" })
     experience: number;
@@ -39,31 +40,42 @@ export class User extends ModelBase {
     @Column({ type: "varchar" })
     bio: string;
 
+    @GeometricColumn()
+    location: Coordinates;
+
+    @Column({ type: "jsonb" })
+    position: PositionDTO;
+
+    @Column({
+        name: "tech_stack",
+        type: "hstore",
+        hstoreType: "object",
+        transformer: __transformer,
+    })
+    techStack: TypeDTO[];
+
+    @Column({
+        type: "hstore",
+        hstoreType: "object",
+        transformer: __transformer,
+    })
+    interests: TypeDTO[];
+
+    @Column({ name: "n_subscribers", type: "integer", default: 0 })
+    nSubscribers: number;
+
     @Column({ type: "varchar" })
     github: string;
 
-    @GeometricColumn()
-    location: [number, number];
+    @Column({ type: "varchar", nullable: true })
+    email: string | null;
 
-    @OneToOne(() => Social, { cascade: true })
-    @JoinColumn({ name: "social_id" })
-    social: Social;
+    @Column({ type: "varchar", nullable: true })
+    instagram: string | null;
 
-    @ManyToOne(() => Position)
-    @JoinColumn({ name: "position_id" })
-    position: Position;
+    @Column({ name: "linked_in", type: "varchar", nullable: true })
+    linkedIn: string | null;
 
-    @OneToMany(
-        () => UserTech,
-        ut => ut.user,
-        { cascade: true },
-    )
-    userTechs: UserTech[];
-
-    @OneToMany(
-        () => UserInterest,
-        ui => ui.user,
-        { cascade: true },
-    )
-    userInterests: UserInterest[];
+    @Column({ type: "varchar", nullable: true })
+    blog: string | null;
 }

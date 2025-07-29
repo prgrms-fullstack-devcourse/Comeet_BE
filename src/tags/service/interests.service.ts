@@ -1,24 +1,34 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Interest } from "../model/interest.model";
-import { Repository } from "typeorm";
-import { TagsServiceBase } from "./tags.service.base";
-import { TypeDTO } from "../../common";
-import Redis from "iovalkey";
+import { In, Repository } from "typeorm";
+import { TypeBase, TypeDTO } from "../../common/type";
 
 @Injectable()
-export class InterestsService extends TagsServiceBase {
+export class InterestsService {
 
     constructor(
-        @InjectRepository(Interest)
-        repo: Repository<Interest>,
-        @Inject(Redis)
-        redis: Redis,
-    ) {
-        super(repo, redis, "interests");
+       @InjectRepository(Interest)
+       private readonly _interestsRepo: Repository<Interest>,
+    ) {}
+
+    async getAllInterests(): Promise<TypeDTO[]> {
+
+        const interests = await this._interestsRepo.find({
+            cache: true,
+        });
+
+        return interests.map(TypeBase.toTypeDTO);
     }
 
-    getAllInterests(): Promise<TypeDTO[]> {
-        return this.getAllTags();
+    async getValues(ids: number[]): Promise<TypeDTO[]> {
+
+        const interests = await this._interestsRepo.find({
+            where: { id: In(ids) },
+            cache: true,
+        });
+
+        return interests.map(TypeBase.toTypeDTO);
     }
+
 }

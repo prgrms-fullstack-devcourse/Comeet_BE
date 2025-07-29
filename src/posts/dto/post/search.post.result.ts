@@ -1,7 +1,7 @@
-import { SearchPostBaseResult } from "../search.post.base.result";
-import { ApiProperty } from "@nestjs/swagger";
+import { PickType } from "@nestjs/swagger";
+import { PostDTO } from "./post.dto";
 
-export class SearchPostResult extends SearchPostBaseResult{
-    @ApiProperty({ type: "integer" })
-    nComments: number;
-}
+export class SearchPostResult extends PickType(
+  PostDTO,
+  ["id", "board", "author", "title", "nLikes", "nComments", "createdAt"]
+) {}

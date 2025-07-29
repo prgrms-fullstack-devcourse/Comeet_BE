@@ -1,5 +1,5 @@
 import { CreateDateColumn, UpdateDateColumn } from "typeorm";
-import { omit } from "../../utils/object";
+import { omit } from "../../utils";
 
 export abstract class ModelBase {
     @CreateDateColumn({ name: "created_at", type: "timestamp" })

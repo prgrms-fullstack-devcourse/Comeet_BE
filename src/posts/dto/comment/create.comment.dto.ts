@@ -1,6 +1,6 @@
 
 export interface CreateCommentDTO {
-    postId: number;
     userId: number;
+    postId: number;
     content: string;
 }
