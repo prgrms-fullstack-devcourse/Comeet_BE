@@ -1,7 +1,7 @@
-import { ModelBase } from "./model.base";
+import { ModelBase } from "../data/model.base";
 import { Column, PrimaryGeneratedColumn } from "typeorm";
 import { TypeDTO } from "./type.dto";
-import { pick } from "../../utils/object";
+import { pick } from "../../utils";
 
 /**
  * Base model for table having four columns: id, value + timestamp columns,

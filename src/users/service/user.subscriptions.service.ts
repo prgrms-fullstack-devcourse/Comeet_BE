@@ -1,28 +1,24 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserSubscription } from "../model";
 import { Repository } from "typeorm";
 import { User } from "../model";
 import { MarksServiceBase } from "../../common/marks";
 import { Transactional } from "typeorm-transactional";
-import { SearchUserResult } from "../dto";
-import { SearchUsersService } from "./search.users.service";
 
 @Injectable()
-export class UserSubscriptionsService extends MarksServiceBase{
+export class UserSubscriptionsService extends MarksServiceBase {
 
     constructor(
        @InjectRepository(UserSubscription)
        protected readonly _repo: Repository<UserSubscription>,
        @InjectRepository(User)
        private readonly _usersRepo: Repository<User>,
-       @Inject(SearchUsersService)
-       protected readonly _searchUsersService: SearchUsersService
     ) { super(); }
 
     @Transactional()
-    async updateSubscriptions(userId: number, targetId: number): Promise<void> {
-        const delta = await this.updateMark(userId, targetId);
+    async updateSubscriptions(id: number, userId: number): Promise<number> {
+        const delta = await this.updateMark(id, userId);
 
         await this._usersRepo
             .createQueryBuilder("user")
@@ -31,13 +27,15 @@ export class UserSubscriptionsService extends MarksServiceBase{
                 nSubscribers: () =>
                     "CASE WHEN nSubscribers + :delta >= 0 THEN nSubscribers + :delta ELSE nSubscribers END",
             })
-            .where("id = :targetId")
-            .setParameters({ delta, targetId })
+            .where("id = :id")
+            .setParameters({ id, delta })
             .execute();
-    }
 
-    async searchSubscribingUsers(userId: number): Promise<SearchUserResult[]> {
-        const targetIds = await this.getTargetIds(userId);
-        return this._searchUsersService.searchSubscribingUsers(targetIds);
+        const { nSubscribers } = await this._usersRepo.findOneOrFail({
+            where: { id },
+            select: ["nSubscribers"]
+        });
+
+        return nSubscribers;
     }
 }

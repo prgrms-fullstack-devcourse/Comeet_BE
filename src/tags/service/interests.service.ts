@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Interest } from "../model/interest.model";
 import { In, Repository } from "typeorm";
-import { TypeBase, TypeDTO } from "../../common/data";
+import { TypeBase, TypeDTO } from "../../common/type";
 
 @Injectable()
 export class InterestsService {

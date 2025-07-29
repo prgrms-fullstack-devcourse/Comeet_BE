@@ -15,13 +15,13 @@ export class PostLikesService extends MarksServiceBase {
         private readonly _countsService: PostCountsService,
     ) { super(); }
 
-    async updateLike(userId: number, postId: number): Promise<number> {
-        const delta = await this.updateMark(userId, postId);
+    async updateLike(postId: number, userId: number): Promise<[number, boolean]> {
+        const delta = await this.updateMark(postId, userId);
 
         const { nLikes } = await this._countsService.updateCount({
             postId, nLikes: delta
         });
 
-        return nLikes;
+        return [nLikes, delta === 1];
     }
 }

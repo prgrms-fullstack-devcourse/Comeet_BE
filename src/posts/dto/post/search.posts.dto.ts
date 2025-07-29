@@ -1,9 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class SearchPostsDTO {
-    boardId?: number;
     userId?: number;
+
+    @IsInt()
+    @IsOptional()
+    @ApiProperty({ type: "integer", required: false })
+    boardId?: number;
+
+
     @IsString()
     @IsNotEmpty()
     @IsOptional()

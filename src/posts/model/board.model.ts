@@ -1,4 +1,4 @@
-import { TypeBase } from "../../common/data";
+import { TypeBase } from "../../common/type";
 import { Column, Entity } from "typeorm";
 
 @Entity("boards")

@@ -2,15 +2,7 @@ import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundExce
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { FindOneOptions, Repository } from "typeorm";
-import {
-    CreateUserDTO,
-    GetUserDTO,
-    SearchAdjacentUserResult,
-    SearchAdjacentUsersDTO,
-    SearchUserResult,
-    UserCert,
-    UserDTO
-} from "../dto";
+import { CreateUserDTO, GetUserDTO, UserCert, UserDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { InterestsService, PositionsService, TechsService } from "../../tags";
 import { Coordinates, pick } from "../../utils";
@@ -77,25 +69,6 @@ export class UsersService {
         });
 
         return location;
-    }
-
-    async searchAdjacentUsers(
-        dto: SearchAdjacentUsersDTO
-    ): Promise<SearchAdjacentUserResult[]> {
-        const { id, radius, ...filters } = dto;
-
-        const { location: origin } = await this.findUserOrReject({
-            where: { id },
-            select: ["location"]
-        });
-
-        return this._searchUsersService.searchAdjacentUsers(
-            origin, radius, filters
-        );
-    }
-
-    searchHotUsers(): Promise<SearchUserResult[]> {
-        return this._searchUsersService.searchHotUsers();
     }
 
     @Transactional()

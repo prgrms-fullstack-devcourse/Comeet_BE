@@ -1,7 +1,8 @@
 import { Column, Entity, PrimaryGeneratedColumn, ValueTransformer } from "typeorm";
-import { ModelBase, TypeDTO } from "../../common/data";
+import { ModelBase } from "../../common/data";
 import { Coordinates, GeometricColumn } from "../../utils";
 import { PositionDTO } from "../../tags/dto";
+import { TypeDTO } from "../../common/type";
 
 const __transformer: ValueTransformer = {
     from(hstore: Record<string, string>): TypeDTO[] {

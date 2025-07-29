@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Comment, Post } from "../model";
 import { Repository, SelectQueryBuilder } from "typeorm";
@@ -19,14 +19,16 @@ export class CommentsService {
     ) {}
 
     @Transactional()
-    async createComment(dto: CreateCommentDTO): Promise<void> {
+    async createComment(dto: CreateCommentDTO): Promise<number> {
         await this.checkConflict(dto);
         await this._commentsRepo.insert(dto);
 
-        await this._countService.updateCount({
+        const { nComments } =  await this._countService.updateCount({
             postId: dto.postId,
             nComments: 1
         });
+
+        return nComments;
     }
 
    async getPostComments(postId: number, userId: number): Promise<CommentDTO[]> {
@@ -43,9 +45,10 @@ export class CommentsService {
             .getRawMany<CommentDTO>();
    }
 
-    async updateComment(dto: UpdateCommentDTO): Promise<void> {
+    async updateComment(dto: UpdateCommentDTO): Promise<string> {
         const { content, ...criteria } = dto;
         await this._commentsRepo.update(criteria, { content });
+        return content;
     }
 
     @Transactional()
@@ -77,7 +80,7 @@ export class CommentsService {
                 where: { id: postId, board: { isRecruit: false } }
         });
 
-        if (!exists) throw new ConflictException();
+        if (!exists) throw new NotFoundException();
     }
 
     private createSelectQueryBuilder(): SelectQueryBuilder<Comment> {

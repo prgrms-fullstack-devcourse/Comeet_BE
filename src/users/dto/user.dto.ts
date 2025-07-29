@@ -1,7 +1,7 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
 import { Coordinates } from "../../utils";
 import { PositionDTO } from "../../tags/dto";
-import { TypeDTO } from "../../common/data";
+import { TypeDTO } from "../../common/type";
 
 @ApiExtraModels(Coordinates, PositionDTO, TypeDTO)
 export class UserDTO  {

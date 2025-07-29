@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Tech } from "../model";
 import { In, Like, Repository } from "typeorm";
-import { TypeBase, TypeDTO } from "../../common/data";
+import { TypeBase, TypeDTO } from "../../common/type";
 
 @Injectable()
 export class TechsService {

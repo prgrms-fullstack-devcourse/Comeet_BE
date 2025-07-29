@@ -2,9 +2,10 @@ import { ConflictException, Inject, Injectable, Logger, NotFoundException } from
 import { MarksServiceBase } from "../../common/marks";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Applicant, Post } from "../model";
-import { Repository } from "typeorm";
+import { Repository, SelectQueryBuilder } from "typeorm";
 import { Transactional } from "typeorm-transactional";
 import { PostCountsService } from "./post.counts.service";
+import { ApplicantDTO } from "../dto";
 
 @Injectable()
 export class ApplicantsService extends MarksServiceBase {
@@ -19,7 +20,7 @@ export class ApplicantsService extends MarksServiceBase {
     ) { super(); }
 
     @Transactional()
-    async applyOrWithdraw(postId: number, userId: number): Promise<void> {
+    async updateApply(postId: number, userId: number): Promise<boolean> {
         await this.canApply(postId);
 
         const delta = await this.updateMark(postId, userId);
@@ -29,6 +30,14 @@ export class ApplicantsService extends MarksServiceBase {
                 result,
                 ApplicantsService.name
             )).catch(err => { throw err; });
+
+        return delta === 1;
+    }
+
+    async getApplicants(postId: number): Promise<ApplicantDTO[]> {
+        return this.createSelectQueryBuilder()
+            .where("applicant.postId = :postId", { postId })
+            .getRawMany<ApplicantDTO>();
     }
 
     private async canApply(postId: number): Promise<void> {
@@ -41,6 +50,13 @@ export class ApplicantsService extends MarksServiceBase {
 
         if (!post) throw new NotFoundException();
         if (!post.board.isRecruit) throw new ConflictException();
+    }
+
+    private createSelectQueryBuilder(): SelectQueryBuilder<Applicant> {
+        return this._repo.createQueryBuilder("applicant")
+            .innerJoin("applicant.user", "user")
+            .select("user.id", "id")
+            .addSelect("user.nickname", "nickname");
     }
 
 }

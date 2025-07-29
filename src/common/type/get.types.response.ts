@@ -1,8 +1,8 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { TypeDTO } from "../../common/type";
+import { TypeDTO } from "./type.dto";
 
 @ApiExtraModels(TypeDTO)
-export class SearchTechsResponse {
+export class GetTypesResponse {
     @ApiProperty({ type: [TypeDTO] })
     results: TypeDTO[];
 }
