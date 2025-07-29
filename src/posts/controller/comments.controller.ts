@@ -50,7 +50,7 @@ export class CommentsController {
     @ApiNotFoundResponse({ description: "해당 아이디를 가진 게시물이 존재하지 않거나, 모집공고인 경우" })
     @ApiUnprocessableEntityResponse({ description: "유효하지 않은 body" })
     async createComment(
-        @Param("postId") postId: number,
+        @Param("id") postId: number,
         @User("id") userId: number,
         @Body() body: UpsertCommentBody
     ): Promise<CreateOrDeleteCommentResponse> {
@@ -62,10 +62,10 @@ export class CommentsController {
        return { nComments };
     }
 
-    @Get("/:postsId")
+    @Get("/:id")
     @ApiOperation({ summary: "게시물 댓글 조회" })
     @ApiBearerAuth()
-    @ApiParam({ name: "postId", type: "integer", required: true, description: "댓글을 가져올 게시물 id" })
+    @ApiParam({ name: "id", type: "integer", required: true, description: "댓글을 가져올 게시물 id" })
     @ApiOkResponse({ type: GetCommentsResponse })
     @ApiForbiddenResponse()
     @ApiNotFoundResponse({ description: "해당 아이디를 가진 게시물이 존재하지 않음" })
@@ -77,7 +77,7 @@ export class CommentsController {
         return { results };
     }
 
-    @Get("/")
+    @Get("/comments")
     @ApiOperation({ summary: "내가 쓴 댓글 조회" })
     @ApiBearerAuth()
     @ApiOkResponse({ type: GetCommentsResponse })

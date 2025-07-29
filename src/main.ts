@@ -15,7 +15,11 @@ async function bootstrap() {
 
   app.set("trust_proxy", true);
 
-  app.useGlobalPipes(new ValidationPipe({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }));
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+  }));
+
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.use(passport.initialize());
 
