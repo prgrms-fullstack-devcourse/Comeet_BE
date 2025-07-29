@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn, ValueTransformer } from "typeorm";
 import { ModelBase } from "../../common/data";
-import { Coordinates, GeometricColumn } from "../../common/geo";
+import { Coordinates, GeometricColumn } from "../../utils";
 import { PositionDTO } from "../../tags/dto";
 import { TypeDTO } from "../../common/type";
 

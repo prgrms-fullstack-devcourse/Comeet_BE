@@ -14,7 +14,7 @@ export class UserLocationInterceptor implements NestInterceptor {
         const req = ctx.switchToHttp().getRequest();
 
         req.user.location = await this._getUserLocationService
-            .getLocation(req.user.id);
+            .getLocation({ id: req.user.id });
 
         return next.handle();
     }

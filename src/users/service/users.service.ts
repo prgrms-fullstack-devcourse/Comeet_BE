@@ -1,10 +1,12 @@
-import { ConflictException, ForbiddenException, Inject, Injectable } from "@nestjs/common";
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { FindOneOptions, Repository } from "typeorm";
 import { CreateUserDTO, GetUserDTO, UserCert, UserDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { InterestsService, PositionsService, TechsService } from "../../tags";
+import { Coordinates, pick } from "../../utils";
+import { ModelBase } from "../../common/data";
 import { UpdateUserDTO } from "../dto/update.user.dto";
 import { SearchUsersService } from "./search.users.service";
 import { UserSubscriptionsService } from "./user.subscriptions.service";
@@ -43,18 +45,30 @@ export class UsersService {
         return { id, githubId };
     }
 
-    async getUserCert(githubId: string): Promise<UserCert> {
+    async getUserCert(dto: GetUserDTO): Promise<UserCert> {
 
-        const { id } = await this.findUserOrReject({
-            where: { githubId },
-            select: ["id"]
+        const user = await this.findUserOrReject({
+            where: dto,
+            select: ["id", "githubId"]
         });
 
-        return { id, githubId };
+        return pick(user, ["id", "githubId"]);
     }
 
-    async getUser(id: number, userId?: number): Promise<UserDTO> {
+    async getUser(dto: GetUserDTO): Promise<UserDTO> {
+        const user = await this._usersRepo.findOneBy(dto);
+        if (!user) throw new NotFoundException();
+        return ModelBase.excludeWithTimestamp(user, ["githubId"]);
+    }
 
+    async getUserLocation(dto: GetUserDTO): Promise<Coordinates> {
+
+        const { location } = await this.findUserOrReject({
+            select: { location: true },
+            where: dto
+        });
+
+        return location;
     }
 
     @Transactional()

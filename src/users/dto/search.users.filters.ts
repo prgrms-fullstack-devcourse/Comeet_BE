@@ -1,25 +1,21 @@
-import { ArrayMinSize, IsInt, IsOptional, Matches } from "class-validator";
+import { ArrayMinSize, IsInt, IsOptional } from "class-validator";
 import { IsBirthYear } from "../../utils/decorator/is-birth-year";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsRange } from "../../utils";
-import { Range } from "../../utils/range";
-import { Transform } from "class-transformer";
 
 export class SearchUsersFilters {
 
-    @Transform(({ value }) => {
-
-    })
-    @Matches(/^(\d+)-(\d+)$/)
+    @IsRange()
+    @IsBirthYear({ each: true })
     @IsOptional()
     @ApiProperty({ name: "age", type: [Number], minLength: 2, maxLength: 2, required: false })
-    birthyear?: Range<number>
+    birthyear?: [number, number];
 
     @IsRange()
     @IsInt({ each: true })
     @IsOptional()
     @ApiProperty({ type: [Number], minLength: 2, maxLength: 2, required: false })
-    experience?: Range<number>;
+    experience?: [number, number];
 
     @ArrayMinSize(1)
     @IsInt({ each: true })

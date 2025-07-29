@@ -1,11 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Applicant, Post, Bookmark } from "../model";
-import { Repository, SelectQueryBuilder } from "typeorm";
-import { SearchAdjacentPostResult, SearchAdjacentPostsDTO, SearchPostResult, SearchPostsDTO } from "../dto";
+import { Repository } from "typeorm";
+import { SearchPostResult, SearchPostsDTO } from "../dto";
 import { setSelectClause, setWhereClause } from "./service.internal";
+import { SearchAdjacentPostsDTO } from "../dto/post/search.adjacent.posts.dto";
+import { SearchAdjacentPostResult } from "../dto/post/search.adjacent.post.result";
 import { setGeometricQuery } from "../../common/geo";
-import { MarkBase, WhereIdInTargetIds } from "../../common/marks";
+import { createSelectTargetsQueryBuilder } from "../../common/marks";
 
 @Injectable()
 export class SearchPostsService {
@@ -13,6 +15,10 @@ export class SearchPostsService {
     constructor(
        @InjectRepository(Post)
        private readonly _postsRepo: Repository<Post>,
+       @InjectRepository(Applicant)
+       private readonly _applicantsRepo: Repository<Applicant>,
+       @InjectRepository(Bookmark)
+       private readonly _bookmarksRepo: Repository<Bookmark>,
     ) {}
 
     async searchPosts(dto: SearchPostsDTO): Promise<SearchPostResult[]> {
@@ -44,29 +50,31 @@ export class SearchPostsService {
     }
 
     async searchPostsAppliedTo(userId: number): Promise<SearchPostResult[]> {
-        return this.searchMarked(Applicant, userId);
+
+        const qb = createSelectTargetsQueryBuilder(
+            this._applicantsRepo,
+            "posts", "post",
+            userId
+        );
+
+        setSelectClause(qb);
+        return qb.getRawMany<SearchPostResult>();
     }
 
     async searchBookmarkPosts(userId: number): Promise<SearchPostResult[]> {
-        return this.searchMarked(Bookmark, userId);
-    }
 
-    private createSelectQueryBuilder(): SelectQueryBuilder<Post> {
-        const qb = this._postsRepo.createQueryBuilder("post");
+        const qb = createSelectTargetsQueryBuilder(
+            this._bookmarksRepo,
+            "posts", "post",
+            userId
+        );
+
         setSelectClause(qb);
-        return qb;
+        return qb.getRawMany<SearchPostResult>();
     }
 
-    private async searchMarked<M extends MarkBase>(
-        cls: { new (...args: any[]): M },
-        userId: number
-    ): Promise<SearchPostResult[]> {
-        return this.createSelectQueryBuilder()
-            .where(
-                WhereIdInTargetIds(cls, "post"),
-                { userId }
-            ).getRawMany<SearchPostResult>();
-    }
+
+
 
 }
 
