@@ -1,5 +1,8 @@
-import { ObjectLiteral, SelectQueryBuilder } from "typeorm";
-import { SearchUsersFilters } from "../dto";
+import { SelectQueryBuilder } from "typeorm";
+import { SearchUserResult, SearchUsersFilters } from "../dto";
+import { User } from "../model";
+import { pick } from "../../utils";
+import { makeRangeCondition } from "../../utils/range";
 
 export function setSelectClause<M extends object>(
     qb: SelectQueryBuilder<M>
@@ -18,62 +21,23 @@ export function setSelectClause<M extends object>(
         );
 }
 
-export function setWhereClause<M extends object>(
-    qb: SelectQueryBuilder<M>,
+export function WhereClause<M extends object>(
     filters: SearchUsersFilters,
-): void {
-    const { birthyear, experience, positionIds, techIds, interestIds } = filters;
+) {
+    return (qb: SelectQueryBuilder<User>) => {
 
-    birthyear && qb.andWhere(
-        ...__makeRangeCondition("birthyear", birthyear)
-    );
 
-    experience && qb.andWhere(
-        ...__makeRangeCondition("experience", experience)
-    );
-
-    if (positionIds?.length) {
-        qb.andWhere(
-            "position['id'] IN :...ids",
-            { ids: positionIds.map(String) }
-        );
-    }
-
-    techIds?.length && qb.andWhere(
-        ...__makeHStoreCondition("techStack", techIds)
-    );
-
-    interestIds?.length && qb.andWhere(
-        ...__makeHStoreCondition("interests", interestIds)
-    );
-}
-
-function __makeRangeCondition(
-    prop: string,
-    range: [number, number],
-): [string, ObjectLiteral] {
-    const [lower, upper] = range;
-
-    if (isNaN(lower)) {
-        return [`${prop} <= :upper`, { upper }];
-    }
-    else if (isNaN(upper)) {
-        return [`${prop} >= :lower`, { lower }];
-    }
-    else {
-        return [
-            `${prop} BETWEEN :lower AND :upper`,
-            { lower, upper }
-        ];
+        return sqb.getQuery();
     }
 }
 
-function __makeHStoreCondition(
-    prop: string,
-    ids: number[],
-): [string, ObjectLiteral] {
-    return [
-        `${prop} ?| ARRAY[:...ids]`,
-        { ids: ids.map(String) }
-    ];
+export function toSearchUserResult(user: User): SearchUserResult {
+    return pick(
+        user,
+        [
+            "id", "nickname", "birthyear", "location",
+            "experience", "position", "techStack", "interests",
+            "nSubscribers"
+        ]
+    );
 }

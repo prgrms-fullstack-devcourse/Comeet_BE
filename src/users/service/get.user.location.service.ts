@@ -3,7 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { Repository } from "typeorm";
 import { Coordinates } from "../../common/geo";
-import { GetUserDTO } from "../dto";
 
 @Injectable()
 export class GetUserLocationService {
@@ -13,10 +12,10 @@ export class GetUserLocationService {
        private readonly _usersRepo: Repository<User>,
     ) {}
 
-    async getLocation(dto: GetUserDTO): Promise<Coordinates> {
+    async getLocation(id: number): Promise<Coordinates> {
 
         const user = await this._usersRepo.findOne({
-            where: dto,
+            where: { id },
             select: ["location"]
         });
 
