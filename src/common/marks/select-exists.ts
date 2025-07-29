@@ -6,10 +6,15 @@ export function SelectExists<
 >(
     cls: { new (...args: any[]): M },
 ) {
-  return (qb: SelectQueryBuilder<any>) => qb.select(
-      sqb => sqb.select('1')
-          .from(cls, cls.name)
-          .where(`${cls.name}.targetId = :id`)
-          .andWhere(`${cls.name}.userId = :userId`)
-  )
+  return (qb: SelectQueryBuilder<any>) => {
+
+     const query = qb.subQuery()
+         .select("1")
+         .from(cls, cls.name)
+         .where(`${cls.name}.targetId = :id`)
+         .andWhere(`${cls.name}.userId = :userId`)
+         .getQuery();
+
+     return qb.addSelect(`EXISTS(${query})`);
+  };
 }
