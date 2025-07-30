@@ -1,9 +1,9 @@
 import { RangeObject } from "./range.object";
 
-export function makeRangeConditionQuery<T>(
+export function makeRangeConditionQuery(
     tableAlias: string,
     prop: string,
-    range: RangeObject<T>
+    range: RangeObject
 ): string{
     const tg = tableAlias + '.' + prop;
 

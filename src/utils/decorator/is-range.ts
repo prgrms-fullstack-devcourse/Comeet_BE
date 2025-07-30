@@ -1,6 +1,6 @@
-import { registerDecorator, ValidationArguments, ValidationOptions } from "class-validator";
+import { Matches, registerDecorator, ValidationArguments, ValidationOptions } from "class-validator";
 import { applyDecorators } from "@nestjs/common";
-import { IsPair } from "./is-pair";
+import { Transform } from "class-transformer";
 
 function __IsRange(validationOptions?: ValidationOptions) {
     return function (object: any, propName: string) {
@@ -11,7 +11,7 @@ function __IsRange(validationOptions?: ValidationOptions) {
             options: validationOptions,
             validator: {
                 validate(value: any, _args: ValidationArguments) {
-                    return value[0] < value[1];
+                    return value[0] < value[1] || value.some(isNaN);
                 }
             },
         });
@@ -20,7 +20,11 @@ function __IsRange(validationOptions?: ValidationOptions) {
 
 export function IsRange (options?: ValidationOptions) {
     return applyDecorators(
-        IsPair(options),
+        Matches(/^(\d)-(\d)$/),
+        Transform(({ value }) =>
+            value.split('-')
+                .map(s => Number(s.trim()))
+        ),
         __IsRange(options),
     );
 }

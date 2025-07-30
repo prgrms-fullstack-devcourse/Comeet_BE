@@ -20,7 +20,7 @@ import {
     PostsController
 } from "./controller";
 
-const __EXTERNAL_PROVIDERS = [UserLocationInterceptor]
+const __EXTERNAL_PROVIDERS = [UserLocationInterceptor];
 
 @Module({
     imports: [
