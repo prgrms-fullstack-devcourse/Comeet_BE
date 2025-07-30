@@ -1,2 +1,2 @@
 export * from "./user.model";
-export * from "./user.subscription.model";
+export * from "./subscription.model";

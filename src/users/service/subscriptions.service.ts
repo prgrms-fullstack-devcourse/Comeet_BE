@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { UserSubscription } from "../model";
+import { Subscription } from "../model";
 import { Repository } from "typeorm";
 import { User } from "../model";
 import { MarksServiceBase } from "../../common/marks";
 import { Transactional } from "typeorm-transactional";
 
 @Injectable()
-export class UserSubscriptionsService extends MarksServiceBase {
+export class SubscriptionsService extends MarksServiceBase {
 
     constructor(
-       @InjectRepository(UserSubscription)
-       protected readonly _repo: Repository<UserSubscription>,
+       @InjectRepository(Subscription)
+       protected readonly _repo: Repository<Subscription>,
        @InjectRepository(User)
        private readonly _usersRepo: Repository<User>,
     ) { super(); }

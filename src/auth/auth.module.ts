@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User, UserSubscription } from "../users/model";
+import { User, Subscription } from "../users/model";
 import { PassportModule } from "@nestjs/passport";
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { GithubModule } from "../github";
@@ -19,7 +19,7 @@ const __EXTERNAL_PROVIDERS = [JwtService, UsersService];
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([User, Position, Tech, Interest, UserSubscription]),
+      TypeOrmModule.forFeature([User, Position, Tech, Interest, Subscription]),
       PassportModule.register({}),
       JwtModule.register({}),
       GithubModule,

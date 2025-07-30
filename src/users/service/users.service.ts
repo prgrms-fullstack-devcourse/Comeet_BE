@@ -7,7 +7,7 @@ import { Transactional } from "typeorm-transactional";
 import { InterestsService, PositionsService, TechsService } from "../../tags";
 import { ModelBase } from "../../common/data";
 import { UpdateUserDTO } from "../dto/update.user.dto";
-import { UserSubscriptionsService } from "./user.subscriptions.service";
+import { SubscriptionsService } from "./subscriptions.service";
 
 @Injectable()
 export class UsersService {
@@ -21,8 +21,8 @@ export class UsersService {
        private readonly _techsService: TechsService,
        @Inject(InterestsService)
        private readonly _interestsService: InterestsService,
-       @Inject(UserSubscriptionsService)
-       private readonly _subsService: UserSubscriptionsService,
+       @Inject(SubscriptionsService)
+       private readonly _subsService: SubscriptionsService,
     ) {}
 
     @Transactional()
