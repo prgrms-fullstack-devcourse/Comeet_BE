@@ -1,12 +1,11 @@
-import { Brackets, SelectQueryBuilder } from "typeorm";
+import { SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
 import { SearchPostsDTO } from "../dto";
-
-export type SearchPostsFilters = Omit<SearchPostsDTO, "location">;
+import { addWhere } from "../../utils";
 
 export function setSelectClause<M extends object>(
     qb: SelectQueryBuilder<M>
-): void {
-    qb.addSelect("post.id", "id")
+): SelectQueryBuilder<M> {
+    return qb.addSelect("post.id", "id")
         .addSelect("post.title", "title")
         .addSelect("post.createdAt", "createdAt")
         .innerJoin("post.board", "Board")
@@ -19,22 +18,30 @@ export function setSelectClause<M extends object>(
         .addSelect("count.nComments", "nComments");
 }
 
-export function setWhereClause<M extends object>(
-    qb: SelectQueryBuilder<M>,
-    filters: SearchPostsFilters,
-): void {
-    const { boardId, userId, keyword } = filters;
+export function WhereClause(filters: SearchPostsDTO) {
+    return (qb: WhereExpressionBuilder) => {
+        const { boardId, userId, keyword } = filters;
+        let nWhere = 0;
 
-    boardId && qb.andWhere("post.boardId = :boardId", { boardId });
-    userId && qb.andWhere("post.userId = :userId", { userId });
+        if (boardId) {
+            const sql = "post.boardId = :boardId";
+            nWhere = addWhere(nWhere, qb, sql, { boardId });
+        }
 
-    if (keyword) {
-        qb.andWhere(new Brackets(qb =>
-            qb.where("post.title LIKE :keyword", { keyword: `%${keyword}%` })
-                .orWhere("post.content LIKE :keyword", { keyword: `%${keyword}%` })
-        ));
+        if (userId) {
+            const sql = "post.userId = :userId";
+            nWhere = addWhere(nWhere, qb, sql, { userId });
+        }
+
+        if (keyword) {
+            const sql = "post.title LIKE :keyword OR post.content LIKE :keyword";
+            addWhere(nWhere, qb, sql, { keyword: `%${keyword}%` });
+        }
+
+        return qb;
     }
 }
+
 
 
 

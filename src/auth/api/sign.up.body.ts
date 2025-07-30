@@ -10,7 +10,7 @@ import {
     Min,
     ValidateNested
 } from "class-validator";
-import { Coordinates } from "../../utils";
+import { Coordinates } from "../../common/geo";
 import { Type } from "class-transformer";
 import { IsBirthYear } from "../../utils/decorator/is-birth-year";
 

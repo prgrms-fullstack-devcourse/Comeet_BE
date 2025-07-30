@@ -1,5 +1,5 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { Coordinates } from "../../../utils";
+import { Coordinates } from "../../../common/geo";
 
 @ApiExtraModels(Coordinates)
 export class PostDTO {
