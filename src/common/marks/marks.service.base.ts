@@ -22,20 +22,6 @@ export abstract class MarksServiceBase {
         }
     }
 
-    async didMark(targetId: number, userId: number): Promise<boolean> {
-        return this._repo.existsBy({ userId, targetId });
-    }
-
-    async getTargetIds(userId: number): Promise<number[]> {
-
-        const marks = await this._repo.find({
-            where: { userId },
-            select: ["targetId"]
-        });
-
-        return marks.map(m  => m.targetId);
-    }
-
     @Transactional()
     async onTargetDeleted(targetId: number): Promise<void> {
         const marks = await this._repo.findBy({ targetId });

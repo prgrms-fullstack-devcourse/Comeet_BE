@@ -1,6 +1,6 @@
 import { CallHandler, ExecutionContext, Inject, Injectable, NestInterceptor } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { GetUserLocationService } from "./service";
+import { GetUserLocationService } from "../service";
 
 @Injectable()
 export class UserLocationInterceptor implements NestInterceptor {
@@ -14,7 +14,7 @@ export class UserLocationInterceptor implements NestInterceptor {
         const req = ctx.switchToHttp().getRequest();
 
         req.user.location = await this._getUserLocationService
-            .getLocation({ id: req.user.id });
+            .getLocation(req.user.id);
 
         return next.handle();
     }

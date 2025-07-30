@@ -3,5 +3,5 @@ import { UserDTO } from "./user.dto";
 
 export class SearchUserResult extends PickType(
     UserDTO,
-    ["id", "nickname", "birthyear", "experience", "position", "techStack", "interests", "nSubscribers", "location"]
+    ["nickname", "birthyear", "experience", "position", "techStack", "interests", "nSubscribers", "location"]
 ) {}

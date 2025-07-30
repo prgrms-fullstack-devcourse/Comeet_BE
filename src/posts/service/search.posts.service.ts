@@ -32,7 +32,7 @@ export class SearchPostsService {
                 "location"
             )
             .addSelect(
-                makeSelectDistanceQuery("post", "location"),
+                makeSelectDistanceQuery( "post", "location"),
                 "distance"
             )
             .where(new Brackets(WhereClause(filters)))

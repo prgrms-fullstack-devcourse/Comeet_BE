@@ -27,7 +27,7 @@ export class AuthService {
     }
 
     async signIn(githubId: string): Promise<TokenPair> {
-        const user = await this._usersService.getUserCert({ githubId });
+        const user = await this._usersService.getUserCert(githubId);
         return this.generateTokenPair(user);
     }
 
