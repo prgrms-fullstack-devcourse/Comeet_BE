@@ -2,13 +2,11 @@ import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundExce
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { FindOneOptions, Repository } from "typeorm";
-import { CreateUserDTO, GetUserDTO, UserCert, UserDTO } from "../dto";
+import { CreateUserDTO, UserCert, UserDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { InterestsService, PositionsService, TechsService } from "../../tags";
-import { Coordinates, pick } from "../../utils";
 import { ModelBase } from "../../common/data";
 import { UpdateUserDTO } from "../dto/update.user.dto";
-import { SearchUsersService } from "./search.users.service";
 import { UserSubscriptionsService } from "./user.subscriptions.service";
 
 @Injectable()
@@ -23,8 +21,6 @@ export class UsersService {
        private readonly _techsService: TechsService,
        @Inject(InterestsService)
        private readonly _interestsService: InterestsService,
-       @Inject(SearchUsersService)
-       private readonly _searchUsersService: SearchUsersService,
        @Inject(UserSubscriptionsService)
        private readonly _subsService: UserSubscriptionsService,
     ) {}
@@ -45,30 +41,42 @@ export class UsersService {
         return { id, githubId };
     }
 
-    async getUserCert(dto: GetUserDTO): Promise<UserCert> {
+    async getUserCert(githubId: string): Promise<UserCert> {
 
-        const user = await this.findUserOrReject({
-            where: dto,
+        const { id } = await this.findUserOrReject({
+            where: { githubId },
             select: ["id", "githubId"]
         });
 
-        return pick(user, ["id", "githubId"]);
+        return { id, githubId };
     }
 
-    async getUser(dto: GetUserDTO): Promise<UserDTO> {
-        const user = await this._usersRepo.findOneBy(dto);
-        if (!user) throw new NotFoundException();
-        return ModelBase.excludeWithTimestamp(user, ["githubId"]);
-    }
-
-    async getUserLocation(dto: GetUserDTO): Promise<Coordinates> {
-
-        const { location } = await this.findUserOrReject({
-            select: { location: true },
-            where: dto
+    async getMe(id: number): Promise<UserDTO> {
+        const user = await this.findUserOrReject({
+            where: { id },
+            cache: true,
         });
 
-        return location;
+        return Object.assign(
+            ModelBase.excludeWithTimestamp(user, ["id", "githubId"]),
+            { subscribing: null }
+        );
+    }
+
+    async getOther(nickname: string, userId: number): Promise<UserDTO> {
+
+        const user = await this._usersRepo.findOne({
+            where: { nickname },
+            cache: true,
+        });
+
+        if (!user) throw new NotFoundException();
+        const subscribing = await this._subsService.isSubscribing(user.id, userId);
+
+        return Object.assign(
+            ModelBase.excludeWithTimestamp(user, ["id", "githubId"]),
+            { subscribing }
+        );
     }
 
     @Transactional()
@@ -76,6 +84,11 @@ export class UsersService {
         const { id,  ...rest } = dto;
         const values = await this.makeValues(rest);
         await this._usersRepo.update(id, values);
+    }
+
+    @Transactional()
+    async deleteUser(id: number): Promise<void> {
+        await this._usersRepo.delete(id);
     }
 
     private async makeValues(

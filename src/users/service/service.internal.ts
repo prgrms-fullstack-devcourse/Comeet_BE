@@ -1,11 +1,13 @@
-import { ObjectLiteral, SelectQueryBuilder } from "typeorm";
+import { SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
 import { SearchUsersFilters } from "../dto";
+import { addWhere } from "../../utils";
+import { makeRangeConditionQuery } from "../../utils/range";
+import { User } from "../model";
 
-export function setSelectClause<M extends object>(
-    qb: SelectQueryBuilder<M>
-): void {
-    qb.select("user.id", "id")
-        .addSelect("user.nickname", "nickname")
+export function setSelectClause(
+    qb: SelectQueryBuilder<User>
+): SelectQueryBuilder<User> {
+    return qb.addSelect("user.nickname", "nickname")
         .addSelect("user.birthyear", "birthyear")
         .addSelect("user.experience", "experience")
         .addSelect("user.position", "position")
@@ -18,62 +20,65 @@ export function setSelectClause<M extends object>(
         );
 }
 
-export function setWhereClause<M extends object>(
-    qb: SelectQueryBuilder<M>,
-    filters: SearchUsersFilters,
-): void {
-    const { birthyear, experience, positionIds, techIds, interestIds } = filters;
+export function WhereClause(filters: SearchUsersFilters) {
+    return (qb: WhereExpressionBuilder) => {
+        const { birthyear, experience, positionIds, techIds, interestIds } = filters;
+        let nWhere = 0;
 
-    birthyear && qb.andWhere(
-        ...__makeRangeCondition("birthyear", birthyear)
-    );
+        if (birthyear) {
+            nWhere = addWhere(
+                nWhere, qb,
+                makeRangeConditionQuery(
+                    "user",
+                    "birthyear",
+                    birthyear
+                ),
+                birthyear
+            );
+        }
 
-    experience && qb.andWhere(
-        ...__makeRangeCondition("experience", experience)
-    );
+       if (experience) {
+           nWhere = addWhere(
+               nWhere, qb,
+               makeRangeConditionQuery(
+                   "user",
+                   "experience",
+                   experience
+               ),
+               experience
+           );
+       }
 
-    if (positionIds?.length) {
-        qb.andWhere(
-            "position['id'] IN :...ids",
-            { ids: positionIds.map(String) }
-        );
-    }
+        if (positionIds?.length) {
+            nWhere = addWhere(
+                nWhere, qb,
+                "user.position['id'] IN :...ids",
+                { ids: positionIds.map(String) }
+            );
+        }
 
-    techIds?.length && qb.andWhere(
-        ...__makeHStoreCondition("techStack", techIds)
-    );
+       if (techIds?.length) {
+           nWhere = addWhere(
+               nWhere, qb,
+               __makeHStoreConditionQuery("techStack"),
+               { ids: techIds.map(String) }
+           )
+       }
 
-    interestIds?.length && qb.andWhere(
-        ...__makeHStoreCondition("interests", interestIds)
-    );
+        if (interestIds?.length) {
+            addWhere(
+                nWhere, qb,
+                __makeHStoreConditionQuery("interests"),
+                { ids: interestIds.map(String) }
+            )
+        }
+
+        return qb;
+    };
 }
 
-function __makeRangeCondition(
+function __makeHStoreConditionQuery(
     prop: string,
-    range: [number, number],
-): [string, ObjectLiteral] {
-    const [lower, upper] = range;
-
-    if (isNaN(lower)) {
-        return [`${prop} <= :upper`, { upper }];
-    }
-    else if (isNaN(upper)) {
-        return [`${prop} >= :lower`, { lower }];
-    }
-    else {
-        return [
-            `${prop} BETWEEN :lower AND :upper`,
-            { lower, upper }
-        ];
-    }
-}
-
-function __makeHStoreCondition(
-    prop: string,
-    ids: number[],
-): [string, ObjectLiteral] {
-    return [
-        `${prop} ?| ARRAY[:...ids]`,
-        { ids: ids.map(String) }
-    ];
+): string {
+    return `user.${prop} ?| ARRAY[:...ids]`;
 }

@@ -21,14 +21,15 @@ import {
     ApiTags,
     ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
-import { Coordinates, User } from "../../utils";
+import { User } from "../../utils";
 import { PostDTO } from "../dto";
 import { CreatePostBody, SearchPostsQuery, SearchPostsResponse, UpdatePostBody } from "../api/post";
-import { UpdateLikeResponse } from "../../likes/api";
 import { UserLocationInterceptor } from "../../users";
 import { SearchAdjacentPostsQuery } from "../api/post/search.adjacent.posts.query";
 import { SearchAdjacentPostsResponse } from "../api/post/search.adjacent.posts.response";
 import { AuthGuard } from "@nestjs/passport";
+import { Coordinates } from "../../common/geo";
+import { UpdateLikeResponse } from "../api";
 
 @ApiTags("Posts")
 @Controller("/api/posts")

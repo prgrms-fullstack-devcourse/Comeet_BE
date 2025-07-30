@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserSubscription } from "../model";
 import { Repository } from "typeorm";
@@ -17,25 +17,27 @@ export class UserSubscriptionsService extends MarksServiceBase {
     ) { super(); }
 
     @Transactional()
-    async updateSubscriptions(id: number, userId: number): Promise<number> {
-        const delta = await this.updateMark(id, userId);
+    async updateSubscriptions(nickname: string, userId: number): Promise<[number, boolean]> {
 
-        await this._usersRepo
-            .createQueryBuilder("user")
-            .update()
-            .set({
-                nSubscribers: () =>
-                    "CASE WHEN nSubscribers + :delta >= 0 THEN nSubscribers + :delta ELSE nSubscribers END",
-            })
-            .where("id = :id")
-            .setParameters({ id, delta })
-            .execute();
-
-        const { nSubscribers } = await this._usersRepo.findOneOrFail({
-            where: { id },
-            select: ["nSubscribers"]
+        const target = await this._usersRepo.findOne({
+            where: { nickname },
+            select: ["id", "nSubscribers"],
         });
 
-        return nSubscribers;
+        if (!target) throw new NotFoundException();
+
+        const delta = await this.updateMark(target.id, userId);
+        const nSubscribers = Math.max(target.nSubscribers + delta, 0);
+        await this._usersRepo.update(target.id, { nSubscribers });
+
+        return [nSubscribers, delta === 1];
     }
+
+    async isSubscribing(targetId: number, userId: number): Promise<boolean> {
+        return this._repo.exists({
+            where: { targetId, userId },
+            cache: true,
+        })
+    }
+
 }

@@ -1,13 +1,10 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { Coordinates } from "../../utils";
+import { Coordinates } from "../../common/geo";
 import { PositionDTO } from "../../tags/dto";
 import { TypeDTO } from "../../common/type";
 
 @ApiExtraModels(Coordinates, PositionDTO, TypeDTO)
 export class UserDTO  {
-    @ApiProperty({ type: "integer" })
-    id: number;
-
     @ApiProperty({ type: "string" })
     nickname: string;
 
@@ -32,9 +29,6 @@ export class UserDTO  {
     @ApiProperty({ type: Coordinates, description: "현재 위치 좌표" })
     location: Coordinates;
 
-    @ApiProperty({ type: "integer" })
-    nSubscribers: number;
-
     @ApiProperty({ type: "string" })
     github: string;
 
@@ -49,4 +43,10 @@ export class UserDTO  {
 
     @ApiProperty({ type: "string", nullable: true })
     blog: string | null;
+
+    @ApiProperty({ type: "integer", description: "구독지 수" })
+    nSubscribers: number;
+
+    @ApiProperty({ type: "boolean", nullable: true, description: "구독 여부" })
+    subscribing: boolean | null;
 }

@@ -6,11 +6,4 @@ import { CreateDateColumn } from "typeorm";
 export abstract class ImmutableModelBase {
     @CreateDateColumn({ name: "created_at", type: "timestamp" })
     createdAt: Date;
-
-    static excludeTimestamp<
-        M extends ImmutableModelBase
-    >(model: M): Omit<M, "createdAt"> {
-        const { createdAt, ...rest } = model;
-        return rest;
-    }
 }

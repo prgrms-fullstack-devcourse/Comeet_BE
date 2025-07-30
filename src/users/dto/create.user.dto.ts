@@ -1,4 +1,4 @@
-import { Coordinates } from "../../utils";
+import { Coordinates } from "../../common/geo";
 import { ArrayMinSize, IsArray, IsEmail, IsInt, IsOptional, IsString, IsUrl, Min, ValidateNested } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsBirthYear } from "../../utils/decorator/is-birth-year";

@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn
 import { Board } from "./board.model";
 import { User } from "../../users/model";
 import { PostCount } from "./post.count.model";
-import { Coordinates, GeometricColumn } from "../../utils";
+import { Coordinates, GeometricColumn } from "../../common/geo";
 
 @Entity("posts")
 export class Post extends ModelBase{

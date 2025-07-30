@@ -1,12 +1,12 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User, UserSubscription } from "../model";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { Brackets, Repository, SelectQueryBuilder } from "typeorm";
 import { SearchAdjacentUserResult, SearchAdjacentUsersDTO, SearchUserResult } from "../dto";
-import { setSelectClause, setWhereClause } from "./service.internal";
-import { setGeometricQuery } from "../../common/geo";
-import { createSelectTargetsQueryBuilder } from "../../common/marks";
-import { GetUserLocationService } from "./get.user.location.service";
+import { setSelectClause, WhereClause } from "./service.internal";
+import { makeSelectCoordinatesQuery, makeSelectDistanceQuery } from "../../common/geo";
+import { pick } from "../../utils";
+import { WhereIdInTargetIds } from "../../common/marks";
 
 @Injectable()
 export class SearchUsersService {
@@ -14,46 +14,66 @@ export class SearchUsersService {
     constructor(
        @InjectRepository(User)
        private readonly _usersRepo: Repository<User>,
-       @InjectRepository(UserSubscription)
-       private readonly _subsRepo: Repository<UserSubscription>,
-       @Inject(GetUserLocationService)
-       private readonly _getUserLocationService: GetUserLocationService
     ) {}
 
     async searchAdjacentUsers(
        dto: SearchAdjacentUsersDTO
     ): Promise<SearchAdjacentUserResult[]> {
-        const { id, radius, ...filters } = dto;
-        const origin = await this._getUserLocationService.getLocation(id);
-        const qb = this.createSelectQueryBuilder();
-        setWhereClause(qb, filters);
-        setGeometricQuery(qb, "user.location", origin, radius);
-        return qb.getRawMany<SearchAdjacentUserResult>();
+        const { origin, radius, ...filters } = dto;
+
+        const { entities, raw } = await this.createSelectQueryBuilder()
+            .addSelect(
+                makeSelectCoordinatesQuery("user", "location"),
+                "location"
+            )
+            .addSelect(
+                makeSelectDistanceQuery("user", "location"),
+                "distance"
+            )
+            .where(new Brackets(WhereClause(filters)))
+            .orderBy("distance", "ASC")
+            .setParameters({ ...origin, radius })
+            .getRawAndEntities<SearchAdjacentUserResult>();
+
+        return __toResults(entities, raw);
     }
 
     async searchSubscribingUsers(userId: number): Promise<SearchUserResult[]> {
 
-        const qb = createSelectTargetsQueryBuilder(
-            this._subsRepo,
-            "users", "user",
-            userId
-        );
+        const { entities, raw } = await this.createSelectQueryBuilder()
+            .where(WhereIdInTargetIds(UserSubscription, "user"))
+            .setParameters({ userId })
+            .getRawAndEntities<SearchUserResult>()
 
-        setSelectClause(qb);
-        return qb.getRawMany<SearchUserResult>();
+        return __toResults(entities, raw);
     }
 
     async searchHotUsers(): Promise<SearchUserResult[]> {
-        return this.createSelectQueryBuilder()
+
+        const { entities, raw } = await this.createSelectQueryBuilder()
             .orderBy("nSubscribers", "DESC")
             .take(50)
-            .getRawMany<SearchUserResult>();
+            .getRawAndEntities<SearchUserResult>();
+
+        return __toResults(entities, raw);
     }
 
     private createSelectQueryBuilder(): SelectQueryBuilder<User> {
-        const qb = this._usersRepo.createQueryBuilder("user");
-        setSelectClause(qb);
-        return qb;
+       return setSelectClause(
+           this._usersRepo
+               .createQueryBuilder("user")
+       );
     }
+}
+
+function __toResults<
+    ResultT extends SearchUserResult
+>(users: User[], results: ResultT[]): ResultT[] {
+    return results.map((result, idx): ResultT =>
+        Object.assign(
+            result,
+            pick(users[idx], ["position", "techStack", "interests"])
+        )
+    );
 }
 
