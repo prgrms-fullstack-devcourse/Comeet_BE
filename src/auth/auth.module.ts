@@ -20,7 +20,7 @@ const __EXTERNAL_PROVIDERS = [JwtService, UsersService];
 @Module({
   imports: [
       TypeOrmModule.forFeature([User, Position, Tech, Interest, Subscription]),
-      PassportModule.register({}),
+      PassportModule.register({ session: false }),
       JwtModule.register({}),
       GithubModule,
       UsersModule
