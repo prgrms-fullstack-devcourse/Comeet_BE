@@ -5,7 +5,7 @@ import { PassportModule } from "@nestjs/passport";
 import { GithubOAuth2Strategy } from "./github.oauth2.strategy";
 
 @Module({
-    imports: [PassportModule.register({})],
+    imports: [PassportModule.register({ session: false }),],
     providers: [
         GithubOAuth2Strategy,
         GithubOAuth2Service,
