@@ -1,5 +1,5 @@
 
-function transformBirthyearToAge<
+export function transformBirthyearToAge<
     T extends { birthyear: number }
 >(data: T): Omit<T, "birthyear"> & { age: number; } {
     const { birthyear, ...rest } = data;

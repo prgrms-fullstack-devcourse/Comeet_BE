@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User, UserSubscription } from "../model";
+import { User, Subscription } from "../model";
 import { Brackets, Repository, SelectQueryBuilder } from "typeorm";
 import { SearchAdjacentUserResult, SearchAdjacentUsersDTO, SearchUserResult } from "../dto";
 import { setSelectClause, WhereClause } from "./service.internal";
@@ -41,7 +41,7 @@ export class SearchUsersService {
     async searchSubscribingUsers(userId: number): Promise<SearchUserResult[]> {
 
         const { entities, raw } = await this.createSelectQueryBuilder()
-            .where(WhereIdInTargetIds(UserSubscription, "user"))
+            .where(WhereIdInTargetIds(Subscription, "user"))
             .setParameters({ userId })
             .getRawAndEntities<SearchUserResult>()
 

@@ -6,6 +6,7 @@ import { HttpStatus, ValidationPipe } from "@nestjs/common";
 import { LoggingInterceptor } from "./common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import passport from "passport";
+import * as process from "node:process";
 
 async function bootstrap() {
   initializeTransactionalContext();
@@ -32,6 +33,11 @@ async function bootstrap() {
               .setVersion('1.0.0')
               .build()
       )
+  );
+
+  await app.listen(
+      process.env.PORT ?? 3000,
+      process.env.HOST ?? "127.0.0.1"
   );
 }
 bootstrap();

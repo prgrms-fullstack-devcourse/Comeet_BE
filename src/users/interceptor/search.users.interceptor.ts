@@ -1,6 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
 import { from, map, mergeMap, Observable, toArray } from "rxjs";
 import { SearchUserResult } from "../dto";
+import { transformBirthyearToAge } from "./interceptor.internal";
 
 type __ResponseT = { results: object[] };
 

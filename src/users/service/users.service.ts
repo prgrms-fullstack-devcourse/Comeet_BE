@@ -1,13 +1,13 @@
 import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
-import { FindOneOptions, Repository } from "typeorm";
+import { FindOneOptions, QueryFailedError, Repository } from "typeorm";
 import { CreateUserDTO, UserCert, UserDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { InterestsService, PositionsService, TechsService } from "../../tags";
 import { ModelBase } from "../../common/data";
 import { UpdateUserDTO } from "../dto/update.user.dto";
-import { UserSubscriptionsService } from "./user.subscriptions.service";
+import { SubscriptionsService } from "./subscriptions.service";
 
 @Injectable()
 export class UsersService {
@@ -21,23 +21,14 @@ export class UsersService {
        private readonly _techsService: TechsService,
        @Inject(InterestsService)
        private readonly _interestsService: InterestsService,
-       @Inject(UserSubscriptionsService)
-       private readonly _subsService: UserSubscriptionsService,
+       @Inject(SubscriptionsService)
+       private readonly _subsService: SubscriptionsService,
     ) {}
 
     @Transactional()
     async createUser(dto: CreateUserDTO): Promise<UserCert> {
-        const { githubId, birthyear, ...rest } = dto;
-
-        if (await this._usersRepo.existsBy({ githubId }))
-            throw new ConflictException();
-
-       const values = await this.makeValues(rest);
-
-        const { id } = await this._usersRepo.save({
-            githubId, ...values
-        });
-
+        const values = await this.makeValues(dto);
+        const { id, githubId } = await this._usersRepo.save(values);
         return { id, githubId };
     }
 
@@ -79,11 +70,21 @@ export class UsersService {
         );
     }
 
+    async existsByNickname(nickname: string): Promise<boolean> {
+        return this._usersRepo.existsBy({ nickname });
+    }
+
     @Transactional()
     async updateUser(dto: UpdateUserDTO): Promise<void> {
         const { id,  ...rest } = dto;
         const values = await this.makeValues(rest);
-        await this._usersRepo.update(id, values);
+
+        await this._usersRepo.update(id, values)
+            .catch(err => {
+                throw err instanceof QueryFailedError
+                    ? new ConflictException()
+                    : err;
+            });
     }
 
     @Transactional()
@@ -91,9 +92,9 @@ export class UsersService {
         await this._usersRepo.delete(id);
     }
 
-    private async makeValues(
-        dto: Omit<UpdateUserDTO, "id">
-    ): Promise<Partial<User>> {
+    private async makeValues<
+        T extends Partial<CreateUserDTO>
+    >(dto: T): Promise<Partial<User>> {
         const { positionId, techIds, interestIds, ...rest } = dto;
         const values: Partial<User> = rest;
 

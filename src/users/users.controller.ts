@@ -20,7 +20,7 @@ import {
     ApiTags, ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
-import { SearchUsersService, UsersService, UserSubscriptionsService } from "./service";
+import { SearchUsersService, UsersService, SubscriptionsService } from "./service";
 import { User } from "../utils";
 import { GetUserInterceptor, SearchUsersInterceptor, UserLocationInterceptor } from "./interceptor";
 import { SearchAdjacentUserResult, SearchUserResult, UserDTO } from "./dto";
@@ -43,8 +43,8 @@ export class UsersController {
        private readonly _usersService: UsersService,
        @Inject(SearchUsersService)
        private readonly _searchUsersService: SearchUsersService,
-       @Inject(UserSubscriptionsService)
-       private readonly _subsService: UserSubscriptionsService,
+       @Inject(SubscriptionsService)
+       private readonly _subsService: SubscriptionsService,
     ) {}
 
     @Get("/")
@@ -112,6 +112,7 @@ export class UsersController {
     ): Promise<SearchUserResult[]> {
         return this._searchUsersService.searchSubscribingUsers(id);
     }
+
 
     @Patch("/")
     @ApiOperation({ summary: "유저 정보 수정" })

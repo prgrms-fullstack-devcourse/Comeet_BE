@@ -35,12 +35,4 @@ export class PostLikesController {
         const [nLikes, likeIt] = await  this._likesService.updateLike(postId, userId);
         return { nLikes, likeIt };
     }
-
-
-
-
-
-
-
-
 }
