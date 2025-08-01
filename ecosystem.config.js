@@ -2,7 +2,8 @@ module.exports = {
     apps: [
         {
             name: 'comeet',
-            script: 'dist/main.js',
+            script: 'npm',
+            args: 'run start:prod',
             instances: 4,
             autorestart: true,
             watch: true,
