@@ -113,6 +113,7 @@ export class UsersController {
         return this._searchUsersService.searchSubscribingUsers(id);
     }
 
+
     @Patch("/")
     @ApiOperation({ summary: "유저 정보 수정" })
     @ApiBearerAuth()

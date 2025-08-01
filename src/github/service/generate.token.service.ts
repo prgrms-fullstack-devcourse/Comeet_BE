@@ -22,14 +22,17 @@ export class GenerateTokenService {
                 from(plainToInstanceOrReject(
                     GenerateTokenResult,
                     data,
-                    { transform: { excludeExtraneousValues: true } },
+                    {
+                        transform: { excludeExtraneousValues: true },
+                        validate: { forbidUnknownValues: false },
+                    },
                 ))
             )
         );
     }
 
     private sendRequest(dto: GenerateTokenDTO): Observable<AxiosResponse> {
-        Object.setPrototypeOf(dto, GenerateTokenDTO.prototype);
+       Object.setPrototypeOf(dto, GenerateTokenDTO.prototype);
 
         return this._httpService.post(
             __TOKEN_URL,

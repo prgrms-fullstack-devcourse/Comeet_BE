@@ -7,6 +7,7 @@ import { Interest } from "../tags/model/interest.model";
 import { InterestsService, PositionsService, TechsService } from "../tags";
 import { UsersController } from './users.controller';
 import { GetUserInterceptor, SearchUsersInterceptor, UserLocationInterceptor } from "./interceptor";
+import { UserValidationController } from "./user.validation.controller";
 
 const __EXTERNAL_PROVIDERS = [
     PositionsService,
@@ -26,7 +27,7 @@ const __EXTERNAL_PROVIDERS = [
         SearchUsersInterceptor,
         UserLocationInterceptor,
     ],
-    controllers: [UsersController],
+    controllers: [UsersController, UserValidationController],
     exports: [
         ...__EXTERNAL_PROVIDERS,
         UsersService,

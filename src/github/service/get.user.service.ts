@@ -24,7 +24,10 @@ export class GetUserService {
                 from(plainToInstanceOrReject(
                     GithubUserDTO,
                     data,
-                    { transform: { excludeExtraneousValues: true } }
+                    {
+                        transform: { excludeExtraneousValues: true },
+                        validate: { forbidUnknownValues: false }
+                    }
                 ))
             )
         );

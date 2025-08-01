@@ -13,7 +13,7 @@ export class BoardsController {
     ) {}
 
     @Get("/")
-    @ApiOperation({ summary: "모든 게시판 타입 반환" })
+    @ApiOperation({ summary: "모든 게시판 반환" })
     @ApiOkResponse({ type: GetTypesResponse })
     async getAllBoards(): Promise<GetTypesResponse> {
         const results = await this._boardsService.getAll();

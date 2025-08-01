@@ -5,7 +5,7 @@ import Redis from "iovalkey";
 import { JwtOptions } from "./jwt.options";
 import { Request } from "express";
 import { TokenPayload } from "./dto";
-import { pick } from "../utils/object";
+import { pick } from "../utils";
 
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy, "jwt") {
