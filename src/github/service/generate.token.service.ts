@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { GenerateTokenDTO, GenerateTokenResult } from "../dto";
 import { from, mergeMap, Observable } from "rxjs";
@@ -10,6 +10,7 @@ const __TOKEN_URL = "https://github.com/login/oauth/access_token";
 
 @Injectable()
 export class GenerateTokenService {
+    private readonly _logger: Logger = new Logger(GenerateTokenService.name);
 
     constructor(
         @Inject(HttpService)
@@ -18,16 +19,18 @@ export class GenerateTokenService {
 
     generateToken(dto: GenerateTokenDTO): Observable<GenerateTokenResult> {
         return this.sendRequest(dto).pipe(
-            mergeMap(({ data }) =>
-                from(plainToInstanceOrReject(
+            mergeMap(({ data }) => {
+                this._logger.debug(data);
+
+                return from(plainToInstanceOrReject(
                     GenerateTokenResult,
                     data,
                     {
                         transform: { excludeExtraneousValues: true },
                         validate: { forbidUnknownValues: false },
                     },
-                ))
-            )
+                ));
+            })
         );
     }
 

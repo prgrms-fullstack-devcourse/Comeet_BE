@@ -1,11 +1,13 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy, VerifiedCallback } from "passport-custom";
 import { Request } from "express";
 import { GithubOAuth2Service } from "./service";
+import { AxiosError } from "axios";
 
 @Injectable()
 export class GithubOAuth2Strategy extends PassportStrategy(Strategy, "github") {
+    private readonly _logger: Logger = new Logger(GithubOAuth2Strategy.name);
 
     constructor(
         @Inject(GithubOAuth2Service)
@@ -18,7 +20,22 @@ export class GithubOAuth2Strategy extends PassportStrategy(Strategy, "github") {
 
         await this._githubOAuth2Service.loadGithubUser(code)
             .then(user => done(null, user))
-            .catch(err => done(err, false));
+            .catch(err => {
+
+                if (err instanceof AxiosError) {
+                    this._logger.error({
+                        status: err.response?.status,
+                        statusText: err.response?.statusText,
+                        data: err.response?.data,
+                        url: err.response?.request?.url
+                    });
+                }
+                else {
+                    this._logger.error(err);
+                }
+
+                done(err, false);
+            });
     }
 
 }

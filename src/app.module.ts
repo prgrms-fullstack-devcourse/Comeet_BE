@@ -11,12 +11,13 @@ import { UsersModule } from './users';
 import { AuthModule } from './auth';
 import { PostsModule } from './posts';
 import { AppController } from './app.controller';
+import { join } from "node:path";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: "../.env"
+      envFilePath: join(__dirname, "..", ".env")
     }),
     TypeOrmModule.forRootAsync({
       useFactory: typeormOptionsFactory,
