@@ -4,7 +4,6 @@ import { GenerateTokenDTO, GenerateTokenResult } from "../dto";
 import { instanceToPlain } from "class-transformer";
 import { plainToInstanceOrReject } from "../../utils";
 import { AxiosResponse } from "axios";
-import { ValidationError } from "class-validator";
 
 const __TOKEN_URL = "https://github.com/login/oauth/access_token";
 
@@ -31,14 +30,10 @@ export class GenerateTokenService {
         ).catch(err => {
             this._logger.error(err);
 
-            if (err instanceof ValidationError) {
-                throw new BadRequestException({
-                    message: `Invalid code ${dto.code}`,
-                    data: data
-                });
-            }
-
-            throw err;
+            throw new BadRequestException({
+                message: `Invalid code ${dto.code}`,
+                data: data
+            });
         })
     }
 
