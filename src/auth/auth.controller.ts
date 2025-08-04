@@ -19,7 +19,7 @@ import {
     ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
 import { AuthService } from "./service";
-import { SignInFailResponse, SignInResponse, SignUpBody, SignUpQuery } from "./api";
+import { SignInFailResponse, SignInQuery, SignInResponse, SignUpBody, SignUpQuery } from "./api";
 import { Cookies, TokenPair, User } from "../utils";
 import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { AuthGuard } from "@nestjs/passport";
@@ -58,10 +58,11 @@ export class AuthController {
 
     @Get("/sign-in")
     @ApiOperation({ summary: "로그인" })
+    @ApiQuery({ type: SignInQuery, required: true })
     @ApiOkResponse({ type: SignInResponse })
     @ApiResponse({ status: 210, type: SignInFailResponse })
     @ApiForbiddenResponse({ description: "github 인증 실패" })
-    @UseInterceptors(SignInInterceptor)
+    //@UseInterceptors(SignInInterceptor)
     @UseGuards(AuthGuard("github"))
     async signIn(
         @User()
