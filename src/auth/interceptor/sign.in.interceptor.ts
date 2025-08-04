@@ -36,8 +36,9 @@ export class SignInInterceptor implements NestInterceptor<
         let accessToken: string | null = null;
         let sessionId: string | null = null;
 
-        if (data instanceof GithubUserDTO)
-            sessionId = await this._session.create(data)
+        if (data instanceof GithubUserDTO) {
+            //sessionId = await this._session.create(data);
+        }
         else
             accessToken = data;
 
