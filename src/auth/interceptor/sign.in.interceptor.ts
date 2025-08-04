@@ -68,7 +68,7 @@ export class SignInInterceptor implements NestInterceptor<
         }
         else {
             const sessionId = await this._session.create(data);
-            res.status(210);
+            res.status(200);
             return { sessionId };
         }
 
