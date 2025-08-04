@@ -71,7 +71,16 @@ export class AuthController {
             github: githubLink,
         });
 
-        this.saveRefreshToken(res, refreshToken);
+        res.cookie(
+            "REFRESH_TOKEN", refreshToken,
+            {
+                httpOnly: true,
+                maxAge: this._refreshExp,
+                secure: this._secure,
+                sameSite: "lax"
+            },
+        );
+
         return accessToken;
     }
 
@@ -92,7 +101,16 @@ export class AuthController {
             const { accessToken, refreshToken }
                 = await this._authService.signIn(user.githubId);
 
-            this.saveRefreshToken(res, refreshToken);
+            res.cookie(
+                "REFRESH_TOKEN", refreshToken,
+                {
+                    httpOnly: true,
+                    maxAge: this._refreshExp,
+                    secure: this._secure,
+                    sameSite: "lax"
+                },
+            );
+
             return accessToken;
         }
         catch (err) {
@@ -128,20 +146,5 @@ export class AuthController {
         if (!refreshToken) throw new ForbiddenException();
         const accessToken = await this._authService.renew(refreshToken);
         return { accessToken };
-    }
-
-    private saveRefreshToken(
-        res: Response,
-        refreshToken: string,
-    ): void {
-        res.cookie(
-            "REFRESH_TOKEN", refreshToken,
-            {
-                httpOnly: true,
-                maxAge: this._refreshExp,
-                secure: this._secure,
-                sameSite: "lax"
-            },
-        );
     }
 }

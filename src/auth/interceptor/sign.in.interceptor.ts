@@ -1,5 +1,5 @@
 import { CallHandler, ExecutionContext, Inject, Injectable, Logger, NestInterceptor } from "@nestjs/common";
-import { from, mergeMap, Observable, tap } from "rxjs";
+import { catchError, from, mergeMap, Observable, tap } from "rxjs";
 import { SignInResponse } from "../api";
 import { GithubUserDTO } from "../../github/dto";
 import { SignUpSession } from "../sign.up.session";
@@ -23,7 +23,10 @@ export class SignInInterceptor implements NestInterceptor<
         return next.handle().pipe(
            tap(data => this._logger.debug(data)),
            mergeMap(data => from(this.handle(data))),
-           tap(data => this._logger.debug(data)),
+           catchError(err => {
+               this._logger.error(err);
+               throw err;
+           })
         );
     }
 
