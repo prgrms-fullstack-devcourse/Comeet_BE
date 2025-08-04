@@ -1,5 +1,5 @@
-import { CallHandler, ExecutionContext, Inject, Injectable,  NestInterceptor } from "@nestjs/common";
-import { from, mergeMap, Observable } from "rxjs";
+import { CallHandler, ExecutionContext, Inject, Injectable, Logger, NestInterceptor } from "@nestjs/common";
+import { from, mergeMap, Observable, tap } from "rxjs";
 import { TokenPair } from "../../utils";
 import { SignInFailResponse, SignInResponse } from "../api";
 import { Response } from "express";
@@ -13,6 +13,7 @@ export class SignInInterceptor implements NestInterceptor<
     TokenPair | GithubUserDTO,
     SignInResponse | SignInFailResponse
 > {
+    private readonly _logger: Logger = new Logger(SignInInterceptor.name);
     private readonly _refreshExp: number;
     private readonly _secure: boolean;
 
@@ -37,9 +38,11 @@ export class SignInInterceptor implements NestInterceptor<
             .getResponse<Response>();
 
         return next.handle().pipe(
+           tap(data => this._logger.debug(data)),
            mergeMap(data =>
                from(this.handle(res, data))
-           )
+           ),
+           tap(data => this._logger.debug(data)),
         );
     }
 
