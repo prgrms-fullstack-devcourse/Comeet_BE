@@ -16,7 +16,6 @@ export class GithubOAuth2Strategy extends PassportStrategy(Strategy, "github") {
     ) { super(); }
 
     async validate(req: Request, done: VerifiedCallback): Promise<void> {
-        this._logger.debug(req);
         const code = __extractCode(req);
         if (!code) return done(null, false);
 
