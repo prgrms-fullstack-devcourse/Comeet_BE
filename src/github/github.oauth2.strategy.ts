@@ -16,6 +16,7 @@ export class GithubOAuth2Strategy extends PassportStrategy(Strategy, "github") {
     ) { super(); }
 
     async validate(req: Request, done: VerifiedCallback): Promise<void> {
+        this._logger.debug(req);
         const code = __extractCode(req);
         if (!code) return done(null, false);
 
@@ -23,18 +24,19 @@ export class GithubOAuth2Strategy extends PassportStrategy(Strategy, "github") {
             .then(user => done(null, user))
             .catch(err => {
 
-                const error = err instanceof AxiosError
-                    ? AxiosException.fromAxiosError(err)
-                    :err;
+                this._logger.error(
+                    err instanceof AxiosError
+                        ? AxiosException.fromAxiosError(err)
+                        :err
+                );
 
-                this._logger.error(error);
-                done(error, false);
+                done(null, false);
             });
     }
 
 }
 
-function __extractCode(req: Request): string| null {
+function __extractCode(req: Request): string | null {
     const code = req.query.code;
     if (!code || typeof code !== "string") return null;
     return code;
