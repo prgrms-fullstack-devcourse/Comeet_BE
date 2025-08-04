@@ -1,76 +1,44 @@
 import { CallHandler, ExecutionContext, Inject, Injectable, Logger, NestInterceptor } from "@nestjs/common";
 import { from, mergeMap, Observable, tap } from "rxjs";
-import { TokenPair } from "../../utils";
-import { SignInFailResponse, SignInResponse } from "../api";
-import { Response } from "express";
-import { JwtOptions } from "../jwt.options";
-import { ConfigService } from "@nestjs/config";
+import { SignInResponse } from "../api";
 import { GithubUserDTO } from "../../github/dto";
 import { SignUpSession } from "../sign.up.session";
 
 @Injectable()
 export class SignInInterceptor implements NestInterceptor<
-    TokenPair | GithubUserDTO,
-    SignInResponse | SignInFailResponse
+    string | GithubUserDTO,
+    SignInResponse
 > {
     private readonly _logger: Logger = new Logger(SignInInterceptor.name);
-    private readonly _refreshExp: number;
-    private readonly _secure: boolean;
 
     constructor(
        @Inject(SignUpSession)
        private readonly _session: SignUpSession,
-       @Inject(ConfigService)
-       config: ConfigService,
-       @Inject(JwtOptions)
-       { refreshExp }: JwtOptions,
-    ) {
-        this._secure = config.get("NODE_ENV") !== "dev";
-        this._refreshExp = refreshExp;
-    }
+    ) {}
 
     intercept(
-        ctx: ExecutionContext,
-        next: CallHandler<TokenPair | GithubUserDTO>
-    ): Observable<SignInResponse | SignInFailResponse> {
-
-        const res = ctx.switchToHttp()
-            .getResponse<Response>();
-
+        _: ExecutionContext,
+        next: CallHandler<string | GithubUserDTO>
+    ): Observable<SignInResponse> {
         return next.handle().pipe(
            tap(data => this._logger.debug(data)),
-           mergeMap(data =>
-               from(this.handle(res, data))
-           ),
+           mergeMap(data => from(this.handle(data))),
            tap(data => this._logger.debug(data)),
         );
     }
 
     private async handle(
-        res: Response,
-        data: TokenPair | GithubUserDTO
-    ): Promise<SignInResponse | SignInFailResponse> {
+        data: string | GithubUserDTO
+    ): Promise<SignInResponse> {
+        let accessToken: string | null = null;
+        let sessionId: string | null = null;
 
-        if (data instanceof TokenPair) {
-            const { accessToken, refreshToken } = data;
+        if (data instanceof GithubUserDTO)
+            sessionId = await this._session.create(data)
+        else
+            accessToken = data;
 
-            res.cookie(
-                "REFRESH_TOKEN", refreshToken,
-                {
-                    httpOnly: true,
-                    maxAge: this._refreshExp,
-                    secure: this._secure,
-                    sameSite: "lax"
-                },
-            );
-
-            return { accessToken };
-        }
-        else {
-            const sessionId = await this._session.create(data);
-            return { sessionId };
-        }
-
+        return { accessToken, sessionId };
     }
 
 }
