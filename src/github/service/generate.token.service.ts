@@ -40,11 +40,14 @@ export class GenerateTokenService {
     private sendRequest(dto: GenerateTokenDTO): Promise<AxiosResponse> {
        Object.setPrototypeOf(dto, GenerateTokenDTO.prototype);
 
+       const params = instanceToPlain(dto);
+       this._logger.debug(params);
+
         return this._httpService.axiosRef.post(
             __TOKEN_URL,
             {},
             {
-                params: instanceToPlain(dto),
+                params,
                 headers: { Accept: "application/json" }
             }
         );
