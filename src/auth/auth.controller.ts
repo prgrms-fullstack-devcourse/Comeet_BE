@@ -26,26 +26,15 @@ import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { AuthGuard } from "@nestjs/passport";
 import { GithubUserDTO } from "../github/dto";
 import { SignUpGuard } from "./sign.up.guard";
-import { JwtOptions } from "./jwt.options";
-import { ConfigService } from "@nestjs/config";
 
 @ApiTags("Auth")
 @Controller("/api/auth")
 export class AuthController {
-    private readonly _refreshExp: number;
-    private readonly _secure: boolean;
 
     constructor(
        @Inject(AuthService)
        private readonly _authService: AuthService,
-       @Inject(ConfigService)
-       config: ConfigService,
-       @Inject(JwtOptions)
-       { refreshExp }: JwtOptions,
-    ) {
-        this._secure = config.get("NODE_ENV") !== "dev";
-        this._refreshExp = refreshExp;
-    }
+    ) {}
 
     @Post("/sign-up")
     @ApiOperation({ summary: "회원가입" })
@@ -82,20 +71,16 @@ export class AuthController {
         @Res({ passthrough: true })
         res: Response
     ): Promise<TokenPair | GithubUserDTO> {
-        try {
-            const { accessToken, refreshToken } = await this._authService.signIn(user.githubId);
-            this.saveRefreshToken(res, accessToken);
-            return { accessToken };
-        }
-        catch (err) {
+        return await this._authService.signIn(user.githubId)
+            .catch(err => {
 
-            if (err instanceof ForbiddenException) {
-                res.status(210);
-                return user;
-            }
+                if (err instanceof ForbiddenException) {
+                    res.status(210);
+                    return user;
+                }
 
-            throw err;
-        }
+                throw err;
+            });
     }
 
     @Get("/sign-out")
@@ -122,20 +107,5 @@ export class AuthController {
         if (!refreshToken) throw new ForbiddenException();
         const accessToken = await this._authService.renew(refreshToken);
         return { accessToken };
-    }
-
-    private saveRefreshToken(
-        res: Response,
-        refreshToken: string,
-    ): void {
-        res.cookie(
-            "REFRESH_TOKEN", refreshToken,
-            {
-                httpOnly: true,
-                maxAge: this._refreshExp,
-                secure: this._secure,
-                sameSite: "lax"
-            },
-        );
     }
 }
