@@ -4,6 +4,7 @@ import { Strategy, VerifiedCallback } from "passport-custom";
 import { Request } from "express";
 import { GithubOAuth2Service } from "./service";
 import { AxiosError } from "axios";
+import { AxiosException } from "../utils/axios";
 
 @Injectable()
 export class GithubOAuth2Strategy extends PassportStrategy(Strategy, "github") {
@@ -22,19 +23,12 @@ export class GithubOAuth2Strategy extends PassportStrategy(Strategy, "github") {
             .then(user => done(null, user))
             .catch(err => {
 
-                if (err instanceof AxiosError) {
-                    this._logger.error({
-                        status: err.response?.status,
-                        statusText: err.response?.statusText,
-                        data: err.response?.data,
-                        url: err.response?.request?.url
-                    });
-                }
-                else {
-                    this._logger.error(err);
-                }
+                const error = err instanceof AxiosError
+                    ? AxiosException.fromAxiosError(err)
+                    :err;
 
-                done(err, false);
+                this._logger.error(error);
+                done(error, false);
             });
     }
 

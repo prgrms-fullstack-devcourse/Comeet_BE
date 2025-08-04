@@ -1,13 +1,11 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { GenerateTokenService } from "./generate.token.service";
 import { GetUserService } from "./get.user.service";
 import { GithubUserDTO } from "../dto";
 import { GithubOptions } from "../github.options";
-import { firstValueFrom, mergeMap } from "rxjs";
 
 @Injectable()
 export class GithubOAuth2Service {
-    private readonly _logger: Logger = new Logger(GithubOAuth2Service.name);
 
     constructor(
        @Inject(GenerateTokenService)
@@ -20,16 +18,12 @@ export class GithubOAuth2Service {
     }
 
     async loadGithubUser(code: string): Promise<GithubUserDTO> {
-        return firstValueFrom(
-            this._generateTokenService.generateToken({
-                ...this._options, code
-            }).pipe(
-                mergeMap(({ accessToken }) =>{
-                    this._logger.debug(accessToken);
-                    return this._getUserService.getUser(accessToken);
-                })
+        return this._generateTokenService
+            .generateToken({ code, ...this._options })
+            .then(({ accessToken }) =>
+                this._getUserService.getUser(accessToken)
             )
-        );
+            .catch(err => { throw err; });
     }
 
 }

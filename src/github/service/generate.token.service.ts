@@ -1,7 +1,6 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { GenerateTokenDTO, GenerateTokenResult } from "../dto";
-import { from, mergeMap, Observable } from "rxjs";
 import { instanceToPlain } from "class-transformer";
 import { plainToInstanceOrReject } from "../../utils";
 import { AxiosResponse } from "axios";
@@ -17,27 +16,24 @@ export class GenerateTokenService {
         private readonly _httpService: HttpService,
     ) {}
 
-    generateToken(dto: GenerateTokenDTO): Observable<GenerateTokenResult> {
-        return this.sendRequest(dto).pipe(
-            mergeMap(({ data }) => {
-                this._logger.debug(data);
+    async generateToken(dto: GenerateTokenDTO): Promise<GenerateTokenResult>  {
+        const { data } = await this.sendRequest(dto);
+        this._logger.debug(data);
 
-                return from(plainToInstanceOrReject(
-                    GenerateTokenResult,
-                    data,
-                    {
-                        transform: { excludeExtraneousValues: true },
-                        validate: { forbidUnknownValues: false },
-                    },
-                ));
-            })
+        return plainToInstanceOrReject(
+            GenerateTokenResult,
+            data,
+            {
+                transform: { excludeExtraneousValues: true },
+                validate: { forbidUnknownValues: false },
+            },
         );
     }
 
-    private sendRequest(dto: GenerateTokenDTO): Observable<AxiosResponse> {
+    private sendRequest(dto: GenerateTokenDTO): Promise<AxiosResponse> {
        Object.setPrototypeOf(dto, GenerateTokenDTO.prototype);
 
-        return this._httpService.post(
+        return this._httpService.axiosRef.post(
             __TOKEN_URL,
             {},
             {
@@ -47,3 +43,4 @@ export class GenerateTokenService {
         );
     }
 }
+
