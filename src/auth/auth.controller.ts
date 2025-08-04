@@ -5,7 +5,7 @@ import {
     Get,
     Headers,
     Inject,
-    Post,
+    Post, Res,
     UseGuards,
     UseInterceptors
 } from '@nestjs/common';
@@ -18,6 +18,7 @@ import {
     ApiOperation, ApiQuery, ApiResponse,
     ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
+import { Response } from "express";
 import { AuthService } from "./service";
 import { SignInFailResponse, SignInQuery, SignInResponse, SignUpBody, SignUpQuery } from "./api";
 import { Cookies, TokenPair, User } from "../utils";
@@ -67,12 +68,16 @@ export class AuthController {
     async signIn(
         @User()
         user: GithubUserDTO,
+        @Res({ passthrough: true })
+        res: Response
     ): Promise<TokenPair | GithubUserDTO> {
         return await this._authService.signIn(user.githubId)
             .catch(err => {
 
-                if (err instanceof ForbiddenException)
+                if (err instanceof ForbiddenException) {
+                    res.status(210);
                     return user;
+                }
 
                 throw err;
             });
