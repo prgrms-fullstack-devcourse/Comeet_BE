@@ -62,7 +62,7 @@ export class AuthController {
     @ApiOkResponse({ type: SignInResponse })
     @ApiResponse({ status: 210, type: SignInFailResponse })
     @ApiForbiddenResponse({ description: "github 인증 실패" })
-    //@UseInterceptors(SignInInterceptor)
+    @UseInterceptors(SignInInterceptor)
     @UseGuards(AuthGuard("github"))
     async signIn(
         @User()
