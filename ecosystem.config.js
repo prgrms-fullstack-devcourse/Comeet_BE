@@ -3,9 +3,11 @@ module.exports = {
     apps: [{
         name: "comeet",
         script: "dist/main.js",
-        watch: true,
+        watch: false,
         instances: 3,
         exec_mode: "cluster",
-        max_memory_restart: "10M",
+        max_memory_restart: "256M",
+        output: "/dev/stdout",
+        error: "/dev/stderr",
     }]
 };
