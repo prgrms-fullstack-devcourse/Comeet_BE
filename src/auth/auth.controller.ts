@@ -5,7 +5,7 @@ import {
     Get,
     Headers,
     Inject,
-    Post, Res,
+    Post,
     UseGuards,
     UseInterceptors
 } from '@nestjs/common';
@@ -18,34 +18,22 @@ import {
     ApiOperation, ApiQuery, ApiResponse,
     ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
-import { Response } from "express";
 import { AuthService } from "./service";
 import { RenewResponse, SignInQuery, SignInResponse, SignUpBody, SignUpQuery } from "./api";
-import { Cookies, User } from "../utils";
+import { Cookies, TokenPair, User } from "../utils";
 import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { AuthGuard } from "@nestjs/passport";
 import { GithubUserDTO } from "../github/dto";
 import { SignUpGuard } from "./sign.up.guard";
-import { JwtOptions } from "./jwt.options";
-import { ConfigService } from "@nestjs/config";
 
 @ApiTags("Auth")
 @Controller("/api/auth")
 export class AuthController {
-    private readonly _refreshExp: number;
-    private readonly _secure: boolean;
 
     constructor(
        @Inject(AuthService)
        private readonly _authService: AuthService,
-       @Inject(JwtOptions)
-       { refreshExp }: JwtOptions,
-       @Inject(ConfigService)
-       config: ConfigService,
-    ) {
-        this._refreshExp = refreshExp;
-        this._secure = config.get("NODE_ENV") !== "dev";
-    }
+    ) {}
 
     @Post("/sign-up")
     @ApiOperation({ summary: "회원가입" })
@@ -61,27 +49,11 @@ export class AuthController {
     async signUp(
         @User() { githubId, githubLink }: GithubUserDTO,
         @Body() body: SignUpBody,
-        @Res({ passthrough: true })
-        res: Response,
-    ): Promise<string> {
-
-        const { accessToken, refreshToken }
-            = await this._authService.signUp({
+    ): Promise<TokenPair> {
+        return await this._authService.signUp({
             ...body, githubId,
             github: githubLink,
         });
-
-        res.cookie(
-            "REFRESH_TOKEN", refreshToken,
-            {
-                httpOnly: true,
-                maxAge: this._refreshExp,
-                secure: this._secure,
-                sameSite: "lax"
-            },
-        );
-
-        return accessToken;
     }
 
     @Get("/sign-in")
@@ -94,24 +66,9 @@ export class AuthController {
     async signIn(
         @User()
         user: GithubUserDTO,
-        @Res({ passthrough: true })
-        res: Response,
-    ): Promise<string | GithubUserDTO> {
+    ): Promise<TokenPair | GithubUserDTO> {
         try {
-            const { accessToken, refreshToken }
-                = await this._authService.signIn(user.githubId);
-
-            res.cookie(
-                "REFRESH_TOKEN", refreshToken,
-                {
-                    httpOnly: true,
-                    maxAge: this._refreshExp,
-                    secure: this._secure,
-                    sameSite: "lax"
-                },
-            );
-
-            return accessToken;
+            return await this._authService.signIn(user.githubId);
         }
         catch (err) {
 

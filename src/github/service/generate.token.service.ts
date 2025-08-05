@@ -18,7 +18,6 @@ export class GenerateTokenService {
 
     async generateToken(dto: GenerateTokenDTO): Promise<GenerateTokenResult>  {
         const { data } = await this.sendRequest(dto);
-        this._logger.debug(data);
 
         return plainToInstanceOrReject(
             GenerateTokenResult,
@@ -40,14 +39,11 @@ export class GenerateTokenService {
     private sendRequest(dto: GenerateTokenDTO): Promise<AxiosResponse> {
        Object.setPrototypeOf(dto, GenerateTokenDTO.prototype);
 
-       const params = instanceToPlain(dto);
-       this._logger.debug(params);
-
         return this._httpService.axiosRef.post(
             __TOKEN_URL,
             {},
             {
-                params,
+                params: instanceToPlain(dto),
                 headers: { Accept: "application/json" }
             }
         );
