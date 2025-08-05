@@ -18,7 +18,9 @@ export class PostsService {
 
     @Transactional()
     async createPost(dto: CreatePostDTO): Promise<void> {
-        await this._postsRepo.save(dto);
+        await this._postsRepo.save({
+            ...dto, count: {}
+        });
     }
 
     async getPost(id: number, userId: number): Promise<PostDTO> {

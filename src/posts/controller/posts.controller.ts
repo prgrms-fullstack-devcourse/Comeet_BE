@@ -62,7 +62,7 @@ export class PostsController {
         await this._postsService.createPost({ boardId, userId, ...body });
     }
 
-    @Get("/posts/details/:id")
+    @Get("/details/:id")
     @ApiOperation({ summary: "게시물 조회" })
     @ApiBearerAuth()
     @ApiParam({ name: "id", type: "integer", required: true, description: "게시물 아이디" })

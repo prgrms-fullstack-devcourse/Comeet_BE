@@ -32,7 +32,7 @@ export class Post extends ModelBase{
     @JoinColumn({ name: "board_id" })
     board: Board;
 
-    @OneToOne(() => PostCount, { cascade: true, onDelete: "CASCADE" })
+    @OneToOne(() => PostCount, { cascade: ["insert"], onDelete: "CASCADE" })
     @JoinColumn({ name: "count_id" })
     count: PostCount;
 
