@@ -8,15 +8,18 @@ import { makeSelectCoordinatesQuery } from "../../common/geo";
 export function setSelectClause(
     qb: SelectQueryBuilder<User>
 ): SelectQueryBuilder<User> {
-    return qb.select("user.nickname", "nickname")
-        .addSelect("user.birthyear", "birthyear")
-        .addSelect("user.experience", "experience")
-        .addSelect("user.position", "position")
-
-        .addSelect(
-            makeSelectCoordinatesQuery("user", "location"),
-            "location"
-        );
+    return qb.select([
+        "user.nickname AS nickname",
+        "user.birthyear AS birthyear",
+        "user.experience AS experience",
+        "user.position AS position",
+        "user.techStack AS techStack",
+        "user.interests AS interests",
+        "user.nSubscribers AS subscribers",
+    ]).addSelect(
+        makeSelectCoordinatesQuery("user", "location"),
+        "location"
+    );
 }
 
 export function WhereClause(filters: SearchUsersFilters) {

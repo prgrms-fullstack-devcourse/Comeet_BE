@@ -5,13 +5,12 @@ import { IsBirthYear } from "../../utils/decorator/is-birth-year";
 import { Type } from "class-transformer";
 
 export class CreateUserDTO {
+    @IsString()
     githubId: string;
 
     @IsString()
     @ApiProperty({ type: "string", required: true })
     nickname: string;
-
-    picture: string;
 
     @IsBirthYear()
     @ApiProperty({ name: "age", type: "integer", required: true })
@@ -57,6 +56,7 @@ export class CreateUserDTO {
     })
     interestIds: number[];
 
+    @IsUrl()
     github: string;
 
     @IsEmail()

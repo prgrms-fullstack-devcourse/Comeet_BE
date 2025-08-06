@@ -21,7 +21,7 @@ export class TagsController {
     @ApiOkResponse({ type: GetAllPositionsAndInterestsResponse })
     async getPositionsAndInterests(): Promise<GetAllPositionsAndInterestsResponse> {
        const positions = await this._positionsService.getAllPositions();
-       const interests = await this._interestsService.getAll();
+       const interests = await this._interestsService.getAllInterests();
        return { positions, interests };
     }
 

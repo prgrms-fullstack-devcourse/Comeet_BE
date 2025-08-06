@@ -28,11 +28,8 @@ export class User extends ModelBase {
     @Column({ name: "github_id", type: "varchar", unique: true })
     githubId: string;
 
-    @Column({ type: "varchar", unique: true })
-    nickname: string;
-
     @Column({ type: "varchar" })
-    picture: string;
+    nickname: string;
 
     @Column({ name: "birthyear", type: "integer" })
     birthyear: number;

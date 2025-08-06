@@ -22,7 +22,7 @@ export function IsRange (options?: ValidationOptions) {
     return applyDecorators(
         Matches(/^(\d)-(\d)$/),
         Transform(({ value }) =>
-            value && value.split('-')
+            value.split('-')
                 .map(s => Number(s.trim()))
         ),
         __IsRange(options),

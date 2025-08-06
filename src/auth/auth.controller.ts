@@ -47,14 +47,12 @@ export class AuthController {
     @UseInterceptors(SignInInterceptor)
     @UseGuards(SignUpGuard)
     async signUp(
-        @User() { id, link, avatar }: GithubUserDTO,
+        @User() { githubId, githubLink }: GithubUserDTO,
         @Body() body: SignUpBody,
     ): Promise<TokenPair> {
         return await this._authService.signUp({
-            ...body,
-            githubId: id,
-            picture: avatar,
-            github: link,
+            ...body, githubId,
+            github: githubLink,
         });
     }
 
@@ -70,7 +68,7 @@ export class AuthController {
         user: GithubUserDTO,
     ): Promise<TokenPair | GithubUserDTO> {
         try {
-            return await this._authService.signIn(user.id);
+            return await this._authService.signIn(user.githubId);
         }
         catch (err) {
 

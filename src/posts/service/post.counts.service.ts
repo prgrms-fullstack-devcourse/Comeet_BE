@@ -27,7 +27,7 @@ export class PostCountsService {
     }
 
     private async getPostCountById(postId: number): Promise<PostCount> {
-        const count = await this._countsRepo.findOneBy({ id: postId });
+        const count = await this._countsRepo.findOneBy({ postId });
         if (!count) throw new NotFoundException();
         return count;
     }

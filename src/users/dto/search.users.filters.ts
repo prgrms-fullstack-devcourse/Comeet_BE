@@ -6,8 +6,8 @@ import { Expose, Transform } from "class-transformer";
 
 export class SearchUsersFilters {
 
-    @Transform(({ value }): RangeObject | undefined =>
-        value && RangeObject.fromRange(
+    @Transform(({ value }) =>
+        RangeObject.fromRange(
             value.map((age: number) =>
                 new Date().getFullYear() - age + 1
             ).reverse()

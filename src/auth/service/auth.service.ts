@@ -1,10 +1,11 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { UsersService } from "../../users";
 import { JwtAuthService } from "./jwt.auth.service";
+import Redis from "iovalkey";
+import { JwtOptions } from "../jwt.options";
 import { SignUpDTO } from "../dto";
 import { TokenPair } from "../../utils";
 import { UserCert } from "../../users/dto";
-import { BlacklistService } from "./blacklist.service";
 
 @Injectable()
 export class AuthService {
@@ -14,8 +15,10 @@ export class AuthService {
        private readonly _usersService: UsersService,
        @Inject(JwtAuthService)
        private readonly _jwtAuthService: JwtAuthService,
-       @Inject(BlacklistService)
-       private readonly _blacklist: BlacklistService,
+       @Inject(Redis)
+       private readonly _redis: Redis,
+       @Inject(JwtOptions)
+       private readonly _options: JwtOptions,
     ) {}
 
     async signUp(dto: SignUpDTO): Promise<TokenPair> {
@@ -29,7 +32,12 @@ export class AuthService {
     }
 
     async signOut(authorization: string): Promise<void> {
-        await this._blacklist.add(authorization);
+        await this._redis.set(
+            authorization,
+            new Date().toLocaleDateString(),
+            "PX",
+            this._options.accessExp
+        );
     }
 
     async renew(refreshToken: string): Promise<string> {

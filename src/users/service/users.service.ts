@@ -2,7 +2,7 @@ import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundExce
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { FindOneOptions, QueryFailedError, Repository } from "typeorm";
-import { CreateUserDTO, GetUserCertDTO, UserCert, UserDTO } from "../dto";
+import { CreateUserDTO, UserCert, UserDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { InterestsService, PositionsService, TechsService } from "../../tags";
 import { ModelBase } from "../../common/data";
@@ -32,16 +32,13 @@ export class UsersService {
         return { id, githubId };
     }
 
-    @Transactional()
-    async getUserCert(dto: GetUserCertDTO): Promise<UserCert> {
-        const { githubId, ...values } = dto;
+    async getUserCert(githubId: string): Promise<UserCert> {
 
         const { id } = await this.findUserOrReject({
             where: { githubId },
             select: ["id", "githubId"]
         });
 
-        await this._usersRepo.update(id, values);
         return { id, githubId };
     }
 
@@ -105,10 +102,10 @@ export class UsersService {
             values.position = await this._positionsService.getValue(positionId);
 
         if (techIds?.length)
-            values.techStack = await this._techsService.getByIds(techIds);
+            values.techStack = await this._techsService.getTechs(techIds);
 
         if (interestIds?.length)
-            values.interests = await this._interestsService.getByIds(interestIds);
+            values.interests = await this._interestsService.getValues(interestIds);
 
         return values;
     }

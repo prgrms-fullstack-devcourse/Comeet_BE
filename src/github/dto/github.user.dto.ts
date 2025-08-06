@@ -4,14 +4,10 @@ import { Expose, Transform } from "class-transformer";
 export class GithubUserDTO {
     @IsNumberString()
     @Transform(({ value }) => String(value))
-    @Expose()
-    id: string;
+    @Expose({ name: "id" })
+    githubId: string;
 
     @IsUrl()
     @Expose({ name: "html_url" })
-    link: string;
-
-    @IsUrl()
-    @Expose({ name: "avatar_url" })
-    avatar: string;
+    githubLink: string;
 }

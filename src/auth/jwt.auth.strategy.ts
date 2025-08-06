@@ -6,14 +6,15 @@ import { JwtOptions } from "./jwt.options";
 import { Request } from "express";
 import { TokenPayload } from "./dto";
 import { pick } from "../utils";
-import { BlacklistService } from "./service/blacklist.service";
 
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy, "jwt") {
 
     constructor(
-        @Inject(BlacklistService)
-        private readonly _blacklist: BlacklistService,
+        @Inject(Redis)
+        private readonly _redis: Redis,
+        @Inject(JwtOptions)
+        { secret }: JwtOptions,
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
