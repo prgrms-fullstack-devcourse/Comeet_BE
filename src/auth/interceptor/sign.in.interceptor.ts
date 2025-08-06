@@ -2,7 +2,7 @@ import { CallHandler, ExecutionContext, Inject, Injectable, Logger, NestIntercep
 import { catchError, from, mergeMap, Observable, tap } from "rxjs";
 import { SignInResponse } from "../api";
 import { GithubUserDTO } from "../../github/dto";
-import { SignUpSessionService } from "../service/sign.up.session.service";
+import { SignUpSession } from "../sign.up.session";
 import { JwtOptions } from "../jwt.options";
 import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
@@ -18,8 +18,8 @@ export class SignInInterceptor implements NestInterceptor<
     private readonly _secure: boolean;
 
     constructor(
-       @Inject(SignUpSessionService)
-       private readonly _session: SignUpSessionService,
+       @Inject(SignUpSession)
+       private readonly _session: SignUpSession,
        @Inject(JwtOptions)
        { refreshExp }: JwtOptions,
        @Inject(ConfigService)

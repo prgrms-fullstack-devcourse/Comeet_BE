@@ -1,13 +1,13 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import Redis from "iovalkey";
-import { GithubUserDTO } from "../../github/dto";
-import { randomUUID } from "node:crypto";
+import { GithubUserDTO } from "../github/dto";
+import * as crypto from "node:crypto";
 import { ConfigService } from "@nestjs/config";
-import { plainToInstanceOrReject } from "../../utils";
-import { instanceToPlain } from "class-transformer";
+import { plainToInstanceOrReject } from "../utils";
 
 @Injectable()
-export class SignUpSessionService {
+export class SignUpSession {
+    private readonly _logger: Logger = new Logger(SignUpSession.name);
     private readonly _sessionExp: number;
 
     constructor(
@@ -22,10 +22,15 @@ export class SignUpSessionService {
     }
 
     async create(data: GithubUserDTO): Promise<string> {
-        const id = randomUUID().replaceAll('-', '');
+        const id = crypto.randomUUID().replaceAll('-', '');
         const key = __makeKey(id);
-        await this._redis.hset(key, instanceToPlain(data));
-        await this._redis.pexpire(key, this._sessionExp);
+
+        await this._redis.hset(key, data)
+            .catch(err => this._logger.error(err));
+
+        await this._redis.pexpire(key, this._sessionExp)
+            .catch(err => this._logger.error(err));
+
         return id;
     }
 

@@ -11,7 +11,7 @@ import { AuthService, JwtAuthService } from "./service";
 import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { UsersModule, UsersService } from "../users";
 import { SignUpGuard } from "./sign.up.guard";
-import { SignUpSessionService } from "./service/sign.up.session.service";
+import { SignUpSession } from "./sign.up.session";
 import { Position, Tech } from "../tags/model";
 import { Interest } from "../tags/model/interest.model";
 
@@ -34,7 +34,7 @@ const __EXTERNAL_PROVIDERS = [JwtService, UsersService];
       SignInInterceptor,
       SignOutInterceptor,
       SignUpGuard,
-      SignUpSessionService
+      SignUpSession
   ],
   exports: [JwtAuthStrategy, JwtOptions],
   controllers: [AuthController]
