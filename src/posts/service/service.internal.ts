@@ -6,7 +6,11 @@ export function setSelectClause<M extends object>(
     qb: SelectQueryBuilder<M>
 ): SelectQueryBuilder<M> {
     return qb
-        .select(["post.id", "post.title", "post.createdAt"])
+        .select([
+            "post.id AS id",
+            "post.title AS title",
+            "post.createdAt AS createdAt",
+        ])
         .innerJoin("post.board", "Board")
         .addSelect("Board.value", "board")
         .addSelect("Board.isRecruit", "isRecruit")

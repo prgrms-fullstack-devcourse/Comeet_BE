@@ -108,7 +108,7 @@ export class PostsController {
         return { results };
     }
 
-    @Get("/")
+    @Get("/users")
     @ApiOperation({ summary: "내가 쓴 게시물 검색"})
     @ApiBearerAuth()
     @ApiOkResponse({ type: SearchPostsResponse })
