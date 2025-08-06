@@ -4,7 +4,7 @@ import { User, Subscription } from "../model";
 import { Brackets, Repository, SelectQueryBuilder } from "typeorm";
 import { SearchAdjacentUserResult, SearchAdjacentUsersDTO, SearchUserResult } from "../dto";
 import { setSelectClause, WhereClause } from "./service.internal";
-import { makeSelectCoordinatesQuery, makeSelectDistanceQuery } from "../../common/geo";
+import { makeSelectDistanceQuery } from "../../common/geo";
 import { pick } from "../../utils";
 import { WhereIdInTargetIds } from "../../common/marks";
 
@@ -22,10 +22,6 @@ export class SearchUsersService {
         const { origin, radius, ...filters } = dto;
 
         const { entities, raw } = await this.createSelectQueryBuilder()
-            .addSelect(
-                makeSelectCoordinatesQuery("user", "location"),
-                "location"
-            )
             .addSelect(
                 makeSelectDistanceQuery("user", "location"),
                 "distance"
