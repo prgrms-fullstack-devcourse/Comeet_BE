@@ -1,8 +1,7 @@
 import { ForbiddenException, Inject, Injectable, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { JwtOptions } from "../jwt.options";
-import { UserCert } from "../../users/dto";
-import * as crypto from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { plainToInstanceOrReject } from "../../utils";
 import { TokenPayload } from "../dto";
 
@@ -17,38 +16,32 @@ export class JwtAuthService {
        private readonly _options: JwtOptions,
     ) {}
 
-    generateAccess(user: UserCert): string {
-        return this.generateToken(user, this._options.accessExp);
+    generateAccess(id: number): string {
+        return this.generateToken(id, this._options.accessExp);
     }
 
-    generateRefresh(user: UserCert): string {
-        return this.generateToken(user, this._options.refreshExp);
+    generateRefresh(id: number): string {
+        return this.generateToken(id, this._options.refreshExp);
     }
 
-    async verifyToken(token: string): Promise<UserCert> {
+    async verifyToken(token: string): Promise<TokenPayload> {
 
-        const { id, githubId } = await this._jwtService.verifyAsync(
+        const plain = await this._jwtService.verifyAsync(
             token, { secret: this._options.secret }
-        ).then(data =>
-            plainToInstanceOrReject(TokenPayload, data)
+        );
+
+        return plainToInstanceOrReject(
+            TokenPayload, plain
         ).catch(err => {
             this._logger.error(err);
             throw new ForbiddenException();
-        });
-
-        return { id, githubId };
+        })
     }
 
-    private generateToken(
-        user: UserCert,
-        exp: number
-    ): string {
+    private generateToken(id: number, ex: number): string {
         return this._jwtService.sign(
-            Object.assign(
-                user,
-                { salt: crypto.randomBytes(16).toString("base64") }
-            ),
-            { secret: this._options.secret, expiresIn: exp / 1000 },
+            { id, salt: randomBytes(16).toString("base64") },
+            { secret: this._options.secret, expiresIn: ex / 1000 },
         );
     }
 }

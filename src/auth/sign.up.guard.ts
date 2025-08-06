@@ -1,29 +1,18 @@
-import {
-    CanActivate,
-    ExecutionContext,
-    HttpException,
-    Inject,
-    Injectable,
-    UnauthorizedException
-} from "@nestjs/common";
+import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Request } from "express";
-import { SignUpSession } from "./sign.up.session";
+import { SignUpSessionService } from "./service";
 
 @Injectable()
 export class SignUpGuard implements CanActivate {
 
     constructor(
-       @Inject(SignUpSession)
-       private readonly _session: SignUpSession,
+       @Inject(SignUpSessionService)
+       private readonly _session: SignUpSessionService,
     ) {}
 
     async canActivate(ctx: ExecutionContext): Promise<boolean> {
         const req = ctx.switchToHttp().getRequest<Request>();
-        const data = await this._session.get(__extract(req));
-
-        if (!data) throw new HttpException("Session expired", 440);
-
-        req.user = data;
+        req.user = await this._session.get(__extract(req));
         return true;
     }
 }

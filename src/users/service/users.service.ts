@@ -2,7 +2,7 @@ import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundExce
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { FindOneOptions, QueryFailedError, Repository } from "typeorm";
-import { CreateUserDTO, UserCert, UserDTO } from "../dto";
+import { CreateUserDTO, UserDTO, UserIdentification } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { InterestsService, PositionsService, TechsService } from "../../tags";
 import { ModelBase } from "../../common/data";
@@ -26,20 +26,20 @@ export class UsersService {
     ) {}
 
     @Transactional()
-    async createUser(dto: CreateUserDTO): Promise<UserCert> {
+    async createUser(dto: CreateUserDTO): Promise<number> {
         const values = await this.makeValues(dto);
-        const { id, githubId } = await this._usersRepo.save(values);
-        return { id, githubId };
+        const { id } = await this._usersRepo.save(values);
+        return id;
     }
 
-    async getUserCert(githubId: string): Promise<UserCert> {
+    async getUserIdentification(githubId: string): Promise<UserIdentification> {
 
-        const { id } = await this.findUserOrReject({
+        const { id, nickname } = await this.findUserOrReject({
             where: { githubId },
-            select: ["id", "githubId"]
+            select: ["id", "nickname"]
         });
 
-        return { id, githubId };
+        return { id, nickname };
     }
 
     async getMe(id: number): Promise<UserDTO> {

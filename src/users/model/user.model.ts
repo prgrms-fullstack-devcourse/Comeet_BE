@@ -31,6 +31,9 @@ export class User extends ModelBase {
     @Column({ type: "varchar" })
     nickname: string;
 
+    @Column({ type: "varchar" })
+    avatar: string;
+
     @Column({ name: "birthyear", type: "integer" })
     birthyear: number;
 

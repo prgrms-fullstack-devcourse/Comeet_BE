@@ -18,13 +18,14 @@ import {
     ApiOperation, ApiQuery, ApiResponse,
     ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
-import { AuthService } from "./service";
+import { AuthService, BlacklistService } from "./service";
 import { RenewResponse, SignInQuery, SignInResponse, SignUpBody, SignUpQuery } from "./api";
-import { Cookies, TokenPair, User } from "../utils";
+import { Cookies,  User } from "../utils";
 import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { AuthGuard } from "@nestjs/passport";
 import { GithubUserDTO } from "../github/dto";
 import { SignUpGuard } from "./sign.up.guard";
+import { SignInResult } from "./dto";
 
 @ApiTags("Auth")
 @Controller("/api/auth")
@@ -33,6 +34,8 @@ export class AuthController {
     constructor(
        @Inject(AuthService)
        private readonly _authService: AuthService,
+       @Inject(BlacklistService)
+       private readonly _blacklist: BlacklistService,
     ) {}
 
     @Post("/sign-up")
@@ -47,12 +50,12 @@ export class AuthController {
     @UseInterceptors(SignInInterceptor)
     @UseGuards(SignUpGuard)
     async signUp(
-        @User() { githubId, githubLink }: GithubUserDTO,
+        @User() githubUser: GithubUserDTO,
         @Body() body: SignUpBody,
-    ): Promise<TokenPair> {
+    ): Promise<SignInResult> {
         return await this._authService.signUp({
-            ...body, githubId,
-            github: githubLink,
+            ...githubUser,
+            ...body,
         });
     }
 
@@ -65,15 +68,16 @@ export class AuthController {
     @UseGuards(AuthGuard("github"))
     async signIn(
         @User()
-        user: GithubUserDTO,
-    ): Promise<TokenPair | GithubUserDTO> {
+        githubUser: GithubUserDTO,
+    ): Promise<SignInResult | GithubUserDTO> {
         try {
-            return await this._authService.signIn(user.githubId);
+            return await this._authService
+                .signIn(githubUser);
         }
         catch (err) {
 
             if (err instanceof ForbiddenException)
-                return user;
+                return githubUser;
 
             throw err;
         }
@@ -89,7 +93,7 @@ export class AuthController {
        authorization: string
     ): Promise<void> {
        authorization
-       && await this._authService.signOut(authorization);
+       && await this._blacklist.add(authorization);
     }
 
     @Get("/renew")

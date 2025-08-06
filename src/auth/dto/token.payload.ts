@@ -1,7 +1,10 @@
-import { UserCert } from "../../users/dto";
-import { IsNumber, IsString } from "class-validator";
+import { IsInt, IsNumber, IsPositive, IsString } from "class-validator";
 
-export class TokenPayload extends UserCert {
+export class TokenPayload {
+    @IsPositive()
+    @IsInt()
+    id: number;
+
     @IsString()
     salt: string;
 

@@ -8,6 +8,9 @@ export class UserDTO  {
     @ApiProperty({ type: "string" })
     nickname: string;
 
+    @ApiProperty({ type: "string", description: "깃허브 프로필 이미지 url" })
+    avatar: string;
+
     @ApiProperty({ name: "age", type: "integer" })
     birthyear: number;
 
