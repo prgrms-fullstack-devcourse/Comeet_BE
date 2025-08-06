@@ -7,11 +7,10 @@ import { JwtModule, JwtService } from "@nestjs/jwt";
 import { GithubModule } from "../github";
 import { JwtAuthStrategy } from "./jwt.auth.strategy";
 import { JwtOptions } from "./jwt.options";
-import { AuthService, JwtAuthService } from "./service";
+import { AuthService, JwtAuthService, SignUpSessionService, BlacklistService } from "./service";
 import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { UsersModule, UsersService } from "../users";
 import { SignUpGuard } from "./sign.up.guard";
-import { SignUpSession } from "./sign.up.session";
 import { Position, Tech } from "../tags/model";
 import { Interest } from "../tags/model/interest.model";
 
@@ -28,15 +27,16 @@ const __EXTERNAL_PROVIDERS = [JwtService, UsersService];
   providers: [
       ...__EXTERNAL_PROVIDERS,
       JwtOptions,
-      JwtAuthStrategy,
       JwtAuthService,
       AuthService,
+      JwtAuthStrategy,
+      SignUpSessionService,
+      BlacklistService,
       SignInInterceptor,
       SignOutInterceptor,
       SignUpGuard,
-      SignUpSession
   ],
-  exports: [JwtAuthStrategy, JwtOptions],
+  exports: [JwtAuthStrategy, JwtOptions, BlacklistService],
   controllers: [AuthController]
 })
 export class AuthModule {}

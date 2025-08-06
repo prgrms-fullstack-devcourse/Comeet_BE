@@ -1,16 +1,16 @@
 import { CallHandler, ExecutionContext, Inject, Injectable, Logger, NestInterceptor } from "@nestjs/common";
-import { catchError, from, mergeMap, Observable, tap } from "rxjs";
+import { catchError, from, mergeMap, Observable } from "rxjs";
 import { SignInResponse } from "../api";
 import { GithubUserDTO } from "../../github/dto";
-import { SignUpSession } from "../sign.up.session";
+import { SignUpSessionService } from "../service";
 import { JwtOptions } from "../jwt.options";
 import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
-import { TokenPair } from "../../utils";
+import { SignInResult } from "../dto";
 
 @Injectable()
 export class SignInInterceptor implements NestInterceptor<
-    TokenPair | GithubUserDTO,
+    SignInResult | GithubUserDTO,
     SignInResponse
 > {
     private readonly _logger: Logger = new Logger(SignInInterceptor.name);
@@ -18,8 +18,8 @@ export class SignInInterceptor implements NestInterceptor<
     private readonly _secure: boolean;
 
     constructor(
-       @Inject(SignUpSession)
-       private readonly _session: SignUpSession,
+       @Inject(SignUpSessionService)
+       private readonly _session: SignUpSessionService,
        @Inject(JwtOptions)
        { refreshExp }: JwtOptions,
        @Inject(ConfigService)
@@ -31,12 +31,11 @@ export class SignInInterceptor implements NestInterceptor<
 
     intercept(
         ctx: ExecutionContext,
-        next: CallHandler<TokenPair | GithubUserDTO>
+        next: CallHandler<SignInResult | GithubUserDTO>
     ): Observable<SignInResponse> {
         const res = ctx.switchToHttp().getResponse<Response>();
 
         return next.handle().pipe(
-           tap(data => this._logger.debug(data)),
            mergeMap(data => from(this.handle(res, data))),
            catchError(err => {
                this._logger.error(err);
@@ -47,11 +46,11 @@ export class SignInInterceptor implements NestInterceptor<
 
     private async handle(
         res: Response,
-        data: TokenPair | GithubUserDTO
+        data: SignInResult | GithubUserDTO
     ): Promise<SignInResponse> {
 
-        if (data instanceof TokenPair) {
-            const { accessToken, refreshToken } = data;
+        if (data instanceof SignInResult) {
+            const { refreshToken, ...result } = data;
 
             res.cookie(
                 "REFRESH_TOKEN", refreshToken,
@@ -63,11 +62,11 @@ export class SignInInterceptor implements NestInterceptor<
                 },
             );
 
-            return { accessToken, sessionId: null };
+            return { result, sessionId: null };
         }
         else {
             const sessionId = await this._session.create(data);
-            return { accessToken: null, sessionId };
+            return { result: null, sessionId };
         }
 
     }

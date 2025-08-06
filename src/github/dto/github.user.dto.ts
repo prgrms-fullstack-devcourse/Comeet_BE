@@ -8,6 +8,10 @@ export class GithubUserDTO {
     githubId: string;
 
     @IsUrl()
+    @Expose({ name: "avatar_url" })
+    avatar: string;
+
+    @IsUrl()
     @Expose({ name: "html_url" })
-    githubLink: string;
+    github: string;
 }

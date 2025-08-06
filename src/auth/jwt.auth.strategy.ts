@@ -1,18 +1,18 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy, VerifiedCallback } from "passport-jwt";
-import Redis from "iovalkey";
 import { JwtOptions } from "./jwt.options";
 import { Request } from "express";
 import { TokenPayload } from "./dto";
 import { pick } from "../utils";
+import { BlacklistService } from "./service";
 
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy, "jwt") {
 
     constructor(
-        @Inject(Redis)
-        private readonly _redis: Redis,
+        @Inject(BlacklistService)
+        private readonly _blacklist: BlacklistService,
         @Inject(JwtOptions)
         { secret }: JwtOptions,
     ) {
@@ -28,11 +28,8 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, "jwt") {
         payload: TokenPayload,
         done: VerifiedCallback
     ): Promise<void> {
-
-        // check blacklist
-        if (await this._redis.get(req.headers.authorization!))
-            return done(null, false);
-
-        done(null, pick(payload, ["id", "githubId"]));
+        const exists = await this._blacklist.exists(req.headers.authorization!);
+        if (exists) done(null, false);
+        else  done(null, pick(payload, ["id"]));
     }
 }
