@@ -7,14 +7,14 @@ import {
     UnauthorizedException
 } from "@nestjs/common";
 import { Request } from "express";
-import { SignUpSession } from "./sign.up.session";
+import { SignUpSessionService } from "./service/sign.up.session.service";
 
 @Injectable()
 export class SignUpGuard implements CanActivate {
 
     constructor(
-       @Inject(SignUpSession)
-       private readonly _session: SignUpSession,
+       @Inject(SignUpSessionService)
+       private readonly _session: SignUpSessionService,
     ) {}
 
     async canActivate(ctx: ExecutionContext): Promise<boolean> {
