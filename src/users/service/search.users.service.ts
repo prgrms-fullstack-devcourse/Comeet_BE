@@ -5,8 +5,9 @@ import { Brackets, Repository, SelectQueryBuilder } from "typeorm";
 import { SearchAdjacentUserResult, SearchAdjacentUsersDTO, SearchUserResult } from "../dto";
 import { setSelectClause, WhereClause } from "./service.internal";
 import { makeSelectDistanceQuery } from "../../common/geo";
-import { pick } from "../../utils";
+import { Clazz } from "../../utils";
 import { WhereIdInTargetIds } from "../../common/marks";
+import { plainToInstance } from "class-transformer";
 
 @Injectable()
 export class SearchUsersService {
@@ -19,39 +20,40 @@ export class SearchUsersService {
     async searchAdjacentUsers(
        dto: SearchAdjacentUsersDTO
     ): Promise<SearchAdjacentUserResult[]> {
-        const { origin, radius, ...filters } = dto;
+        const { id, origin, radius, ...filters } = dto;
 
-        const { entities, raw } = await this.createSelectQueryBuilder()
+        const raws = await this.createSelectQueryBuilder()
             .addSelect(
                 makeSelectDistanceQuery("user", "location"),
                 "distance"
             )
             .where(new Brackets(WhereClause(filters)))
+            .andWhere("user.id != :id", { id })
             .orderBy("distance", "ASC")
             .setParameters({ ...origin, radius })
-            .getRawAndEntities<SearchAdjacentUserResult>();
+            .getRawMany()
 
-        return __toResults(entities, raw);
+        return __toResults(SearchAdjacentUserResult, raws);
     }
 
     async searchSubscribingUsers(userId: number): Promise<SearchUserResult[]> {
 
-        const { entities, raw } = await this.createSelectQueryBuilder()
+        const raws = await this.createSelectQueryBuilder()
             .where(WhereIdInTargetIds(Subscription, "user"))
             .setParameters({ userId })
-            .getRawAndEntities<SearchUserResult>()
+            .getRawMany();
 
-        return __toResults(entities, raw);
+        return __toResults(SearchUserResult, raws);
     }
 
     async searchHotUsers(): Promise<SearchUserResult[]> {
 
-        const { entities, raw } = await this.createSelectQueryBuilder()
+        const raws = await this.createSelectQueryBuilder()
             .orderBy("nSubscribers", "DESC")
             .take(50)
-            .getRawAndEntities<SearchUserResult>();
+            .getRawMany();
 
-        return __toResults(entities, raw);
+        return __toResults(SearchUserResult, raws);
     }
 
     private createSelectQueryBuilder(): SelectQueryBuilder<User> {
@@ -64,12 +66,7 @@ export class SearchUsersService {
 
 function __toResults<
     ResultT extends SearchUserResult
->(users: User[], results: ResultT[]): ResultT[] {
-    return results.map((result, idx): ResultT =>
-        Object.assign(
-            result,
-            pick(users[idx], ["position", "techStack", "interests"])
-        )
-    );
+>(cls: Clazz<ResultT>, raws: any[]): ResultT[] {
+    return raws.map(raw => plainToInstance(cls, raw));
 }
 

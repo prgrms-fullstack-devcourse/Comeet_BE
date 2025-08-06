@@ -81,13 +81,14 @@ export class UsersController {
     @ApiUnprocessableEntityResponse()
     @UseInterceptors(UserLocationInterceptor, SearchUsersInterceptor)
     async searchAdjacentUsers(
+        @User("id") id: number,
         @User("location")
         origin: Coordinates,
         @Query()
         query: SearchAdjacentUsersQuery,
     ): Promise<SearchAdjacentUserResult[]> {
         return this._searchUsersService
-            .searchAdjacentUsers({ origin, ...query });
+            .searchAdjacentUsers({ id, origin, ...query });
     }
 
     @Get("/search/hot")

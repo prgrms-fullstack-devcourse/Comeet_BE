@@ -1,10 +1,11 @@
 import { MarkBase } from "./mark.base";
 import { SelectQueryBuilder } from "typeorm";
+import { Clazz } from "../../utils";
 
 export function WhereIdInTargetIds<
     M extends MarkBase
 >(
-    cls: { new (...args: any[]): M },
+    cls: Clazz<M>,
     targetAlias: string,
     targetPK: string = "id"
 ) {

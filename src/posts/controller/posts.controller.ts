@@ -90,7 +90,7 @@ export class PostsController {
         return { results };
     }
 
-    @Get("/search/adjacent")
+    @Get("/search/near")
     @ApiOperation({ summary: "게시물 검색" })
     @ApiBearerAuth()
     @ApiQuery({ type: SearchAdjacentPostsQuery, required: true })
