@@ -30,7 +30,7 @@ import {
     ApiTags, ApiUnprocessableEntityResponse
 } from "@nestjs/swagger";
 
-@ApiTags("Comments")
+@ApiTags("Posts", "Comments")
 @Controller("/api/posts")
 @UseGuards(AuthGuard("jwt"))
 export class CommentsController {
@@ -77,7 +77,7 @@ export class CommentsController {
         return { results };
     }
 
-    @Get("/comments")
+    @Get("/comments/users")
     @ApiOperation({ summary: "내가 쓴 댓글 조회" })
     @ApiBearerAuth()
     @ApiOkResponse({ type: GetCommentsResponse })

@@ -9,13 +9,13 @@ export function setSelectClause(
     qb: SelectQueryBuilder<User>
 ): SelectQueryBuilder<User> {
     return qb.select([
-        "user.nickname",
-        "user.birthyear",
-        "user.experience",
-        "user.position",
-        "user.techStack",
-        "user.interests",
-        "user.nSubscribers"
+        "user.nickname AS nickname",
+        "user.birthyear AS birthyear",
+        "user.experience AS experience",
+        "user.position AS position",
+        "user.techStack AS techStack",
+        "user.interests AS interests",
+        "user.nSubscribers AS subscribers",
     ]).addSelect(
         makeSelectCoordinatesQuery("user", "location"),
         "location"
