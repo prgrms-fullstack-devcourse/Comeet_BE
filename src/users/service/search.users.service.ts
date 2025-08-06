@@ -4,7 +4,7 @@ import { User, Subscription } from "../model";
 import { Brackets, Repository, SelectQueryBuilder } from "typeorm";
 import { SearchAdjacentUserResult, SearchAdjacentUsersDTO, SearchUserResult } from "../dto";
 import { setSelectClause, WhereClause } from "./service.internal";
-import { makeSelectDistanceQuery } from "../../common/geo";
+import { makeRadiusConditionQuery, makeSelectDistanceQuery } from "../../common/geo";
 import { Clazz } from "../../utils";
 import { WhereIdInTargetIds } from "../../common/marks";
 import { plainToInstance } from "class-transformer";
@@ -28,6 +28,7 @@ export class SearchUsersService {
                 "distance"
             )
             .where(new Brackets(WhereClause(filters)))
+            .andWhere(makeRadiusConditionQuery("user", "location"))
             .andWhere("user.id != :id", { id })
             .orderBy("distance", "ASC")
             .setParameters({ ...origin, radius })
