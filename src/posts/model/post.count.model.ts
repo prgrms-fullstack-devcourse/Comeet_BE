@@ -3,8 +3,8 @@ import { ModelBase } from "../../common/data";
 
 @Entity("post_counts")
 export class PostCount extends ModelBase {
-    @PrimaryGeneratedColumn({ name: "post_id", type: "integer" })
-    postId: number;
+    @PrimaryGeneratedColumn({ name: "id", type: "integer" })
+    id: number;
 
     @Column({ name: "n_likes", type: "integer", default: 0 })
     nLikes: number;

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User, Subscription } from "../model";
 import { Brackets, Repository, SelectQueryBuilder } from "typeorm";
@@ -28,8 +28,14 @@ export class SearchUsersService {
             )
             .where(new Brackets(WhereClause(filters)))
             .orderBy("distance", "ASC")
+            .take(5)
             .setParameters({ ...origin, radius })
             .getRawAndEntities<SearchAdjacentUserResult>();
+
+        Logger.debug(
+            { entities, raw },
+            SearchUsersService.name
+        );
 
         return __toResults(entities, raw);
     }
@@ -51,6 +57,8 @@ export class SearchUsersService {
             .take(50)
             .getRawAndEntities<SearchUserResult>();
 
+
+
         return __toResults(entities, raw);
     }
 
@@ -65,6 +73,19 @@ export class SearchUsersService {
 function __toResults<
     ResultT extends SearchUserResult
 >(users: User[], results: ResultT[]): ResultT[] {
+
+    Logger.debug(
+        users.length === results.length,
+        SearchUsersService.name
+    );
+
+    Logger.debug(
+        users.every((user, idx) =>
+            user.nickname === results[idx]?.nickname
+        ),
+        SearchUsersService.name
+    );
+
     return results.map((result, idx): ResultT =>
         Object.assign(
             result,
