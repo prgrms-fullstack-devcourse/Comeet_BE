@@ -1,8 +1,6 @@
 import { SearchPostResult } from "./search.post.result";
-import { Coordinates } from "../../../common/geo";
-import { ApiProperty } from "@nestjs/swagger";
+import { GeometricQueryResult } from "../../../common/geo";
 
-export class SearchAdjacentPostResult extends SearchPostResult {
-    @ApiProperty({ type: Coordinates })
-    location: Coordinates;
-}
+export class SearchAdjacentPostResult extends GeometricQueryResult(
+    SearchPostResult
+) {}

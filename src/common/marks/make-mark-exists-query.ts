@@ -1,8 +1,9 @@
 import { MarkBase } from "./mark.base";
 import { SelectQueryBuilder } from "typeorm";
+import { Clazz } from "../../utils";
 
 export function makeMarkExistsQuery<M extends MarkBase>(
-    cls: { new (...args: any[]): M },
+    cls: Clazz<M>,
     qb: SelectQueryBuilder<any>,
 ): string {
 

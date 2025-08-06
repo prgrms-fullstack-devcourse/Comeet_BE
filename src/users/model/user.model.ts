@@ -3,21 +3,10 @@ import { ModelBase } from "../../common/data";
 import { Coordinates, GeometricColumn } from "../../common/geo";
 import { PositionDTO } from "../../tags/dto";
 import { TypeDTO } from "../../common/type";
+import { recordToTypes, typesToRecord } from "../internal";
 
 const __transformer: ValueTransformer = {
-    from(hstore: Record<string, string>): TypeDTO[] {
-        return Object.entries(hstore)
-            .map(([k, v]): TypeDTO =>
-                ({ id: Number(k), value: v })
-            );
-    },
-    to(tags: TypeDTO[]): Record<string, string> {
-        return Object.fromEntries(
-            tags.map(tag =>
-                [tag.id.toString(), tag.value]
-            )
-        );
-    }
+   from: recordToTypes, to: typesToRecord
 };
 
 @Entity("users")

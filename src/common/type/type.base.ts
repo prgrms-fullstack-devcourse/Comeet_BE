@@ -1,4 +1,4 @@
-import { ModelBase } from "../data/model.base";
+import { ModelBase } from "../data";
 import { Column, PrimaryGeneratedColumn } from "typeorm";
 import { TypeDTO } from "./type.dto";
 import { pick } from "../../utils";

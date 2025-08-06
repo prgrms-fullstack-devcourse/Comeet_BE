@@ -1,7 +1,5 @@
 import { SearchUserResult } from "./search.user.result";
-import { ApiProperty } from "@nestjs/swagger";
+import { GeometricQueryResult } from "../../common/geo";
 
-export class SearchAdjacentUserResult extends SearchUserResult {
-    @ApiProperty({ type: "number" })
-    distance: number;
-}
+export class SearchAdjacentUserResult
+    extends GeometricQueryResult(SearchUserResult) {}
