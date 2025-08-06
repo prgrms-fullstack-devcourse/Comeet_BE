@@ -3,21 +3,23 @@ import { SearchUsersFilters } from "../dto";
 import { addWhere } from "../../utils";
 import { makeRangeConditionQuery } from "../../utils/range";
 import { User } from "../model";
+import { makeSelectCoordinatesQuery } from "../../common/geo";
 
 export function setSelectClause(
     qb: SelectQueryBuilder<User>
 ): SelectQueryBuilder<User> {
-    return qb.addSelect("user.nickname", "nickname")
-        .addSelect("user.birthyear", "birthyear")
-        .addSelect("user.experience", "experience")
-        .addSelect("user.position", "position")
-        .addSelect("user.techStack", "techStack")
-        .addSelect("user.interests", "interests")
-        .addSelect("user.nSubscribers", "nSubscribers")
-        .addSelect(
-            "jsonb_build_object('lat', ST_Y(user.location), 'lng', ST_X(user.location))",
-            "location"
-        );
+    return qb.select([
+        "user.nickname",
+        "user.birthyear",
+        "user.experience",
+        "user.position",
+        "user.techStack",
+        "user.interests",
+        "user.nSubscribers"
+    ]).addSelect(
+        makeSelectCoordinatesQuery("user", "location"),
+        "location"
+    );
 }
 
 export function WhereClause(filters: SearchUsersFilters) {

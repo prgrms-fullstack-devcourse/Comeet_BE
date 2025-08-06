@@ -20,6 +20,7 @@ export function GeometricColumn(options?: GeometricColumnOptions): PropertyDecor
     const opts: ColumnOptions = {
         type: "geometry",
         spatialFeatureType: "Point",
+        precision: 12,
         srid: 4326,
         transformer: __transformer
     };

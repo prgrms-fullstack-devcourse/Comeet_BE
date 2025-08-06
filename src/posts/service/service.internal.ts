@@ -5,9 +5,8 @@ import { addWhere } from "../../utils";
 export function setSelectClause<M extends object>(
     qb: SelectQueryBuilder<M>
 ): SelectQueryBuilder<M> {
-    return qb.addSelect("post.id", "id")
-        .addSelect("post.title", "title")
-        .addSelect("post.createdAt", "createdAt")
+    return qb
+        .select(["post.id", "post.title", "post.createdAt"])
         .innerJoin("post.board", "Board")
         .addSelect("Board.value", "board")
         .addSelect("Board.isRecruit", "isRecruit")
