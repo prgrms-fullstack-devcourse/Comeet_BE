@@ -28,7 +28,16 @@ export class UsersService {
     @Transactional()
     async createUser(dto: CreateUserDTO): Promise<number> {
         const values = await this.makeValues(dto);
-        const { id } = await this._usersRepo.save(values);
+
+        const { id } = await this._usersRepo.save(values)
+            .catch(err => {
+
+                if (err instanceof  QueryFailedError)
+                    throw new ConflictException();
+
+                throw err;
+            });
+
         return id;
     }
 

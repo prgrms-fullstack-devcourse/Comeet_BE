@@ -8,7 +8,7 @@ import { GithubModule } from "../github";
 import { JwtAuthStrategy } from "./jwt.auth.strategy";
 import { JwtOptions } from "./jwt.options";
 import { AuthService, JwtAuthService, SignUpSessionService, BlacklistService } from "./service";
-import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
+import { SignInInterceptor, SignOutInterceptor, SignUpInterceptor } from "./interceptor";
 import { UsersModule, UsersService } from "../users";
 import { SignUpGuard } from "./sign.up.guard";
 import { Position, Tech } from "../tags/model";
@@ -32,6 +32,7 @@ const __EXTERNAL_PROVIDERS = [JwtService, UsersService];
       JwtAuthStrategy,
       SignUpSessionService,
       BlacklistService,
+      SignUpInterceptor,
       SignInInterceptor,
       SignOutInterceptor,
       SignUpGuard,

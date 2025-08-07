@@ -1,9 +1,11 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { ForbiddenException, Inject, Injectable } from "@nestjs/common";
 import { UsersService } from "../../users";
 import { JwtAuthService } from "./jwt.auth.service";
-import { SignInDTO, SignInResult, SignUpDTO } from "../dto";
+import { SignInResult, SignUpDTO, TokenPair } from "../dto";
 import { pick } from "../../utils";
 import { Transactional } from "typeorm-transactional";
+import { GithubUserDTO } from "../../github/dto";
+import { SignUpSessionService } from "./sign.up.session.service";
 
 @Injectable()
 export class AuthService {
@@ -13,23 +15,35 @@ export class AuthService {
        private readonly _usersService: UsersService,
        @Inject(JwtAuthService)
        private readonly _jwtAuthService: JwtAuthService,
+       @Inject(SignUpSessionService)
+       private readonly _signUpSessionService: SignUpSessionService,
     ) {}
 
     async signUp(dto: SignUpDTO): Promise<SignInResult> {
         const id = await this._usersService.createUser(dto);
-        const [accessToken, refreshToken] = this.generateTokenPair(id);
-        return { accessToken, refreshToken, ...pick(dto, ["nickname", "avatar"]) };
+        const tokens = this.generateTokenPair(id);
+        return { ...tokens, ...pick(dto, ["nickname", "avatar"]) };
     }
 
     @Transactional()
-    async signIn(dto: SignInDTO): Promise<SignInResult> {
+    async signIn(dto: GithubUserDTO): Promise<SignInResult | string> {
         const { githubId, avatar, github } = dto;
 
-        const { id, nickname } = await this._usersService.getUserIdentification(githubId);
-        await this._usersService.updateUser({ id, avatar, github });
-        const [accessToken, refreshToken] = this.generateTokenPair(id);
+        try {
+            const { id, nickname } = await this._usersService.getUserIdentification(githubId);
+            await this._usersService.updateUser({ id, avatar, github });
+            const tokens = this.generateTokenPair(id);
+            return { nickname, avatar, ...tokens };
+        }
+        catch (err) {
 
-        return { nickname, avatar, accessToken, refreshToken };
+            if (err instanceof ForbiddenException) {
+                return this._signUpSessionService
+                    .create(dto);
+            }
+
+            throw err;
+        }
     }
 
 
@@ -38,9 +52,11 @@ export class AuthService {
         return this._jwtAuthService.generateAccess(id);
     }
 
-    private generateTokenPair(id: number): [string, string] {
+    private generateTokenPair(id: number): TokenPair {
         const accessToken = this._jwtAuthService.generateAccess(id);
         const refreshToken = this._jwtAuthService.generateRefresh(id);
-        return [accessToken, refreshToken];
+        return { accessToken, refreshToken };
     }
+
+
 }
