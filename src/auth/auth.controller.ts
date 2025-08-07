@@ -4,7 +4,7 @@ import {
     ForbiddenException,
     Get,
     Headers,
-    Inject,
+    Inject, Logger,
     Post,
     UseGuards,
     UseInterceptors
@@ -53,6 +53,9 @@ export class AuthController {
         @User() githubUser: GithubUserDTO,
         @Body() body: SignUpBody,
     ): Promise<SignInResult> {
+       const { age, ...rest } = body;
+
+
         return await this._authService.signUp({
             ...githubUser,
             ...body,
