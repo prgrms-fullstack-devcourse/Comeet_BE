@@ -5,24 +5,35 @@ import {
     IsEmail,
     IsInt,
     IsOptional,
+    IsPositive,
     IsString,
     IsUrl,
     Min,
     ValidateNested
 } from "class-validator";
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 
 @ApiExtraModels(Coordinates)
 export class CreateUserDTO {
     githubId: string;
-    avatar: string;
-    birthyear: number;
-    github: string;
 
     @IsString()
     @ApiProperty({ type: "string", required: true })
     nickname: string;
+
+    avatar: string;
+
+    @IsPositive()
+    @IsInt()
+    @Transform(({ value }) =>
+        typeof value === "number"
+            ? new Date().getFullYear() - value + 1
+            : value
+    )
+    @Expose({ name: "age" })
+    @ApiProperty({ name: "age", type: "integer", required: true })
+    birthyear: number;
 
     @IsInt()
     @Min(0)
@@ -63,6 +74,8 @@ export class CreateUserDTO {
         minLength: 1
     })
     interestIds: number[];
+
+    github: string;
 
     @IsEmail()
     @IsOptional()
