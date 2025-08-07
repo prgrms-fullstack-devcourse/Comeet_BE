@@ -21,7 +21,7 @@ import {
 import { AuthService, BlacklistService } from "./service";
 import { RenewResponse, SignInQuery, SignInResponse, SignUpBody, SignUpQuery } from "./api";
 import { Cookies,  User } from "../utils";
-import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
+import { SignInInterceptor, SignOutInterceptor, SignUpInterceptor } from "./interceptor";
 import { AuthGuard } from "@nestjs/passport";
 import { GithubUserDTO } from "../github/dto";
 import { SignUpGuard } from "./sign.up.guard";
@@ -47,7 +47,7 @@ export class AuthController {
     @ApiConflictResponse({ description: "해당 깃허브 계정으로 가입한 유저 존재" })
     @ApiUnprocessableEntityResponse({ description: "유효하지 않은 request body" })
     @ApiResponse({ status: 440, description: "회원가입 세션 만료됨" })
-    @UseInterceptors(SignInInterceptor)
+    @UseInterceptors(SignUpInterceptor, SignInInterceptor)
     @UseGuards(SignUpGuard)
     async signUp(
         @User() githubUser: GithubUserDTO,
@@ -69,18 +69,8 @@ export class AuthController {
     async signIn(
         @User()
         githubUser: GithubUserDTO,
-    ): Promise<SignInResult | GithubUserDTO> {
-        try {
-            return await this._authService
-                .signIn(githubUser);
-        }
-        catch (err) {
-
-            if (err instanceof ForbiddenException)
-                return githubUser;
-
-            throw err;
-        }
+    ): Promise<SignInResult | string> {
+        return  this._authService.signIn(githubUser);
     }
 
     @Get("/sign-out")

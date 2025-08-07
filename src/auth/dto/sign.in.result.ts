@@ -1,12 +1,7 @@
-import { ApiProperty, PickType } from "@nestjs/swagger";
-import { UserDTO } from "../../users/dto";
+import { IntersectionType } from "@nestjs/swagger";
+import { UserBadge } from "../../common/badge";
+import { TokenPair } from "./token.pair";
 
-
-export class SignInResult extends PickType(
-    UserDTO, ["nickname", "avatar"]
-) {
-   @ApiProperty({ type: "string", description: "액세스 토큰" })
-   accessToken: string;
-
-   refreshToken: string;
-}
+export class SignInResult extends IntersectionType(
+   UserBadge, TokenPair
+) {}
