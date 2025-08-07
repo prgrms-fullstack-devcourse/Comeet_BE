@@ -12,7 +12,7 @@ export function WhereIdInTargetIds<
     return (qb: SelectQueryBuilder<any>) => {
 
         const query = qb.subQuery()
-            .select("targetId")
+            .select("mark.targetId")
             .from(cls, "mark")
             .where(`mark.userId = :userId`)
             .getQuery();

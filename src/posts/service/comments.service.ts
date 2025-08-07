@@ -5,6 +5,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { CommentDTO, CreateCommentDTO, UpdateCommentDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { PostCountsService } from "./post.counts.service";
+import { makeSelectUserBadgeQuery } from "../../common/badge";
 
 @Injectable()
 export class CommentsService {
@@ -92,6 +93,6 @@ export class CommentsService {
             .addSelect("comment.createdAt", "createdAt")
             .addSelect("comment.userId = :userId", "editable")
             .leftJoin("comment.user", "user")
-            .addSelect("user.nickname", "author");
+            .addSelect(makeSelectUserBadgeQuery("user"), "author");
     }
 }

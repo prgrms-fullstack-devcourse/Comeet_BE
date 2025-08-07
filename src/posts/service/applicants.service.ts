@@ -5,7 +5,8 @@ import { Applicant, Post } from "../model";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { Transactional } from "typeorm-transactional";
 import { PostCountsService } from "./post.counts.service";
-import { ApplicantDTO } from "../dto";
+import { plainToInstance } from "class-transformer";
+import { UserBadge } from "../../common/badge";
 
 @Injectable()
 export class ApplicantsService extends MarksServiceBase {
@@ -34,10 +35,13 @@ export class ApplicantsService extends MarksServiceBase {
         return delta === 1;
     }
 
-    async getApplicants(postId: number): Promise<ApplicantDTO[]> {
-        return this.createSelectQueryBuilder()
-            .where("applicant.postId = :postId", { postId })
-            .getRawMany<ApplicantDTO>();
+    async getApplicants(postId: number): Promise<UserBadge[]> {
+
+        const raws = await this.createSelectQueryBuilder()
+            .where("applicant.targetId = :postId", { postId })
+            .getRawMany();
+
+        return raws.map(r => plainToInstance(UserBadge, r));
     }
 
     private async canApply(postId: number): Promise<void> {
@@ -55,8 +59,8 @@ export class ApplicantsService extends MarksServiceBase {
     private createSelectQueryBuilder(): SelectQueryBuilder<Applicant> {
         return this._repo.createQueryBuilder("applicant")
             .innerJoin("applicant.user", "user")
-            .select("user.id", "id")
-            .addSelect("user.nickname", "nickname");
+            .select("user.nickname", "nickname")
+            .addSelect("user.avatar", "avatar");
     }
 
 }

@@ -1,16 +1,21 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
 import { Coordinates } from "../../../common/geo";
+import { BoardDTO } from "../board.dto";
+import { UserBadge } from "../../../common/badge";
+import { Type } from "class-transformer";
 
-@ApiExtraModels(Coordinates)
+@ApiExtraModels(Coordinates, UserBadge, BoardDTO)
 export class PostDTO {
     @ApiProperty({ type: "integer" })
     id: number;
 
-    @ApiProperty({ type: "string" })
-    board: string;
+    @Type(() => BoardDTO)
+    @ApiProperty({ type: BoardDTO })
+    board: BoardDTO;
 
-    @ApiProperty({ type: "string", nullable: true })
-    author: string | null;
+    @Type(() => UserBadge)
+    @ApiProperty({ type: UserBadge, nullable: true })
+    author: UserBadge | null;
 
     @ApiProperty({ type: "string" })
     title: string;
