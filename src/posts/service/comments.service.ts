@@ -92,7 +92,7 @@ export class CommentsService {
             .addSelect("comment.content", "content")
             .addSelect("comment.createdAt", "createdAt")
             .addSelect("comment.userId = :userId", "editable")
-            .leftJoin("post.user", "user")
+            .leftJoin("comment.user", "user")
             .addSelect(makeSelectUserBadgeQuery("user"), "author");
     }
 }

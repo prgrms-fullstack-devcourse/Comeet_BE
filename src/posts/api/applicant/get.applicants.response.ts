@@ -1,8 +1,8 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { ApplicantDTO } from "../../dto";
+import { UserBadge } from "../../../common/badge";
 
-@ApiExtraModels(ApplicantDTO)
+@ApiExtraModels(UserBadge)
 export class GetApplicantsResponse {
-    @ApiProperty({ type: [ApplicantDTO] })
-    results: ApplicantDTO[];
+    @ApiProperty({ type: [UserBadge] })
+    results: UserBadge[];
 }
