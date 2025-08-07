@@ -1,6 +1,7 @@
 import { SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
 import { SearchPostsDTO } from "../dto";
 import { addWhere } from "../../utils";
+import { makeSelectUserBadgeQuery } from "../../common/badge";
 
 export function setSelectClause<M extends object>(
     qb: SelectQueryBuilder<M>
@@ -10,9 +11,15 @@ export function setSelectClause<M extends object>(
         .addSelect("post.title", "title")
         .addSelect("post.createdAt", "createdAt")
         .innerJoin("post.board", "Board")
-        .addSelect("Board.value", "board")
-        .addSelect("Board.isRecruit", "isRecruit")
+        .addSelect(
+            "jsonb_build_object('id', Board.id, 'value', Board.value, 'isRecruit', Board.isRecruit)",
+            "board"
+        )
         .leftJoin("post.user", "user")
+        .addSelect(
+            makeSelectUserBadgeQuery("user"),
+            "author"
+        )
         .addSelect("user.nickname", "author")
         .innerJoin("post.count", "count")
         .addSelect("count.nLikes", "nLikes")

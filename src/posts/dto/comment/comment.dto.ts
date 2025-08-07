@@ -1,5 +1,7 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
+import { UserBadge } from "../../../common/badge";
 
+@ApiExtraModels(UserBadge)
 export class CommentDTO {
     @ApiProperty({ type: "integer" })
     id: number;
@@ -7,8 +9,8 @@ export class CommentDTO {
     @ApiProperty({ type: "integer" })
     postId: number;
 
-    @ApiProperty({ type: "string", nullable: true })
-    author: string | null;
+    @ApiProperty({ type: UserBadge, nullable: true })
+    author: UserBadge | null;
 
     @ApiProperty({ type: "string" })
     content: string;
