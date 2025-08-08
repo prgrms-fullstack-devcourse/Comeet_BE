@@ -7,7 +7,7 @@ import { Expose, Transform } from "class-transformer";
 export class SearchUsersFilters {
 
     @Transform(({ value }) =>
-        RangeObject.fromRange(
+        value && RangeObject.fromRange(
             value.map((age: number) =>
                 new Date().getFullYear() - age + 1
             ).reverse()
@@ -19,7 +19,7 @@ export class SearchUsersFilters {
     @ApiProperty({ name: "age", type: "string", pattern: "^(\\d)-(\\d)$", required: false })
     birthyear?: RangeObject;
 
-    @Transform(({ value }) => RangeObject.fromRange(value))
+    @Transform(({ value }) => value && RangeObject.fromRange(value))
     @IsInt({ each: true })
     @IsRange()
     @IsOptional()
