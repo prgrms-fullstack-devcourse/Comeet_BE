@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User, Subscription } from "./model";
-import { GetUserLocationService, SearchUsersService, UsersService, SubscriptionsService } from "./service";
+import { GetUserInfoService, SearchUsersService, UsersService, SubscriptionsService } from "./service";
 import { Position, Tech } from "../tags/model";
 import { Interest } from "../tags/model/interest.model";
 import { InterestsService, PositionsService, TechsService } from "../tags";
@@ -22,7 +22,7 @@ const __EXTERNAL_PROVIDERS = [
         UsersService,
         SubscriptionsService,
         SearchUsersService,
-        GetUserLocationService,
+        GetUserInfoService,
         GetUserInterceptor,
         SearchUsersInterceptor,
         UserLocationInterceptor,
@@ -32,7 +32,7 @@ const __EXTERNAL_PROVIDERS = [
         ...__EXTERNAL_PROVIDERS,
         UsersService,
         SubscriptionsService,
-        GetUserLocationService,
+        GetUserInfoService,
         UserLocationInterceptor,
     ],
 })
