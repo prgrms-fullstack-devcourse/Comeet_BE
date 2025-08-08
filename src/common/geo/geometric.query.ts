@@ -1,4 +1,4 @@
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { Coordinates } from "./coordinates";
 import { IsNumber, IsPositive, ValidateNested } from "class-validator";
 import { ApiExtraModels, ApiProperty, IntersectionType } from "@nestjs/swagger";
@@ -13,6 +13,7 @@ export class GeometricQueryBase {
 
     @IsPositive()
     @IsNumber()
+    @Transform(({ value }) => value && Number(value))
     @ApiProperty({ type: "number", required: true })
     radius: number;
 }
