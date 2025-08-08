@@ -1,4 +1,5 @@
 export * from "./user.dto";
+export * from "./user.badge";
 export * from "./user.identification";
 export * from "./create.user.dto";
 export * from "./search.users.filters";

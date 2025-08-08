@@ -1,7 +1,7 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
 import { Coordinates } from "../../../common/geo";
 import { BoardDTO } from "../board.dto";
-import { UserBadge } from "../../../common/badge";
+import { UserBadge } from "../../../users/dto";
 import { Type } from "class-transformer";
 
 @ApiExtraModels(Coordinates, UserBadge, BoardDTO)

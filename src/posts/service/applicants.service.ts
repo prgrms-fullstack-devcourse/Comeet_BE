@@ -6,7 +6,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { Transactional } from "typeorm-transactional";
 import { PostCountsService } from "./post.counts.service";
 import { plainToInstance } from "class-transformer";
-import { UserBadge } from "../../common/badge";
+import { UserBadge } from "../../users/dto";
 
 @Injectable()
 export class ApplicantsService extends MarksServiceBase {

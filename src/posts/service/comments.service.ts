@@ -5,7 +5,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { CommentDTO, CreateCommentDTO, UpdateCommentDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { PostCountsService } from "./post.counts.service";
-import { makeSelectUserBadgeQuery } from "../../common/badge";
+import { makeSelectUserBadgeQuery } from "../../users/utils";
 
 @Injectable()
 export class CommentsService {

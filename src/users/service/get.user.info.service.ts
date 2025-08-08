@@ -2,24 +2,25 @@ import { ForbiddenException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { Repository } from "typeorm";
-import { Coordinates } from "../../common/geo";
+import { pick } from "../../utils";
 
 @Injectable()
-export class GetUserLocationService {
+export class GetUserInfoService {
 
     constructor(
        @InjectRepository(User)
        private readonly _usersRepo: Repository<User>,
     ) {}
 
-    async getLocation(id: number): Promise<Coordinates> {
+    async getUserInfo<
+        K extends keyof User
+    >(id: number, select: K[]): Promise<Pick<User, K>> {
 
         const user = await this._usersRepo.findOne({
-            where: { id },
-            select: ["location"]
+            where: { id }, select
         });
 
         if (!user) throw new ForbiddenException();
-        return user.location;
+        return pick(user, select);
     }
 }

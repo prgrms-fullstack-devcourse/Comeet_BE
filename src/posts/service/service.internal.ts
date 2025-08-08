@@ -1,7 +1,7 @@
 import { SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
 import { SearchPostsDTO } from "../dto";
 import { addWhere } from "../../utils";
-import { makeSelectUserBadgeQuery } from "../../common/badge";
+import { makeSelectUserBadgeQuery } from "../../users/utils";
 
 export function setSelectClause<M extends object>(
     qb: SelectQueryBuilder<M>
