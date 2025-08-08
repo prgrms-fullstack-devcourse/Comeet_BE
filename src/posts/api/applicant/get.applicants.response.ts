@@ -1,5 +1,5 @@
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { UserBadge } from "../../../common/badge";
+import { UserBadge } from "../../../users/dto";
 
 @ApiExtraModels(UserBadge)
 export class GetApplicantsResponse {
