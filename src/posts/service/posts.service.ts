@@ -37,7 +37,7 @@ export class PostsService {
             .addSelect(makeMarkExistsQuery(Bookmark, qb), "bookmark")
             .addSelect(
                 `CASE 
-                WHEN board.isRecruit 
+                WHEN Board.isRecruit 
                 THEN ${makeMarkExistsQuery(Applicant, qb)}
                 ELSE NULL
                 END
