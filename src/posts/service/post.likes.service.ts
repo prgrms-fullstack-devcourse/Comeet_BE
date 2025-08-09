@@ -4,6 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { PostLike } from "../model";
 import { Repository } from "typeorm";
 import { PostCountsService } from "./post.counts.service";
+import { Transactional } from "typeorm-transactional";
 
 @Injectable()
 export class PostLikesService extends MarksServiceBase {
@@ -15,6 +16,7 @@ export class PostLikesService extends MarksServiceBase {
         private readonly _countsService: PostCountsService,
     ) { super(); }
 
+    @Transactional()
     async updateLike(postId: number, userId: number): Promise<[number, boolean]> {
         const delta = await this.updateMark(postId, userId);
 
