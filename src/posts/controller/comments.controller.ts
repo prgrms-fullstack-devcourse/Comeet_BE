@@ -40,7 +40,7 @@ export class CommentsController {
        private readonly _commentsService: CommentsService,
     ) {}
 
-    @Post("/:id")
+    @Post("/:id/comments")
     @ApiOperation({ summary: "댓글 생성" })
     @ApiBearerAuth()
     @ApiParam({ name: "id", type: "integer", required: true, description: "댓글을 달 게시물 id" })
@@ -62,7 +62,7 @@ export class CommentsController {
        return { nComments };
     }
 
-    @Get("/:id")
+    @Get("/:id/comments")
     @ApiOperation({ summary: "게시물 댓글 조회" })
     @ApiBearerAuth()
     @ApiParam({ name: "id", type: "integer", required: true, description: "댓글을 가져올 게시물 id" })

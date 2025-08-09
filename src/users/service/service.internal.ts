@@ -1,4 +1,4 @@
-import { SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
+ import { SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
 import { SearchUsersFilters } from "../dto";
 import { addWhere } from "../../utils";
 import { makeRangeConditionQuery } from "../../utils/range";
