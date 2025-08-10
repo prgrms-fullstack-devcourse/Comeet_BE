@@ -50,7 +50,7 @@ export class SearchUsersService {
     async searchHotUsers(): Promise<SearchUserResult[]> {
 
         const raws = await this.createSelectQueryBuilder()
-            .orderBy("nSubscribers", "DESC")
+            .orderBy('"nSubscribers"', "DESC")
             .take(50)
             .getRawMany();
 

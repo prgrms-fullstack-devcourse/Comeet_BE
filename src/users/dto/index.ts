@@ -6,3 +6,4 @@ export * from "./search.users.filters";
 export * from "./search.user.result";
 export * from "./search.adjacent.users.dto";
 export * from "./search.adjacent.user.result";
+export * from "./update.user.dto";

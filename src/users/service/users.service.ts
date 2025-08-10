@@ -2,11 +2,10 @@ import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundExce
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../model";
 import { FindOneOptions, QueryFailedError, Repository } from "typeorm";
-import { CreateUserDTO, UserDTO, UserIdentification } from "../dto";
+import { CreateUserDTO, UserDTO, UserIdentification, UpdateUserDTO } from "../dto";
 import { Transactional } from "typeorm-transactional";
 import { InterestsService, PositionsService, TechsService } from "../../tags";
 import { ModelBase } from "../../common/data";
-import { UpdateUserDTO } from "../dto/update.user.dto";
 import { SubscriptionsService } from "./subscriptions.service";
 
 @Injectable()
