@@ -6,7 +6,7 @@ import { Position, Tech } from "../tags/model";
 import { Interest } from "../tags/model/interest.model";
 import { InterestsService, PositionsService, TechsService } from "../tags";
 import { UsersController } from './users.controller';
-import { AgeInterceptor, GetUserInterceptor, SearchUsersInterceptor, UserLocationInterceptor } from "./interceptor";
+import { GetUserInterceptor, SearchUsersInterceptor, UserLocationInterceptor } from "./interceptor";
 import { UserValidationController } from "./user.validation.controller";
 
 const __EXTERNAL_PROVIDERS = [
@@ -23,7 +23,6 @@ const __EXTERNAL_PROVIDERS = [
         SubscriptionsService,
         SearchUsersService,
         GetUserInfoService,
-        AgeInterceptor,
         GetUserInterceptor,
         SearchUsersInterceptor,
         UserLocationInterceptor,
@@ -34,7 +33,6 @@ const __EXTERNAL_PROVIDERS = [
         UsersService,
         SubscriptionsService,
         GetUserInfoService,
-        AgeInterceptor,
         UserLocationInterceptor,
     ],
 })
