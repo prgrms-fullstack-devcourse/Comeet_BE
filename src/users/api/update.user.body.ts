@@ -1,6 +1,6 @@
-import { OmitType, PartialType } from "@nestjs/swagger";
-import { SignUpBody } from "../../auth/api";
+import { OmitType } from "@nestjs/swagger";
+import { UpdateUserDTO } from "../dto";
 
-export class UpdateUserBody extends PartialType(
-    OmitType(SignUpBody, ["birthyear"])
-){}
+export class UpdateUserBody extends OmitType(
+    UpdateUserDTO, ["id"]
+) {}
