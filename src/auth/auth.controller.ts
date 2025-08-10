@@ -21,11 +21,12 @@ import {
 import { AuthService, BlacklistService } from "./service";
 import { RenewResponse, SignInQuery, SignInResponse, SignUpBody, SignUpQuery } from "./api";
 import { Cookies,  User } from "../utils";
-import { SignInInterceptor, SignOutInterceptor, SignUpInterceptor } from "./interceptor";
+import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { AuthGuard } from "@nestjs/passport";
 import { GithubUserDTO } from "../github/dto";
 import { SignUpGuard } from "./sign.up.guard";
 import { SignInResult } from "./dto";
+import { AgeInterceptor } from "../users/interceptor";
 
 @ApiTags("Auth")
 @Controller("/api/auth")
@@ -47,7 +48,7 @@ export class AuthController {
     @ApiConflictResponse({ description: "해당 깃허브 계정으로 가입한 유저 존재" })
     @ApiUnprocessableEntityResponse({ description: "유효하지 않은 request body" })
     @ApiResponse({ status: 440, description: "회원가입 세션 만료됨" })
-    @UseInterceptors(SignUpInterceptor, SignInInterceptor)
+    @UseInterceptors(AgeInterceptor, SignInInterceptor)
     @UseGuards(SignUpGuard)
     async signUp(
         @User() githubUser: GithubUserDTO,

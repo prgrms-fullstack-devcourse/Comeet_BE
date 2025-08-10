@@ -8,13 +8,18 @@ import { GithubModule } from "../github";
 import { JwtAuthStrategy } from "./jwt.auth.strategy";
 import { JwtOptions } from "./jwt.options";
 import { AuthService, JwtAuthService, SignUpSessionService, BlacklistService } from "./service";
-import { SignInInterceptor, SignOutInterceptor, SignUpInterceptor } from "./interceptor";
+import { SignInInterceptor, SignOutInterceptor } from "./interceptor";
 import { UsersModule, UsersService } from "../users";
 import { SignUpGuard } from "./sign.up.guard";
 import { Position, Tech } from "../tags/model";
 import { Interest } from "../tags/model/interest.model";
+import { AgeInterceptor } from "../users/interceptor";
 
-const __EXTERNAL_PROVIDERS = [JwtService, UsersService];
+const __EXTERNAL_PROVIDERS = [
+    JwtService,
+    UsersService,
+    AgeInterceptor,
+];
 
 @Module({
   imports: [
@@ -32,7 +37,6 @@ const __EXTERNAL_PROVIDERS = [JwtService, UsersService];
       JwtAuthStrategy,
       SignUpSessionService,
       BlacklistService,
-      SignUpInterceptor,
       SignInInterceptor,
       SignOutInterceptor,
       SignUpGuard,
