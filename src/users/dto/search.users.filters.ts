@@ -2,21 +2,9 @@ import { ArrayMinSize, IsInt, IsOptional } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsRange } from "../../utils";
 import { RangeObject } from "../../utils/range";
-import { Expose, Transform } from "class-transformer";
+import { Transform } from "class-transformer";
 
 export class SearchUsersFilters {
-
-    @Transform(({ value }) =>
-        value && RangeObject.fromRange(
-            value.map((age: number) =>
-                new Date().getFullYear() - age + 1
-            ).reverse()
-        )
-    )
-    @IsRange()
-    @IsOptional()
-    @Expose({ name: "age" })
-    @ApiProperty({ name: "age", type: "string", pattern: "^(\\d)-(\\d)$", required: false })
     birthyear?: RangeObject;
 
     @Transform(({ value }) => value && RangeObject.fromRange(value))

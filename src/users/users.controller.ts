@@ -32,6 +32,7 @@ import {
     UpdateUserBody
 } from "./api";
 import { Coordinates } from "../common/geo";
+import { RangeObject } from "../utils/range";
 
 @ApiTags("Users")
 @Controller('/api/users')
@@ -87,8 +88,16 @@ export class UsersController {
         @Query()
         query: SearchAdjacentUsersQuery,
     ): Promise<SearchAdjacentUserResult[]> {
+        const { age, ...rest } = query;
+
+        const birthyear = age && RangeObject.fromRange(
+            age.map(x =>
+                new Date().getFullYear() - x + 1
+            ) as [number, number]
+        );
+
         return this._searchUsersService
-            .searchAdjacentUsers({ id, origin, ...query });
+            .searchAdjacentUsers({ id, origin, birthyear, ...rest });
     }
 
     @Get("/search/hot")
@@ -102,7 +111,7 @@ export class UsersController {
             .searchHotUsers();
     }
 
-    @Get("/subscriptions")
+    @Get("/search/subscriptions")
     @ApiOperation({ summary: "구독중인 유저 검색" })
     @ApiBearerAuth()
     @ApiOkResponse({ type: SearchUsersResponse })
