@@ -1,6 +1,15 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { IsNumber, IsOptional } from "class-validator";
 
 export class RangeObject {
+    @IsNumber()
+    @IsOptional()
+    @ApiProperty({ type: "number", required: false })
     lower?: number;
+
+    @IsNumber()
+    @IsOptional()
+    @ApiProperty({ type: "number", required: false })
     upper?: number;
 
     static fromRange(range: [number, number]): RangeObject {

@@ -1,4 +1,4 @@
-import { Matches, registerDecorator, ValidationArguments, ValidationOptions } from "class-validator";
+import { registerDecorator, ValidationArguments, ValidationOptions } from "class-validator";
 import { applyDecorators } from "@nestjs/common";
 import { Transform } from "class-transformer";
 
@@ -20,9 +20,8 @@ function __IsRange(validationOptions?: ValidationOptions) {
 
 export function IsRange (options?: ValidationOptions) {
     return applyDecorators(
-        Matches(/^(\d+),(\d+)$/),
         Transform(({ value }) =>
-            value && value.split(',')
+            value && value.split('-')
                 .map(s => Number(s.trim()))
         ),
         __IsRange(options),

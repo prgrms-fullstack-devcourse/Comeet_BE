@@ -11,7 +11,7 @@ export class SearchUsersFilters {
     @IsNumber({}, { each: true })
     @IsRange()
     @IsOptional()
-    @ApiProperty({ type: "string", pattern: "^(\\d+),(\\d+)$", required: false })
+    @ApiProperty({ type: "string", pattern: "^(\\d+)-(\\d+)$", required: false })
     experience?: RangeObject;
 
     @ArrayMinSize(1)
