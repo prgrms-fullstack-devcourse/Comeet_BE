@@ -8,6 +8,6 @@ export class SearchAdjacentUsersQuery extends OmitType(
 ) {
     @IsRange()
     @IsOptional()
-    @ApiProperty({ name: "age", type: "string", pattern: "^(\\d+),(\\d+)$", required: false })
+    @ApiProperty({ name: "age", type: "string", pattern: "^(\\d+)-(\\d+)$", required: false })
     age?: [number, number];
 }
