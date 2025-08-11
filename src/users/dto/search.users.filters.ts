@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsInt, IsOptional } from "class-validator";
+import { ArrayMinSize, IsInt, IsNumber, IsOptional } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsRange } from "../../utils";
 import { RangeObject } from "../../utils/range";
@@ -8,14 +8,14 @@ export class SearchUsersFilters {
     birthyear?: RangeObject;
 
     @Transform(({ value }) => value && RangeObject.fromRange(value))
-    @IsInt({ each: true })
+    @IsNumber({}, { each: true })
     @IsRange()
     @IsOptional()
     @ApiProperty({ type: "string", pattern: "^(\\d)-(\\d)$", required: false })
     experience?: RangeObject;
 
     @ArrayMinSize(1)
-    @IsInt({ each: true })
+    @IsNumber({}, { each: true })
     @IsOptional()
     @ApiProperty({ type: [Number], minLength: 1, required: false })
     positionIds?: number[];
