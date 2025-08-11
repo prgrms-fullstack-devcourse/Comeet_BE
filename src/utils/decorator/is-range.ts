@@ -20,9 +20,9 @@ function __IsRange(validationOptions?: ValidationOptions) {
 
 export function IsRange (options?: ValidationOptions) {
     return applyDecorators(
-        Matches(/^(\d+)-(\d+)$/),
+        Matches(/^(\d+),(\d+)$/),
         Transform(({ value }) =>
-            value && value.split('-')
+            value && value.split(',')
                 .map(s => Number(s.trim()))
         ),
         __IsRange(options),
